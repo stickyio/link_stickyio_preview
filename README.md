@@ -1,3 +1,5 @@
+🚨 This is a pre-release preview cartridge! While we've made every effort to make sure things work and are bug free, development continues! The latest, official release is available here: [https://github.com/SalesforceCommerceCloud/link_stickyio](https://github.com/SalesforceCommerceCloud/link_stickyio) 🚨
+
 # sticky.io
 
 [sticky.io](https://sticky.io) SFCC Cartridge
