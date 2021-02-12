@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 [https://github.com/stickyio/link_stickyio_preview/tree/804a169218bb0b54914219fcc76aabe60f1dbe60](https://github.com/stickyio/link_stickyio_preview/tree/804a169218bb0b54914219fcc76aabe60f1dbe60)
 ### Added
 - Analytics Business Manager Extension
+- Merchant settable Gateway ID
 - Site ID custom field creation and syncing with sticky.io
 - Kount anti-fraud
 - Groundwork for Campaigns & Promotion functionality
