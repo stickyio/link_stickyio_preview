@@ -15,6 +15,7 @@ exports.productSync = function (parameters) {
 
     // first-time run setup, but checked on each sync just in case.
     stickyio.createStraightSaleProduct(parameters['Wipe Preferences']);
+    stickyio.createCustomField('stickyioCustomFieldSiteID', 'SFCC Site ID', 'site_id', 1, 2, parameters['Wipe Preferences']);
     stickyio.createCustomField('stickyioCustomFieldOrderNo', 'SFCC Order Number', 'order_number', 1, 2, parameters['Wipe Preferences']);
     stickyio.createCustomField('stickyioCustomFieldShipmentID', 'SFCC Shipment ID', 'shipment_id', 1, 2, parameters['Wipe Preferences']);
     stickyio.createCustomField('stickyioCustomFieldCustomerID', 'SFCC Customer ID', 'customer_id', 1, 2, parameters['Wipe Preferences']);

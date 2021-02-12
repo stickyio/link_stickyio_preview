@@ -579,6 +579,20 @@ function sendConfirmationEmail(order, locale) {
  */
 function placeOrderStickyio(order, fraudDetectionStatus) {
     // call new_order API with results from earlier AuthorizeStickyio call
+    // this method can return a variety of useful errors to the consumer, however, the method that calls it (CheckoutServices - PlaceOrder) overrides all returned errors with its own "generic" error
+    // because overriding this functionality would mean replacing the entire route, we leave it to the merchant to decide whether or not to check for returned errors and display that information to
+    // the consumer. Sample code might look like:
+    /*
+    var placeOrderResult = COHelpers.placeOrder(order, fraudDetectionStatus);
+    if (placeOrderResult.error) {
+        res.json({
+            error: true,
+            errorMessage: placeOrderResult.serverErrors.join(' - ')
+        });
+        return next();
+    }
+    */
+    
     var serverErrors = [];
     var error = false;
     var sendCSREmail = false;
@@ -592,10 +606,13 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
         var shippingMethodID = shipment.shippingMethod.custom.stickyioShippingID;
         var paymentInstrument = order.getPaymentInstruments(PaymentInstrument.METHOD_CREDIT_CARD).toArray()[0];
         var plis = order.getAllProductLineItems();
+        var stickyioGatewayID = Site.getCurrent().getCustomPreferenceValue('stickyioGatewayID');
         var stickyioStraightSaleProductID = Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleProductID');
+        var stickyioCustomFieldSiteID = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldSiteID');
         var stickyioCustomFieldShipmentID = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldShipmentID');
         var stickyioCustomFieldOrderNo = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldOrderNo');
         var stickyioCustomFieldCustomerID = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldCustomerID');
+        var siteIDObject = { id: stickyioCustomFieldSiteID, value: Site.getCurrent().ID };
         var shipmentIDObject = { id: stickyioCustomFieldShipmentID, value: shipment.ID };
         var orderNoObject = { id: stickyioCustomFieldOrderNo, value: order.orderNo };
         var customerIDObject = { id: stickyioCustomFieldCustomerID, value: customer.ID }; // eslint-disable-line no-undef
@@ -621,14 +638,23 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
         params.body.phone = billingAddress.phone;
         params.body.email = order.getCustomerEmail();
         params.body.temp_customer_id = paymentInstrument.custom.stickyioTempCustomerID;
+        params.body.forceGatewayId = stickyioGatewayID?stickyioGatewayID:0;
+        params.body.preserve_force_gateway = 1;
+        params.body.sessionId = paymentInstrument.custom.stickyioKountSessionID;
         params.body.tranType = 'Sale';
         params.body.ipAddress = order.remoteHost;
-        params.body.custom_fields = [shipmentIDObject, orderNoObject, customerIDObject];
+        params.body.custom_fields = [siteIDObject, shipmentIDObject, orderNoObject, customerIDObject];
         params.body.shippingId = shippingMethodID;
         params.body.campaignId = stickyioSampleData.stickyioCID;
         params.body.is_precalculated_price = true;
         params.body.dynamic_shipping_charge = shipment.shippingTotalPrice.value;
         params.body.tax_rate = 0;
+
+        if (shipment.gift) {
+            params.body.gift = {};
+            params.body.gift.message = shipment.giftMessage;
+        }
+
         var offers = [];
         var nonSubscriptionProduct = {};
         nonSubscriptionProduct.price = 0;
@@ -663,6 +689,7 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
         params.body.tax_amount = shipment.totalTax.value.toFixed(2);
         params.body.offers = offers;
 
+        var thisPLIStickyID;
         var failedOrderProduct = {};
 
         var stickyioResponse = stickyio.stickyioAPI('stickyio.http.post.new_order').call(params);
@@ -671,21 +698,21 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
             failedOrderData.stickyioOrderNo = stickyioResponse.object.result.order_id;
             failedOrderData.products = [];
             for (i = 0; i < plis.length; i++) {
-                for (j = 0; j < stickyioResponse.object.result.line_items.length; j++) {
-                    thisProduct = stickyioResponse.object.result.line_items[j];
-                    failedOrderProduct = {};
-                    if (plis[i].custom.stickyioProductID === thisProduct.product_id) {
-                        failedOrderProduct.id = plis[i].productID;
-                        if (plis[i].custom.stickyioVariationID) {
-                            if (plis[i].custom.stickyioVariationID === thisProduct.variant_id) {
+                if (plis[i].custom.stickyioOfferID) { // subscription product
+                    thisPLIStickyID = plis[i].custom.stickyioProductID.toString();
+                    if (plis[i].getProduct().isVariant()) {
+                        thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;
+                    }
+                    for (j = 0; j < stickyioResponse.object.result.line_items.length; j++) {
+                        thisProduct = stickyioResponse.object.result.line_items[j];
+                        failedOrderProduct = {};
+                        if (plis[i].custom.stickyioProductID === thisProduct.product_id) {
+                            failedOrderProduct.id = plis[i].productID;
+                            if (thisPLIStickyID.toString() === thisProduct.product_id.toString()) {
                                 failedOrderProduct.subscriptionID = thisProduct.subscription_id;
                                 failedOrderData.products.push(failedOrderProduct);
                                 break;
                             }
-                        } else {
-                            failedOrderProduct.subscriptionID = thisProduct.subscription_id;
-                            failedOrderData.products.push(failedOrderProduct);
-                            break;
                         }
                     }
                 }
@@ -697,15 +724,14 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
                     paymentInstrument.custom.stickyioTempCustomerID = null;
                     paymentInstrument.custom.stickyioTokenExpiration = null;
                     for (i = 0; i < plis.length; i++) {
-                        for (j = 0; j < stickyioResponse.object.result.line_items.length; j++) {
-                            thisProduct = stickyioResponse.object.result.line_items[j];
-                            if (plis[i].custom.stickyioProductID === thisProduct.product_id) {
-                                if (plis[i].custom.stickyioVariationID) {
-                                    if (plis[i].custom.stickyioVariationID === thisProduct.variant_id) {
-                                        plis[i].custom.stickyioSubscriptionID = thisProduct.subscription_id;
-                                        break;
-                                    }
-                                } else {
+                        if (plis[i].custom.stickyioOfferID) { // subscription product
+                            thisPLIStickyID = plis[i].custom.stickyioProductID.toString();
+                            if (plis[i].getProduct().isVariant()) {
+                                thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;
+                            }
+                            for (j = 0; j < stickyioResponse.object.result.line_items.length; j++) {
+                                thisProduct = stickyioResponse.object.result.line_items[j];
+                                if (thisPLIStickyID.toString() === thisProduct.product_id.toString()) {
                                     plis[i].custom.stickyioSubscriptionID = thisProduct.subscription_id;
                                     break;
                                 }
@@ -714,6 +740,7 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
                     }
                 });
             } catch (e) {
+                dw.system.Logger.error('sticky.io error: ' + e);
                 // Allow the order to be successfully created in both SFCC and sticky.io, but notify the merchant something went wrong and they may need to fix.
                 // shipment.custom.stickyioOrderNo and pli.custom.stickyioSubscriptionID are merchant-editable in Business Manager so they can manually updated.
                 // These custom attributes can all be found in the SFCC order object under the Shipment and Shipment Line Items respectively.
@@ -723,9 +750,17 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
             }
         } else {
             error = true;
-            Transaction.wrap(function () { OrderMgr.failOrder(order, true); });
-            serverErrors.push(Resource.msg('error.technical', 'checkout', null));
-            serverErrors.push(JSON.stringify(stickyioResponse.object.result));
+            Transaction.wrap(function () {
+                OrderMgr.failOrder(order, true);
+                paymentInstrument.custom.stickyioTempCustomerID = null;
+                paymentInstrument.custom.stickyioTokenExpiration = null;
+            });
+            if(stickyioResponse.object.result.response_code && stickyioResponse.object.result.error_message) {
+                dw.system.Logger.error(stickyioResponse.object.result.response_code + ': ' + stickyioResponse.object.result.error_message);
+                serverErrors.push(stickyioResponse.object.result.response_code + ': ' + stickyioResponse.object.result.error_message);
+            } else {
+                serverErrors.push(Resource.msg('error.technical', 'checkout', null));
+            }
             try {
                 Transaction.wrap(function () {
                     shipment.custom.stickyioOrderResponse = JSON.stringify(stickyioResponse.object.result);

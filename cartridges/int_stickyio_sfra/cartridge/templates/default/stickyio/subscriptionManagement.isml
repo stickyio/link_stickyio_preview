@@ -1,4 +1,4 @@
-<isif condition="${lineItem.stickyioBillingModelID}">
+<isif condition="${lineItem.stickyioBillingModelID !== 0}">
     <isif condition="${pdict.order}">
         <isif condition="${!customer.isAuthenticated()}">
             <p class="line-item-attributes">${Resource.msg('label.subscription', 'stickyio', null)}: ${lineItem.stickyioBillingModelDetails}</p>

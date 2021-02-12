@@ -281,7 +281,6 @@ if (stickyioEnabled) {
                         var optionProductLineItem = optionProductLineItems.iterator().next();
                         optionProductLineItem.updateOptionValue(productOptionValue);
                     }
-
                     requestLineItem.custom.stickyioProductID = Number(stickyioProductID);
                     requestLineItem.custom.stickyioVariationID = Number(stickyioVariationID);
                     requestLineItem.custom.stickyioCampaignID = Number(stickyioCampaignID);

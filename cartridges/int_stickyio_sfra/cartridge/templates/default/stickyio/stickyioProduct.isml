@@ -1,17 +1,18 @@
-<isif condition="${pdict && pdict.stickyio && pdict.stickyio.stickyioReady}">
+<isset name="stickyio" value="${null}" scope="page" />
+<isif condition="${pdict && pdict.stickyio && pdict.stickyio.stickyioReady === true}">
     <isset name="stickyio" value="${pdict.stickyio}" scope="page" />
-<iselseif condition="${typeof (product) !== 'undefined' && product.stickyio && product.stickyio.stickyioReady}" />
+<iselseif condition="${typeof (product) !== 'undefined' && product.stickyio && product.stickyio.stickyioReady === true}" />
     <isset name="stickyio" value="${product.stickyio}" scope="page" />
-<iselseif condition="${typeof (thisProduct) !== 'undefined' && thisProduct.stickyio && thisProduct.stickyio.stickyioReady}" />
+<iselseif condition="${typeof (thisProduct) !== 'undefined' && thisProduct.stickyio && thisProduct.stickyio.stickyioReady === true}" />
     <isset name="stickyio" value="${thisProduct.stickyio}" scope="page" />
 </isif>
 
-<isif condition="${typeof (stickyio) !== 'undefined'}">
+<isif condition="${stickyio.stickyioReady === true}">
     <iscontent type="text/html" charset="UTF-8" compact="true" />
     <div class="col-8">
         <div class="attribute stickyiosubscription"
             data-wrapperpid="${stickyio.stickyioProductWrapper}"
-            data-pid="${stickyio.id}"
+            data-sfccpid="${stickyio.id}"
             data-producttype="${stickyio.productType}"
             data-stickyiourl="${stickyio.stickyioBaseURL}"
             data-stickyiosubscriptionactive="${stickyio.stickyioSubscriptionActive}"

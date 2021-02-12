@@ -75,6 +75,17 @@
         <credential-id>sticky.io</credential-id>
     </service>
 
+    <service service-id="stickyio.http.get.analytics.dashboards">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.get.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
     <service service-id="stickyio.http.get.billing_models">
         <service-type>HTTP</service-type>
         <enabled>true</enabled>

@@ -61,12 +61,11 @@ if (stickyioEnabled) {
             if (Object.keys(contactInfoFormErrors).length) {
                 formFieldErrors.push(contactInfoFormErrors);
             } else {
-                viewData.email = {
-                    value: paymentForm.contactInfoFields.email.value
-                };
-
+                viewData.email = { value: paymentForm.contactInfoFields.email.value };
                 viewData.phone = { value: paymentForm.contactInfoFields.phone.value };
             }
+
+            viewData.stickyioKountSessionID = { value: paymentForm.stickyioKountSessionID.value };
 
             var paymentMethodIdValue = paymentForm.paymentMethod.value;
 
@@ -162,6 +161,10 @@ if (stickyioEnabled) {
             var billingAddress = currentBasket.billingAddress;
             var billingForm = server.forms.getForm('billing');
             var paymentMethodID = billingData.paymentMethod.value;
+            if(billingData.stickyioKountSessionID) {
+                billingData.paymentInformation.stickyioKountSessionID = billingData.stickyioKountSessionID;
+            }
+
             var result;
 
             billingForm.creditCardFields.cardNumber.htmlValue = '';

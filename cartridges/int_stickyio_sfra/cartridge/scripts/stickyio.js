@@ -68,12 +68,16 @@ function stickyioAPI(svcName) {
             url = url.replace('{HOST}', Site.getCurrent().getCustomPreferenceValue('stickyioAPIURL'));
             url = url.replace('{V}', version); // service calls may be using v1 or v2 API
             url = url.replace('{ENDPOINT}', endpoint + (params ? (params.id ? '/' + params.id : '') + (params.helper ? '/' + params.helper : '') + (params.id2 ? '/' + params.id2 : '') : ''));
-            if (endpoint === 'sso') { url = url.replace('api/v2/', ''); } // special treatment for the versionless SSO endpoint
             if (params.queryString) { url += '?' + params.queryString; }
             thisSvc.setRequestMethod(method);
-            thisSvc.setAuthentication('NONE');
             thisSvc.addHeader('Content-Type', 'application/json');
-            thisSvc.addHeader('Platform-Key', Site.getCurrent().getCustomPreferenceValue('stickyioPlatformKey'));
+            if (endpoint === 'sso') { // special treatment for the versionless SSO endpoint
+                url = url.replace('api/v2/', '');
+                thisSvc.setAuthentication('NONE');
+                thisSvc.addHeader('Platform-Key', Site.getCurrent().getCustomPreferenceValue('stickyioPlatformKey'));
+            } else {
+                thisSvc.setAuthentication('BASIC');
+            }
             thisSvc.setURL(url);
             if (params && params.body) { return JSON.stringify(params.body); }
             return null;
@@ -282,7 +286,7 @@ function updateShippingMethods(parameters) {
  *
  */
 function getAllStickyioProducts() {
-    if (Object.keys(allStickyioProducts).length > 0) { return allStickyioProducts; }
+    if (allStickyioProducts && Object.keys(allStickyioProducts).length > 0) { return allStickyioProducts; }
     var returnProducts = {};
     var params = {};
     params.body = {};
@@ -308,8 +312,8 @@ function getAllStickyioProducts() {
  * @returns {Object} - Return IDs or false
  */
 function getCorrespondingPIDandName(sfccProductID, stickyioProductID) {
-    if (sfccProductID && allStickyioProducts[sfccProductID]) { return { sfccProductID: sfccProductID, stickyioProductID: allStickyioProducts[sfccProductID].stickyioProductID, name: allStickyioProducts[sfccProductID].name }; }
-    if (stickyioProductID) {
+    if (sfccProductID && allStickyioProducts && allStickyioProducts[sfccProductID]) { return { sfccProductID: sfccProductID, stickyioProductID: allStickyioProducts[sfccProductID].stickyioProductID, name: allStickyioProducts[sfccProductID].name }; }
+    if (stickyioProductID && allStickyioProducts) {
         var thisKey;
         var i;
         for (i = 0; i < Object.keys(allStickyioProducts).length; i++) {
@@ -476,35 +480,38 @@ function reshapeCampaignData(campaignData) {
                     for (k = 0; k < thisOffer.products.length; k++) {
                         var thisProduct = thisOffer.products[k];
                         var thisProductData = getCorrespondingPIDandName(null, thisProduct.id);
-                        if (thisProductData && typeof (thisProductData.name) !== 'undefined' && thisProductData.name !== '') {
-                            campaignProducts = addCampaignProductData(campaignProducts, thisProductData.sfccProductID, thisProductData.name, thisProduct.id, null, null, thisCampaign.id, thisOffer.id);
-                            thisCampaignData[thisCampaignID].offers[j].products[k].sku_num = thisProductData.sfccProductID;
-                            var theseProductVariants = getVariants(thisProduct.id);
-                            for (z = 0; z < theseProductVariants.length; z++) {
-                                var thisProductVariant = theseProductVariants[z];
-                                campaignProducts = addCampaignProductData(campaignProducts, thisProductVariant.sku_num, thisProductData.name, thisProduct.id, thisProductVariant.id, thisProductVariant.attributes, thisCampaign.id, thisOffer.id);
+                        var thisSFCCProduct = ProductMgr.getProduct(thisProductData.sfccProductID);
+                        if (thisSFCCProduct) {
+                            if (thisProductData && typeof (thisProductData.name) !== 'undefined' && thisProductData.name !== '') {
+                                campaignProducts = addCampaignProductData(campaignProducts, thisProductData.sfccProductID, thisProductData.name, thisProduct.id, null, null, thisCampaign.id, thisOffer.id);
+                                thisCampaignData[thisCampaignID].offers[j].products[k].sku_num = thisProductData.sfccProductID;
+                                var theseProductVariants = getVariants(thisProduct.id);
+                                for (z = 0; z < theseProductVariants.length; z++) {
+                                    var thisProductVariant = theseProductVariants[z];
+                                    campaignProducts = addCampaignProductData(campaignProducts, thisProductVariant.sku_num, thisProductData.name, thisProduct.id, thisProductVariant.id, thisProductVariant.attributes, thisCampaign.id, thisOffer.id);
+                                    for (m = 0; m < thisOffer.billing_models.length; m++) {
+                                        thisBillingModel = thisOffer.billing_models[m];
+                                        skipBillingModel = false;
+                                        if (thisBillingModel.is_archived) { skipBillingModel = true; }
+                                        campaignProducts = addCampaignProductData(campaignProducts, thisProductVariant.sku_num, thisProductData.name, thisProduct.id, thisProductVariant.id, thisProductVariant.attributes, thisCampaign.id, thisOffer.id, thisBillingModel.id, skipBillingModel);
+                                    }
+                                }
+                                thisCampaignData[thisCampaignID].offers[j].products[k].variants = [];
+                                thisCampaignData[thisCampaignID].offers[j].products[k].variants = theseProductVariants;
                                 for (m = 0; m < thisOffer.billing_models.length; m++) {
                                     thisBillingModel = thisOffer.billing_models[m];
+                                    if (thisBillingModel.id === 2 && Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleBillingModelName') !== '') {
+                                        // rename the Straight Sale billing model
+                                        thisBillingModel.name = Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleBillingModelName');
+                                    }
                                     skipBillingModel = false;
                                     if (thisBillingModel.is_archived) { skipBillingModel = true; }
-                                    campaignProducts = addCampaignProductData(campaignProducts, thisProductVariant.sku_num, thisProductData.name, thisProduct.id, thisProductVariant.id, thisProductVariant.attributes, thisCampaign.id, thisOffer.id, thisBillingModel.id, skipBillingModel);
+                                    campaignProducts = addCampaignProductData(campaignProducts, thisProductData.sfccProductID, thisProductData.name, thisProduct.id, null, null, thisCampaign.id, thisOffer.id, thisBillingModel.id, skipBillingModel);
+                                    if (!skipBillingModel) { billingModelObject[thisBillingModel.id] = thisBillingModel; }
                                 }
+                            } else {
+                                throw new Error('Invalid product data in Campaign or global sticky.io products object.');
                             }
-                            thisCampaignData[thisCampaignID].offers[j].products[k].variants = [];
-                            thisCampaignData[thisCampaignID].offers[j].products[k].variants = theseProductVariants;
-                            for (m = 0; m < thisOffer.billing_models.length; m++) {
-                                thisBillingModel = thisOffer.billing_models[m];
-                                if (thisBillingModel.id === 2 && Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleBillingModelName') !== '') {
-                                    // rename the Straight Sale billing model
-                                    thisBillingModel.name = Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleBillingModelName');
-                                }
-                                skipBillingModel = false;
-                                if (thisBillingModel.is_archived) { skipBillingModel = true; }
-                                campaignProducts = addCampaignProductData(campaignProducts, thisProductData.sfccProductID, thisProductData.name, thisProduct.id, null, null, thisCampaign.id, thisOffer.id, thisBillingModel.id, skipBillingModel);
-                                if (!skipBillingModel) { billingModelObject[thisBillingModel.id] = thisBillingModel; }
-                            }
-                        } else {
-                            throw new Error('Invalid product data in Campaign or global sticky.io products object.');
                         }
                     }
                 } else {
@@ -817,7 +824,6 @@ function getCustomFields(pageNum, customFields) {
     var i;
     var thisPageNum = pageNum;
     var theseCustomFields = customFields;
-    if (theseCustomFields === null) { theseCustomFields = []; }
     if (!thisPageNum) { thisPageNum = 1; }
     var params = {};
     params.queryString = 'page=' + thisPageNum;
@@ -839,7 +845,7 @@ function getCustomFields(pageNum, customFields) {
 */
 function getCustomField(tokenKey) {
     var i;
-    var customFields = getCustomFields();
+    var customFields = getCustomFields(null, []);
     if (customFields.length > 0) {
         for (i = 0; i < customFields.length; i++) {
             var thisCustomField = customFields[i];
@@ -1251,21 +1257,23 @@ function setupProductSetProduct(productSet, productSetProduct) {
  */
 function buildOfferProducts() {
     var offerProducts = {};
-    Object.keys(allStickyioProducts).forEach(function (productID) {
-        var product = ProductMgr.getProduct(productID);
-        if (product.custom.stickyioProductID !== null && product.custom.stickyioOfferID.value !== null && product.custom.stickyioOfferID.value !== '0') {
-            if (!offerProducts[product.custom.stickyioOfferID.value]) { offerProducts[product.custom.stickyioOfferID.value] = []; }
-            if (offerProducts[product.custom.stickyioOfferID.value].indexOf(product.custom.stickyioProductID) === -1) {
-                offerProducts[product.custom.stickyioOfferID.value].push(product.custom.stickyioProductID);
+    if(allStickyioProducts) {
+        Object.keys(allStickyioProducts).forEach(function (productID) {
+            var product = ProductMgr.getProduct(productID);
+            if (product && product.custom.stickyioProductID !== null && product.custom.stickyioOfferID.value !== null && product.custom.stickyioOfferID.value !== '0') {
+                if (!offerProducts[product.custom.stickyioOfferID.value]) { offerProducts[product.custom.stickyioOfferID.value] = []; }
+                if (offerProducts[product.custom.stickyioOfferID.value].indexOf(product.custom.stickyioProductID) === -1) {
+                    offerProducts[product.custom.stickyioOfferID.value].push(product.custom.stickyioProductID);
+                }
             }
-        }
-        if (product.custom.stickyioProductID !== null && product.custom.stickyioOfferID.value === '0' && product.custom.stickyioCustomOfferID !== null) {
-            if (!offerProducts[product.custom.stickyioCustomOfferID]) { offerProducts[product.custom.stickyioCustomOfferID] = []; }
-            if (offerProducts[product.custom.stickyioCustomOfferID].indexOf(product.custom.stickyioProductID) === -1) {
-                offerProducts[product.custom.stickyioCustomOfferID].push(product.custom.stickyioProductID);
+            if (product && product.custom.stickyioProductID !== null && product.custom.stickyioOfferID.value === '0' && product.custom.stickyioCustomOfferID !== null) {
+                if (!offerProducts[product.custom.stickyioCustomOfferID]) { offerProducts[product.custom.stickyioCustomOfferID] = []; }
+                if (offerProducts[product.custom.stickyioCustomOfferID].indexOf(product.custom.stickyioProductID) === -1) {
+                    offerProducts[product.custom.stickyioCustomOfferID].push(product.custom.stickyioProductID);
+                }
             }
-        }
-    });
+        });
+    }
     return offerProducts;
 }
 
@@ -1351,7 +1359,7 @@ function saveProduct(request) {
                     outputJSON = { error: 'Billing Model can not be blank if Consumer Selectable is unchecked.' };
                 } else { outputJSON = { error: 'Billing Model can not be Custom.' }; }
             } else {
-                allStickyioProducts = getAllStickyioProducts;
+                // allStickyioProducts = getAllStickyioProducts();
                 createOrUpdateProduct(product);
                 // update the Offer in sticky.io. If it's valid, update the data locally as well
                 if (updateOffer(stickyioCustomOfferID, product.custom.stickyioProductID)) {

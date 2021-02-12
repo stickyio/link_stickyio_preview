@@ -19,6 +19,18 @@
                 "methods": ["post"],
                 "read_attributes": "(**)",
                 "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/products/*/product_options/stickyioBillingModelOptions",
+                "methods": ["get", "put"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/products/*/product_options/stickyioBillingModelOptions/values/*",
+                "methods": ["put"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
             }
         ]
     }]

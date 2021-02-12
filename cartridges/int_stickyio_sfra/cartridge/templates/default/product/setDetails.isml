@@ -3,9 +3,9 @@
     <isscript>
         var assets = require('*/cartridge/scripts/assets');
         if(dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioEnabled')) {
-            assets.addJs('/js/productDetailStickyio.js');
+        assets.addJs('/js/productDetailStickyio.js');
         } else {
-            assets.addJs('/js/productDetail.js');
+        assets.addJs('/js/productDetail.js');
         }
         assets.addCss('/css/product/detail.css');
     </isscript>
@@ -26,7 +26,7 @@
             <div class="col-12">
                 <!---Breadcrumbs--->
                 <div class="product-breadcrumb">
-                    <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
+                    <isinclude template="components/breadcrumbs/pageBreadcrumbs" />
                 </div>
                 <!-- Product Name -->
                 <div class="row">
@@ -38,9 +38,9 @@
         </div>
         <hr>
         <div class="row">
-             <div class="col-12">
-                 <h4>${Resource.msg('label.set.contains', 'product', null)}</h4>
-             </div>
+            <div class="col-12">
+                <h4>${Resource.msg('label.set.contains', 'product', null)}</h4>
+            </div>
         </div>
         <isinclude template="product/components/setItems" />
         <hr>

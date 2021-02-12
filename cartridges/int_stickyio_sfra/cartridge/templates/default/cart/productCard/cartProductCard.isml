@@ -25,7 +25,7 @@
                             </isif>
                         </isloop>
                         <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioEnabled') && lineItem.stickyioBillingModelID}">
-                            <p class="line-item-attributes">Subscription: <span class="Subscription-${lineItem.UUID}">${lineItem.stickyioBillingModelDetails}</span></p>
+                            <p class="line-item-attributes">${Resource.msg('label.subscription', 'stickyio', null)}: <span class="Subscription-${lineItem.UUID}">${lineItem.stickyioBillingModelDetails}</span></p>
                         </isif>
                         <isinclude template="cart/productCard/cartProductCardAvailability" />
                         <isinclude template="cart/productCard/cartProductCardEdit" />

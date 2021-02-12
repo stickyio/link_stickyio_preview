@@ -26,11 +26,13 @@
 
                 <div class="item-options">
                     <isloop items="${lineItem.options}" var="option">
-                        <div class="line-item-option">${option.displayName}</div>
+                        <isif condition="${option.optionId !== 'stickyioBillingModelOptions'}">
+                            <div class="line-item-option">${option.displayName}</div>
+                        </isif>
                     </isloop>
                 </div>
 
-                <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioEnabled')}">
+                <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioEnabled') && lineItem.stickyioBillingModelID}">
                     <isinclude template="stickyio/subscriptionManagement" />
                 </isif>
 

@@ -20,6 +20,23 @@ server.get('OrderManagement', function (req, res, next) {
 });
 
 /**
+ * sticky.io analytics iframe
+ * @returns {void}
+ */
+server.get('Analytics', function (req, res, next) {
+    var pdict = {};
+    var params = {};
+    params.id = 'dashboards';
+    params.helper = '4420';
+    var stickyioResponse = stickyio.stickyioAPI('stickyio.http.get.analytics.dashboards').call(params);
+    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
+        pdict.url = stickyioResponse.object.result.data.iframe_url;
+    }
+    res.render('stickyio/analytics', pdict);
+    next();
+});
+
+/**
  * sticky.io offers iFrame
  * @returns {void}
  */

@@ -51,4 +51,15 @@
 		</sub-pipelines>
 		<icon>icons/logo.png</icon>
 	</menuaction>
+	<menuaction id="stickyio_id05" menupath="analytics" position="299999" site="true">
+		<name xml:lang="x-default">sticky.io Analytics</name>
+		<short_description xml:lang="x-default">sticky.io Analytics</short_description>
+		<description xml:lang="x-default">sticky.io Analytics</description>
+		<exec pipeline="Stickyio_bm" node="Analytics" />
+		<sub-pipelines>
+			<pipeline name="Stickyio_bm-Analytics" />
+			<pipeline name="Stickyio_bm-sso" />
+		</sub-pipelines>
+		<icon>icons/logo.png</icon>
+	</menuaction>
 </extensions>

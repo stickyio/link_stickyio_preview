@@ -125,11 +125,21 @@ function getNewBonusDiscountLineItem(
  * @return {boolean} - Whether a product's current options are the same as those just selected
  */
 function hasSameOptions(existingOptions, selectedOptions) {
+    var newOptions = [];
+    var i;
+    for (i = selectedOptions.length - 1; i >= 0; i--) {
+        if (selectedOptions[i].optionId !== 'stickyioBillingModelOptions') {
+            newOptions.push(options[i]);
+        }
+    }
     var selected = {};
-    for (var i = 0, j = selectedOptions.length; i < j; i++) {
-        selected[selectedOptions[i].optionId] = selectedOptions[i].selectedValueId;
+    for (var i = 0, j = newOptions.length; i < j; i++) {
+        selected[newOptions[i].optionId] = newOptions[i].selectedValueId;
     }
     return collections.every(existingOptions, function (option) {
+        if (option.optionID === 'stickyioBillingModelOptions') {
+            return true;
+        }
         return option.optionValueID === selected[option.optionID];
     });
 }
@@ -196,6 +206,11 @@ function addLineItem(
     stickyioBillingModelID,
     stickyioBillingModelDetails
 ) {
+    var options = [];
+    if (optionModel.options.length === 1 && optionModel.options[0].ID === 'stickyioBillingModelOptions') {
+        options.push({ optionId : 'stickyioBillingModelOptions', selectedValueId : Number(stickyioBillingModelID) });
+        optionModel = productHelper.getCurrentOptionModel(product.optionModel, options);
+    }
     var productLineItem = currentBasket.createProductLineItem(
         product,
         optionModel,
@@ -310,9 +325,9 @@ function getExistingProductLineItemsInCart(product, productId, productLineItems,
             return allBundleItemsSame(matchingProduct.bundledProductLineItems, childProducts);
         }
         if (hasSameOptions(matchingProduct.optionProductLineItems, options || [])) {
+            if (!stickyioBillingModelID) { return true; }
             return hasSameStickyioBillingModel(matchingProduct.custom.stickyioBillingModelID, stickyioBillingModelID);
         }
-        return false;
     });
 
     return productLineItemsInCart;
@@ -390,6 +405,9 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
     var productLineItems = currentBasket.productLineItems;
     var productQuantityInCart;
     var quantityToSet;
+    if (stickyioBillingModelID) {
+        options.push({ optionId : 'stickyioBillingModelOptions', selectedValueId : Number(stickyioBillingModelID) });
+    }
     var optionModel = productHelper.getCurrentOptionModel(product.optionModel, options);
     var result = {
         error: false,
@@ -439,21 +457,40 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
                 : Resource.msg('error.alert.selected.quantity.cannot.be.added', 'product', null);
         }
     } else {
+        var productInCartNoSticky = getExistingProductLineItemInCart(product, productId, productLineItems, childProducts, options);
         var productLineItem;
-        productLineItem = addLineItem(
-            currentBasket,
-            product,
-            quantity,
-            childProducts,
-            optionModel,
-            defaultShipment,
-            stickyioProductID,
-            stickyioVariationID,
-            stickyioCampaignID,
-            stickyioOfferID,
-            stickyioBillingModelID,
-            stickyioBillingModelDetails
-        );
+        if (productInCartNoSticky) { // this is the same product, but with a different stickyio billing model, so replace it
+            currentBasket.removeProductLineItem(productInCartNoSticky);
+            productLineItem = addLineItem(
+                currentBasket,
+                product,
+                productInCartNoSticky.quantity.value,
+                childProducts,
+                optionModel, 
+                defaultShipment,
+                stickyioProductID,
+                stickyioVariationID,
+                stickyioCampaignID,
+                stickyioOfferID,
+                stickyioBillingModelID,
+                stickyioBillingModelDetails
+            );
+        } else { // truly a new product
+            productLineItem = addLineItem(
+                currentBasket,
+                product,
+                quantity,
+                childProducts,
+                optionModel,
+                defaultShipment,
+                stickyioProductID,
+                stickyioVariationID,
+                stickyioCampaignID,
+                stickyioOfferID,
+                stickyioBillingModelID,
+                stickyioBillingModelDetails
+            );
+        }
 
         result.uuid = productLineItem.UUID;
     }

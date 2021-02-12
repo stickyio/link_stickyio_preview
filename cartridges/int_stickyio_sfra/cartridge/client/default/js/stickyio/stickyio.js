@@ -21,9 +21,9 @@ var stickyio = {
                 (stickyioProductData.productType === 'variant' &&
                 stickyioProductData.stickyioVID === 'null')
             ) {
-                $('button.add-to-cart', stickyio.getClosestWrapper($('[data-wrapperpid="' + closestWrapperPID + '"]'))).attr('disabled', true);
-                $('button.add-to-cart-global', stickyio.getClosestWrapper($('[data-wrapperpid="' + closestWrapperPID + '"]'))).attr('disabled', true);
-                $('button.update-cart-product-global', stickyio.getClosestWrapper($('[data-wrapperpid="' + closestWrapperPID + '"]'))).attr('disabled', true);
+                $('button.add-to-cart[data-sfccpid="' + closestWrapperPID + '"]').attr('disabled', true);
+                $('button.add-to-cart-global[data-sfccpid="' + closestWrapperPID + '"]').attr('disabled', true);
+                $('button.update-cart-product-global[data-sfccpid="' + closestWrapperPID + '"]').attr('disabled', true);
                 // console.log('disabling add to cart button');
             } else if (product) {
                 // console.log('enabling add to cart button');
@@ -36,7 +36,7 @@ var stickyio = {
     },
     getProductData: function (pid, callback) {
         stickyioProductData = {};
-        stickyioProductData.pid = $('[data-wrapperpid="' + pid + '"]').attr('data-pid');
+        stickyioProductData.pid = $('[data-wrapperpid="' + pid + '"]').attr('data-sfccpid');
         stickyioProductData.stickyioSubscriptionActive = $('[data-wrapperpid="' + pid + '"]').data('stickyiosubscriptionactive');
         stickyioProductData.stickyioBillingModelConsumerSelectable = $('[data-wrapperpid="' + pid + '"]').data('stickyiobillingmodelconsumerselectable');
         if (stickyioProductData.stickyioBillingModelConsumerSelectable) {
@@ -83,9 +83,9 @@ var stickyio = {
             if ($('#quickViewModal').length > 0 && $('#quickViewModal').is(':visible')) { quickView = true; dialog = $('#quickViewModal'); }
             if ($('#editProductModal').length > 0 && $('#editProductModal').is(':visible')) { editProductModal = true; dialog = $('#editProductModal'); }
             if (editProductModal) { // editProductModal
-                closestWrapperPID = $('[data-pid="' + thisResponse.data.product.id + '"] .stickyiosubscription').attr('data-wrapperpid');
+                closestWrapperPID = $('[data-sfccpid="' + thisResponse.data.product.id + '"] .stickyiosubscription').attr('data-wrapperpid');
             } else {
-                closestWrapperPID = $('[data-pid="' + thisResponse.data.product.id + '"]', $(thisResponse.container)).attr('data-wrapperpid');
+                closestWrapperPID = $('[data-sfccpid="' + thisResponse.data.product.id + '"]', $(thisResponse.container)).attr('data-wrapperpid');
             }
             stickyio.getProductData(closestWrapperPID, function (thisStickyioProductData) {
                 // console.log(closestWrapperPID, thisStickyioProductData, thisResponse);
@@ -144,30 +144,37 @@ $('body').on('updateAddToCartFormData', function (e, data) {
     if ($('.stickyiosubscription').length > 0) {
         if (typeof (thisData.pidsObj) === 'undefined') { // single product
             closestWrapper = stickyio.getClosestWrapper($(e.target));
-            closestWrapperPID = $(closestWrapper).attr('data-pid');
+            closestWrapperPID = $('.stickyiosubscription', closestWrapper).attr('data-sfccpid');
+            if ($('.stickyiosubscription').attr('data-producttype') === 'variant') {
+                closestWrapperPID = $('.stickyiosubscription', closestWrapper).attr('data-wrapperpid');
+            }
             stickyioProductData = stickyio.getProductData(closestWrapperPID);
-            thisData.stickyioProductID = Number(stickyioProductData.stickyioPID);
-            thisData.stickyioVariationID = stickyioProductData.stickyioVID !== '0' && stickyioProductData.stickyioVID !== 'null' ? Number(stickyioProductData.stickyioVID) : null;
-            thisData.stickyioCampaignID = Number(stickyioProductData.stickyioCID);
-            thisData.stickyioOfferID = Number(stickyioProductData.stickyioOID);
-            thisData.stickyioBillingModelID = Number(stickyioProductData.stickyioBMID);
-            thisData.stickyioBillingModelDetails = stickyioProductData.stickyioSelectedBillingModelDetails;
+            if (stickyioProductData.stickyioPID) {
+                thisData.stickyioProductID = Number(stickyioProductData.stickyioPID);
+                thisData.stickyioVariationID = stickyioProductData.stickyioVID !== '0' && stickyioProductData.stickyioVID !== 'null' ? Number(stickyioProductData.stickyioVID) : null;
+                thisData.stickyioCampaignID = Number(stickyioProductData.stickyioCID);
+                thisData.stickyioOfferID = Number(stickyioProductData.stickyioOID);
+                thisData.stickyioBillingModelID = Number(stickyioProductData.stickyioBMID);
+                thisData.stickyioBillingModelDetails = stickyioProductData.stickyioSelectedBillingModelDetails;
+            }
         } else { // product set
             var pids = JSON.parse(thisData.pidsObj);
             var i;
             for (i = 0; i < pids.length; i++) {
-                if ($('[data-pid="' + pids[i].pid + '"]').length > 1) {
-                    closestWrapperPID = $('[data-pid="' + pids[i].pid + '"] .stickyiosubscription').attr('data-wrapperpid');
+                if ($('[data-sfccpid="' + pids[i].pid + '"]').length > 1) {
+                    closestWrapperPID = $('[data-sfccpid="' + pids[i].pid + '"] .stickyiosubscription').attr('data-wrapperpid');
                 } else {
-                    closestWrapperPID = $('[data-pid="' + pids[i].pid + '"]').attr('data-wrapperpid');
+                    closestWrapperPID = $('[data-sfccpid="' + pids[i].pid + '"]').attr('data-wrapperpid');
                 }
                 stickyioProductData = stickyio.getProductData(closestWrapperPID);
-                pids[i].stickyioProductID = Number(stickyioProductData.stickyioPID);
-                pids[i].stickyioVariationID = stickyioProductData.stickyioVID !== '0' && stickyioProductData.stickyioVID !== 'null' ? Number(stickyioProductData.stickyioVID) : null;
-                pids[i].stickyioCampaignID = Number(stickyioProductData.stickyioCID);
-                pids[i].stickyioOfferID = Number(stickyioProductData.stickyioOID);
-                pids[i].stickyioBillingModelID = Number(stickyioProductData.stickyioBMID);
-                pids[i].stickyioBillingModelDetails = stickyioProductData.stickyioSelectedBillingModelDetails;
+                if (stickyioProductData.stickyioPID) {
+                    pids[i].stickyioProductID = Number(stickyioProductData.stickyioPID);
+                    pids[i].stickyioVariationID = stickyioProductData.stickyioVID !== '0' && stickyioProductData.stickyioVID !== 'null' ? Number(stickyioProductData.stickyioVID) : null;
+                    pids[i].stickyioCampaignID = Number(stickyioProductData.stickyioCID);
+                    pids[i].stickyioOfferID = Number(stickyioProductData.stickyioOID);
+                    pids[i].stickyioBillingModelID = Number(stickyioProductData.stickyioBMID);
+                    pids[i].stickyioBillingModelDetails = stickyioProductData.stickyioSelectedBillingModelDetails;
+                }
             }
             thisData.pidsObj = JSON.stringify(pids);
         }

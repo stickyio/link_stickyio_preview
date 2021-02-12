@@ -51,6 +51,7 @@ function Handle(basket, paymentInformation) {
     var cardSecurityCode = paymentInformation.securityCode.value;
     var expirationMonth = paymentInformation.expirationMonth.value;
     var expirationYear = paymentInformation.expirationYear.value;
+    var stickyioKountSessionID = paymentInformation.stickyioKountSessionID.value;
     var serverErrors = [];
     var creditCardStatus;
     var error = false;
@@ -121,6 +122,9 @@ function Handle(basket, paymentInformation) {
     paymentInstrument.setCreditCardType(cardType);
     paymentInstrument.setCreditCardExpirationMonth(expirationMonth);
     paymentInstrument.setCreditCardExpirationYear(expirationYear);
+
+    paymentInstrument.custom.stickyioKountSessionID = stickyioKountSessionID;
+
     if (!paymentInformation.creditCardToken) {
         var tokenResult = createToken(cardNumber, cardSecurityCode, cardType, expirationMonth, expirationYear);
         if (!tokenResult) {
@@ -149,6 +153,19 @@ function Handle(basket, paymentInformation) {
  */
 function Authorize(order, paymentInstrument, paymentProcessor) {
     // call sticky.io auth_payment API
+    // this method can return a variety of useful errors to the consumer, however, the method that calls it (CheckoutServices - PlaceOrder) overrides all returned errors with its own "generic" error
+    // because overriding this functionality would mean replacing the entire route, we leave it to the merchant to decide whether or not to check for returned errors and display that information to
+    // the consumer. Sample code might look like:
+    /*
+    var handlePaymentResult = COHelpers.handlePayments(order, order.orderNo);
+    if (handlePaymentResult.error) {
+        res.json({
+            error: true,
+            errorMessage: handlePaymentResult.serverErrors.join(' - ')
+        });
+        return next();
+    }
+    */
     var serverErrors = [];
     var fieldErrors = {};
     var error = false;

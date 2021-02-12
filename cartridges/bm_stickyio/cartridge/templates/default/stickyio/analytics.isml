@@ -3,7 +3,7 @@
     <isinclude template="inc/Modules"/>
     <!-- Page Navigator -->
     <isset name="TOP_URL" value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', pdict.CurrentHttpParameterMap.CurrentMenuItemId)}" scope="page"/>
-    <isbreadcrumb name1="${pdict.CurrentHttpParameterMap.SelectedMenuItem.stringValue}" url1="${TOP_URL.toString()}" name2="Custom Offer Configuration"/>
+    <isbreadcrumb name1="${pdict.CurrentHttpParameterMap.SelectedMenuItem.stringValue}" url1="${TOP_URL.toString()}" name2="sticky.io Analytics"/>
     <!-- EO Page Navigator -->
     <link href="${URLUtils.staticURL('css/administration.css')}" rel="stylesheet" type="text/css" />
     <hr/>

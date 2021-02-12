@@ -38,6 +38,7 @@ if (stickyioEnabled) {
                 // eventually, we will move to accepting existing tokens and pass those along
                 checkoutView.customer.payment = null;
                 checkoutView.customer.customerPaymentInstruments = [];
+                checkoutView.stickyioOrder = true;
             }
             res.setViewData(checkoutView);
 
