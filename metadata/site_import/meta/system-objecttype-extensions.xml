@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+
+    <type-extension type-id="Order">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="stickyioOrder">
+                <display-name xml:lang="x-default">sticky.io Order</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="stickyio">
+                <display-name xml:lang="x-default">sticky.io</display-name>
+                <attribute attribute-id="stickyioOrder"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+    <type-extension type-id="OrderPaymentInstrument">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="stickyioTempCustomerID">
+                <display-name xml:lang="x-default">sticky.io Temporary Customer ID</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioTokenExpiration">
+                <display-name xml:lang="x-default">sticky.io Token Expiration Timestamp</display-name>
+                <type>double</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioTransactionID">
+                <display-name xml:lang="x-default">sticky.io Transaction ID</display-name>
+                <description xml:lang="x-default">Temporary transactionID storage from a re-bill OCAPI call</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </custom-attribute-definitions>
+    </type-extension>
+
+    <type-extension type-id="Product">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="stickyioBillingModelConsumerSelectable">
+                <display-name xml:lang="x-default">Billing Model Consumer Selectable</display-name>
+                <description xml:lang="x-default">Mark this YES to allow the consumer to select the billing model for this product, otherwise, the billing model must be set by the Business Manager user and can not be changed by the consumer.</description>
+                <type>boolean</type>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioBillingModels">
+                <display-name xml:lang="x-default">Billing Models</display-name>
+                <description xml:lang="x-default">Choose from standard pre-built Billing Models, or select "Custom" to create your own. Access to the sticky.io Dashboard required to customize a Billing Model. Custom and pre-built Billing Models cannot be presented together.</description>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <select-multiple-flag>true</select-multiple-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">One-time Purchase</display>
+                        <value>2</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Monthly Subscription (Bills on same date every month)</display>
+                        <value>3</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Annual Subscription</display>
+                        <value>4</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">30 Day Recurring</display>
+                        <value>5</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">60 Day Recurring</display>
+                        <value>6</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">90 Day Recurring</display>
+                        <value>7</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Weekly Subscription</display>
+                        <value>8</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioCampaignID">
+                <display-name xml:lang="x-default">Campaign</display-name>
+                <description xml:lang="x-default">The global Site campaign ID from sticky.io</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioCustomBillingModels">
+                <display-name xml:lang="x-default">Custom Billing Models</display-name>
+                <type>set-of-int</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioCustomOfferID">
+                <display-name xml:lang="x-default">Custom Offer ID</display-name>
+                <description xml:lang="x-default">sticky.io Custom Offer ID</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioLastSync">
+                <display-name xml:lang="x-default">Last Sync</display-name>
+                <description xml:lang="x-default">The last time this product had changes and was synced to sticky.io</description>
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioOfferID">
+                <display-name xml:lang="x-default">Offer</display-name>
+                <description xml:lang="x-default">Choose from standard pre-built Offers, or select "Custom" to create your own. You will need access to the sticky.io Dashboard to customize an Offer.</description>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Custom</display>
+                        <value>0</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Subscriptions</display>
+                        <value>1</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioProductID">
+                <display-name xml:lang="x-default">Product ID</display-name>
+                <description xml:lang="x-default">Product ID for a Master or stand-alone Product</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioReady">
+                <display-name xml:lang="x-default">sticky.io Ready to Sell</display-name>
+                <type>boolean</type>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubscriptionActive">
+                <display-name xml:lang="x-default">Subscription Product</display-name>
+                <type>boolean</type>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioVariationID">
+                <display-name xml:lang="x-default">Variation ID</display-name>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioVertical">
+                <display-name xml:lang="x-default">Product Vertical</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Art, Photo &amp; Music</display>
+                        <value>1</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Automotive</display>
+                        <value>2</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Books &amp; Media</display>
+                        <value>3</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Careers</display>
+                        <value>4</value>
+                    </value-definition>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Clothing &amp; Apparel</display>
+                        <value>5</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Computer &amp; Electronics</display>
+                        <value>6</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Diet</display>
+                        <value>7</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Education</display>
+                        <value>8</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Entertainment, Recreation &amp; Leisure</display>
+                        <value>9</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Family</display>
+                        <value>10</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Financial</display>
+                        <value>11</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Food &amp; Drinks</display>
+                        <value>12</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Games &amp; Toys</display>
+                        <value>13</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Gifts &amp; Flowers</display>
+                        <value>14</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Hair</display>
+                        <value>15</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Home &amp; Garden</display>
+                        <value>16</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Insurance</display>
+                        <value>17</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Legal</display>
+                        <value>18</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Marketing</display>
+                        <value>19</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Men's Health</display>
+                        <value>20</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Muscle</display>
+                        <value>21</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">NonProfit</display>
+                        <value>22</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Skin Care</display>
+                        <value>23</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Sports &amp; Fitness</display>
+                        <value>24</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Teeth Whitening</display>
+                        <value>25</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Telecommunications</display>
+                        <value>26</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Travel</display>
+                        <value>27</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Women's Health</display>
+                        <value>28</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="stickyio">
+                <display-name xml:lang="x-default">sticky.io</display-name>
+                <attribute attribute-id="stickyioSubscriptionActive"/>
+                <attribute attribute-id="stickyioOfferID"/>
+                <attribute attribute-id="stickyioBillingModels"/>
+                <attribute attribute-id="stickyioBillingModelConsumerSelectable"/>
+                <attribute attribute-id="stickyioVertical"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+    <type-extension type-id="ProductLineItem">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="stickyioBillingModelDetails">
+                <display-name xml:lang="x-default">sticky.io Billing Model Details</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioBillingModelID">
+                <display-name xml:lang="x-default">sticky.io Billing Model ID</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioCampaignID">
+                <display-name xml:lang="x-default">sticky.io Campaign ID</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioOfferID">
+                <display-name xml:lang="x-default">sticky.io Offer ID</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioProductID">
+                <display-name xml:lang="x-default">sticky.io Product ID</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubscriptionID">
+                <display-name xml:lang="x-default">sticky.io Subscription ID</display-name>
+                <description xml:lang="x-default">This should be automatically populated by sticky.io.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioVariationID">
+                <display-name xml:lang="x-default">sticky.io Variation ID</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="stickyio">
+                <display-name xml:lang="x-default">sticky.io</display-name>
+                <attribute attribute-id="stickyioProductID"/>
+                <attribute attribute-id="stickyioVariationID"/>
+                <attribute attribute-id="stickyioCampaignID"/>
+                <attribute attribute-id="stickyioOfferID"/>
+                <attribute attribute-id="stickyioBillingModelID"/>
+                <attribute attribute-id="stickyioBillingModelDetails"/>
+                <attribute attribute-id="stickyioSubscriptionID"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+    <type-extension type-id="Shipment">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="stickyioOrderNo">
+                <display-name xml:lang="x-default">sticky.io Order Number</display-name>
+                <description xml:lang="x-default">This should be automatically populated by sticky.io.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioOrderResponse">
+                <display-name xml:lang="x-default">sticky.io Order Response</display-name>
+                <description xml:lang="x-default">Raw JSON response of the sticky.io order call</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioOrderUpdated">
+                <display-name xml:lang="x-default">sticky.io Order Updated</display-name>
+                <description xml:lang="x-default">Track if the sticky.io order has been updated with relevant data (tracking number)</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="stickyio">
+                <display-name xml:lang="x-default">sticky.io</display-name>
+                <attribute attribute-id="stickyioOrderNo"/>
+                <attribute attribute-id="stickyioOrderResponse"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+    <type-extension type-id="ShippingMethod">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="stickyioShippingID">
+                <display-name xml:lang="x-default">sticky.io Shipping Method ID</display-name>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+        </custom-attribute-definitions>
+    </type-extension>
+
+    <type-extension type-id="SitePreferences">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="stickyioAPIURL">
+                <display-name xml:lang="x-default">Instance Domain</display-name>
+                <description xml:lang="x-default">sticky.io provided instance domain (example: instance.stickyio.com)</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioCustomFieldCustomerID">
+                <display-name xml:lang="x-default">Customer ID</display-name>
+                <description xml:lang="x-default">Stores the sticky.io custom order field Customer ID ID</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioCustomFieldOrderNo">
+                <display-name xml:lang="x-default">sticky.io Custom Field OrderNo</display-name>
+                <description xml:lang="x-default">Stores the sticky.io custom field ID for the SFCC order number</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioCustomFieldShipmentID">
+                <display-name xml:lang="x-default">sticky.io Custom Field ShipmentID</display-name>
+                <description xml:lang="x-default">Custom field ID for sticky.io to store the SFCC shipment ID</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioEnabled">
+                <display-name xml:lang="x-default">Enable sticky.io</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioForceRegisteredCheckout">
+                <display-name xml:lang="x-default">Force Registered Checkout</display-name>
+                <description xml:lang="x-default">Require customers to log in before being able to check out with subscription items.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioPlatformKey">
+                <display-name xml:lang="x-default">Platform Key</display-name>
+                <description xml:lang="x-default">Platform Key provided by sticky.io</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioStraightSaleBillingModelName">
+                <display-name xml:lang="x-default">Straight-Sale Billing Model Name</display-name>
+                <description xml:lang="x-default">The default, when blank, is "Straight Sale," and comes directly from sticky.io, but maybe you'd like something more consumer-friendly?</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioStraightSaleProductID">
+                <display-name xml:lang="x-default">sticky.io Straight-Sale Product ID</display-name>
+                <description xml:lang="x-default">Universal product ID to represent all straight-sale items in sticky.io</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowBillNow">
+                <display-name xml:lang="x-default">Allow Bill Now</display-name>
+                <description xml:lang="x-default">Allow the consumer to be billed "now" for their subscription</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowPause">
+                <display-name xml:lang="x-default">Allow Pause</display-name>
+                <description xml:lang="x-default">Allow the consumer to pause their subscription</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowRecurringDate">
+                <display-name xml:lang="x-default">Allow Recurring Date Management</display-name>
+                <description xml:lang="x-default">Allow the consumer to manage the recurring date of their subscription</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowReset">
+                <display-name xml:lang="x-default">Allow Reset</display-name>
+                <description xml:lang="x-default">Allow the consumer to reset their subscription</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowResume">
+                <display-name xml:lang="x-default">Allow Resume/Un-pause</display-name>
+                <description xml:lang="x-default">Allow the consumer to resume/un-pause a stopped subscription</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowStop">
+                <display-name xml:lang="x-default">Allow Stop</display-name>
+                <description xml:lang="x-default">Allow the consumer to stop their subscription - usually not a consumer-facing function</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowTerminateNext">
+                <display-name xml:lang="x-default">Allow Terminate Next</display-name>
+                <description xml:lang="x-default">Allow the consumer to stop their subscription after the next rebill</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowUpdateBillingModel">
+                <display-name xml:lang="x-default">Allow Billing Model Update</display-name>
+                <description xml:lang="x-default">Allow the consumer to change the billing model of their subscription</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="STICKYIO">
+                <display-name xml:lang="x-default">sticky.io Configurations</display-name>
+                <attribute attribute-id="stickyioEnabled"/>
+                <attribute attribute-id="stickyioPlatformKey"/>
+                <attribute attribute-id="stickyioAPIURL"/>
+                <attribute attribute-id="stickyioStraightSaleBillingModelName"/>
+                <attribute attribute-id="stickyioForceRegisteredCheckout"/>
+                <attribute attribute-id="stickyioSubManAllowRecurringDate"/>
+                <attribute attribute-id="stickyioSubManAllowUpdateBillingModel"/>
+                <attribute attribute-id="stickyioSubManAllowPause"/>
+                <attribute attribute-id="stickyioSubManAllowStop"/>
+                <attribute attribute-id="stickyioSubManAllowTerminateNext"/>
+                <attribute attribute-id="stickyioSubManAllowResume"/>
+                <attribute attribute-id="stickyioSubManAllowReset"/>
+                <attribute attribute-id="stickyioSubManAllowBillNow"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+</metadata>

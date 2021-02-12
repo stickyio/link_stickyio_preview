@@ -1,0 +1,1346 @@
+{
+	"info": {
+		"_postman_id": "d881fc09-9881-4937-bf79-44a1d7aabc5f",
+		"name": "sticky.io",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "oAuth2 Get BM Client Token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "ed801904-d5d5-499f-a5a6-1d08ce10b4f5",
+						"exec": [
+							"let userID = 'USERID';",
+							"let userPass = 'USERPASS';",
+							"let clientID = 'CLIENTID';",
+							"let clientPass = 'CLIENTPASS';",
+							"postman.setEnvironmentVariable(\"client_id\", clientID);",
+							"postman.setEnvironmentVariable(\"Authorization\", \"Basic \"+btoa(userID+\":\"+userPass+\":\"+clientPass));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "9e06a3bd-93cd-436a-9a7b-69ffe9928952",
+						"exec": [
+							"var tokenData = JSON.parse(responseBody);",
+							"if(tokenData.access_token !== null) {",
+							"    postman.setEnvironmentVariable(\"access_token\", tokenData.access_token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "{{Authorization}}"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "urn:demandware:params:oauth:grant-type:client-id:dwsid:dwsecuretoken",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://yourinstance.demandware.net/dw/oauth2/access_token?client_id={{client_id}}",
+					"protocol": "https",
+					"host": [
+						"yourinstance",
+						"demandware",
+						"net"
+					],
+					"path": [
+						"dw",
+						"oauth2",
+						"access_token"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						}
+					]
+				},
+				"description": "Get the Business Manager Client Token from the SFCC oAuth server"
+			},
+			"response": [
+				{
+					"name": "oAuth2 Get BM Client Token",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{Authorization}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "urn:demandware:params:oauth:grant-type:client-id:dwsid:dwsecuretoken",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://yourinstance.demandware.net/dw/oauth2/access_token?client_id={{client_id}}",
+							"protocol": "https",
+							"host": [
+								"yourinstance",
+								"demandware",
+								"net"
+							],
+							"path": [
+								"dw",
+								"oauth2",
+								"access_token"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}"
+								}
+							]
+						}
+					},
+					"status": "OK ",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Accept-Ranges",
+							"value": "bytes"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						},
+						{
+							"key": "x-dw-request-base-id",
+							"value": "MvEDXJAGQ16MAAAK"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "Thu, 01 Dec 1994 16:00:00 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json;charset=UTF-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "94"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 11 Feb 2020 19:54:56 GMT-00:00"
+						},
+						{
+							"key": "Server",
+							"value": "Apache"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"access_token\": \"34fdf62b-3cb9-4685-84f5-ed640543b057\",\n    \"expires_in\": 899,\n    \"token_type\": \"Bearer\"\n}"
+				}
+			]
+		},
+		{
+			"name": "oAuth2 Get Order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "107de9d5-7dc3-45c3-84d3-7b4154599f7d",
+						"exec": [
+							"var orderData = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"customer_info\", JSON.stringify(orderData.customer_info));",
+							"postman.setEnvironmentVariable('billing_address', JSON.stringify(orderData.billing_address));",
+							"postman.setEnvironmentVariable('shipping_address', JSON.stringify(orderData.shipments[0].shipping_address));",
+							"postman.setEnvironmentVariable('shipping_method', JSON.stringify(orderData.shipments[0].shipping_method));",
+							"for(let i=0;i<orderData.product_items.length;i++) {",
+							"    let thisItem = orderData.product_items[i];",
+							"    if(thisItem.c_stickyioSubscriptionID) {",
+							"        postman.setEnvironmentVariable('item_id', thisItem.product_id);",
+							"        postman.setEnvironmentVariable('item_quantity', thisItem.quantity);",
+							"        postman.setEnvironmentVariable('item_subscriptionID', thisItem.c_stickyioSubscriptionID);",
+							"        postman.setEnvironmentVariable('item_stickyioBMID', thisItem.c_stickyioBillingModelID);",
+							"        postman.setEnvironmentVariable('item_stickyioBMDetails', thisItem.c_stickyioBillingModelDetails);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "54b8b698-8f85-4bc2-965a-40f18578797d",
+						"exec": [
+							"postman.setEnvironmentVariable(\"order_id\", \"00028101\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/orders/{{order_id}}?client_id={{client_id}}",
+					"protocol": "https",
+					"host": [
+						"yourinstance",
+						"demandware",
+						"net"
+					],
+					"path": [
+						"s",
+						"RefArch",
+						"dw",
+						"shop",
+						"v19_10",
+						"orders",
+						"{{order_id}}"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						}
+					]
+				},
+				"description": "Get a previously placed order from SFCC"
+			},
+			"response": [
+				{
+					"name": "oAuth2 Get Order",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/orders/{{order_id}}?client_id={{client_id}}",
+							"protocol": "https",
+							"host": [
+								"yourinstance",
+								"demandware",
+								"net"
+							],
+							"path": [
+								"s",
+								"RefArch",
+								"dw",
+								"shop",
+								"v19_10",
+								"orders",
+								"{{order_id}}"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}"
+								}
+							]
+						}
+					},
+					"status": "OK ",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Accept-Ranges",
+							"value": "bytes"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						},
+						{
+							"key": "x-dw-request-base-id",
+							"value": "MvFFYGkJQ16MAAAK"
+						},
+						{
+							"key": "ETag",
+							"value": "e95f7945c25843e194908f4db97fcbfd2b16ed04083c40bf0708716f88c513f5"
+						},
+						{
+							"key": "x-dw-resource-state",
+							"value": "e95f7945c25843e194908f4db97fcbfd2b16ed04083c40bf0708716f88c513f5"
+						},
+						{
+							"key": "Allow",
+							"value": "GET,HEAD,OPTIONS"
+						},
+						{
+							"key": "x-dw-version-status",
+							"value": "deprecated"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "max-age=0,no-cache,no-store,must-revalidate"
+						},
+						{
+							"key": "vary",
+							"value": "accept-encoding"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json;charset=UTF-8"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 11 Feb 2020 20:07:05 GMT-00:00"
+						},
+						{
+							"key": "Server",
+							"value": "Apache"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"_v\": \"19.10\",\n    \"_type\": \"order\",\n    \"_resource_state\": \"e95f7945c25843e194908f4db97fcbfd2b16ed04083c40bf0708716f88c513f5\",\n    \"adjusted_merchandize_total_tax\": 15,\n    \"adjusted_shipping_total_tax\": 0.5,\n    \"billing_address\": {\n        \"_type\": \"order_address\",\n        \"address1\": \"89 De Boom Street\",\n        \"city\": \"San Francisco\",\n        \"country_code\": \"US\",\n        \"first_name\": \"sticky\",\n        \"full_name\": \"sticky io\",\n        \"id\": \"c329530d8301783b2639e58b95\",\n        \"last_name\": \"io\",\n        \"phone\": \"800-455-9645\",\n        \"postal_code\": \"94107\",\n        \"state_code\": \"CA\"\n    },\n    \"confirmation_status\": \"confirmed\",\n    \"created_by\": \"Customer\",\n    \"creation_date\": \"2020-02-11T20:01:21.446Z\",\n    \"currency\": \"USD\",\n    \"customer_info\": {\n        \"_type\": \"customer_info\",\n        \"customer_id\": \"bhLbnwar7Kcsdy9EeTTog4Cfyj\",\n        \"customer_name\": \"sticky io\",\n        \"email\": \"product@sticky.io\"\n    },\n    \"customer_name\": \"sticky io\",\n    \"export_status\": \"ready\",\n    \"last_modified\": \"2020-02-11T20:02:06.330Z\",\n    \"merchandize_total_tax\": 15,\n    \"notes\": {\n        \"_type\": \"simple_link\",\n        \"link\": \"https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/orders/00028101/notes?client_id=dccf4d37-355e-4c32-bbdc-0b9d41ddc10e\"\n    },\n    \"order_no\": \"00028101\",\n    \"order_token\": \"yfBcjA3kSUSkz3AYyciUwIZhqaJSqJO8z7PQco7DKlo\",\n    \"order_total\": 325.48,\n    \"payment_instruments\": [\n        {\n            \"_type\": \"order_payment_instrument\",\n            \"amount\": 325.48,\n            \"payment_card\": {\n                \"_type\": \"payment_card\",\n                \"card_type\": \"Visa\",\n                \"credit_card_expired\": false,\n                \"credit_card_token\": \"4384952c-4d09-11ea-8170-128210930351\",\n                \"expiration_month\": 3,\n                \"expiration_year\": 2023,\n                \"holder\": \"sticky io\",\n                \"masked_number\": \"************1111\",\n                \"number_last_digits\": \"1111\"\n            },\n            \"payment_instrument_id\": \"d7f07635c235147e59e7c56a6c\",\n            \"payment_method_id\": \"CREDIT_CARD\"\n        }\n    ],\n    \"payment_status\": \"not_paid\",\n    \"product_items\": [\n        {\n            \"_type\": \"product_item\",\n            \"adjusted_tax\": 15,\n            \"base_price\": 299.99,\n            \"bonus_product_line_item\": false,\n            \"gift\": false,\n            \"item_id\": \"0ec680c288f4e7812610ed35be\",\n            \"item_text\": \"Charcoal Single Pleat Striped Wool Suit\",\n            \"price\": 299.99,\n            \"price_after_item_discount\": 299.99,\n            \"price_after_order_discount\": 299.99,\n            \"product_id\": \"640188016204M\",\n            \"product_name\": \"Charcoal Single Pleat Striped Wool Suit\",\n            \"quantity\": 1,\n            \"shipment_id\": \"me\",\n            \"tax\": 15,\n            \"tax_basis\": 299.99,\n            \"tax_class_id\": \"standard\",\n            \"tax_rate\": 0.05,\n            \"c_stickyioBillingModelDetails\": \"Annual Subscription\",\n            \"c_stickyioBillingModelID\": 4,\n            \"c_stickyioCampaignID\": 1,\n            \"c_stickyioOfferID\": 1,\n            \"c_stickyioProductID\": 5,\n            \"c_stickyioSubscriptionID\": \"ded9fd56cb38f46264101490569d2442\",\n            \"c_stickyioVariationID\": 1\n        }\n    ],\n    \"product_sub_total\": 299.99,\n    \"product_total\": 299.99,\n    \"shipments\": [\n        {\n            \"_type\": \"shipment\",\n            \"adjusted_merchandize_total_tax\": 15,\n            \"adjusted_shipping_total_tax\": 0.5,\n            \"gift\": false,\n            \"merchandize_total_tax\": 15,\n            \"product_sub_total\": 299.99,\n            \"product_total\": 299.99,\n            \"shipment_id\": \"me\",\n            \"shipment_no\": \"00061001\",\n            \"shipment_total\": 325.48,\n            \"shipping_address\": {\n                \"_type\": \"order_address\",\n                \"address1\": \"89 De Boom Street\",\n                \"city\": \"San Francisco\",\n                \"country_code\": \"US\",\n                \"first_name\": \"sticky\",\n                \"full_name\": \"sticky io\",\n                \"id\": \"d242076a29a44231640a514efa\",\n                \"last_name\": \"io\",\n                \"phone\": \"800-455-9645\",\n                \"postal_code\": \"94107\",\n                \"state_code\": \"CA\"\n            },\n            \"shipping_method\": {\n                \"_type\": \"shipping_method\",\n                \"description\": \"Order received within 7-10 business days\",\n                \"id\": \"001\",\n                \"name\": \"Ground\",\n                \"price\": 9.99,\n                \"c_estimatedArrivalTime\": \"7-10 Business Days\",\n                \"c_stickyioShippingID\": 8,\n                \"c_storePickupEnabled\": false\n            },\n            \"shipping_status\": \"not_shipped\",\n            \"shipping_total\": 9.99,\n            \"shipping_total_tax\": 0.5,\n            \"tax_total\": 15.5,\n            \"c_stickyioOrderNo\": \"10029\",\n            \"c_stickyioOrderResponse\": \"{\\\"gateway_id\\\":\\\"1\\\",\\\"response_code\\\":\\\"100\\\",\\\"error_found\\\":\\\"0\\\",\\\"order_id\\\":\\\"10029\\\",\\\"transactionID\\\":\\\"Not Available\\\",\\\"customerId\\\":\\\"1\\\",\\\"authId\\\":\\\"Not Available\\\",\\\"orderTotal\\\":\\\"325.48\\\",\\\"orderSalesTaxPercent\\\":\\\"5.00\\\",\\\"orderSalesTaxAmount\\\":\\\"15.50\\\",\\\"test\\\":\\\"1\\\",\\\"prepaid_match\\\":\\\"0\\\",\\\"line_items\\\":[{\\\"product_id\\\":\\\"5\\\",\\\"variant_id\\\":\\\"1\\\",\\\"quantity\\\":\\\"1\\\",\\\"subscription_id\\\":\\\"ded9fd56cb38f46264101490569d2442\\\"}],\\\"subscription_id\\\":{\\\"5\\\":\\\"ded9fd56cb38f46264101490569d2442\\\"},\\\"resp_msg\\\":\\\"Approved\\\"}\"\n        }\n    ],\n    \"shipping_items\": [\n        {\n            \"_type\": \"shipping_item\",\n            \"adjusted_tax\": 0.5,\n            \"base_price\": 9.99,\n            \"item_id\": \"6e933192316ee5d89aeeaf131d\",\n            \"item_text\": \"Shipping\",\n            \"price\": 9.99,\n            \"price_after_item_discount\": 9.99,\n            \"shipment_id\": \"me\",\n            \"tax\": 0.5,\n            \"tax_basis\": 9.99,\n            \"tax_class_id\": \"standard\",\n            \"tax_rate\": 0.05\n        }\n    ],\n    \"shipping_status\": \"not_shipped\",\n    \"shipping_total\": 9.99,\n    \"shipping_total_tax\": 0.5,\n    \"site_id\": \"RefArch\",\n    \"status\": \"open\",\n    \"taxation\": \"net\",\n    \"tax_total\": 15.5,\n    \"c_stickyioOrder\": true\n}"
+				}
+			]
+		},
+		{
+			"name": "oAuth2 Create Basket",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0cac4728-15ab-4f07-86c5-6f49a12ac4fb",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "8a880510-8587-4c41-9720-80de36ca650b",
+						"exec": [
+							"var basketResponse = JSON.parse(responseBody);",
+							"if(basketResponse.basket_id!==null) {",
+							"    postman.setEnvironmentVariable(\"basket_id\", basketResponse.basket_id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"customer_info\": {{customer_info}},\n    \"billing_address\": {{billing_address}},\n    \"shipments\": [\n    \t{\n    \t\t\"shipping_address\": {{shipping_address}},\n    \t\t\"shipping_method\": {{shipping_method}},\n    \t\t\"c_stickyioOrderNo\": \"{{$randomInt}}\"\n    \t}\n    ],\n    \"product_items\": [\n    \t{\n\t\t\t\"product_id\": \"{{item_id}}\",\n\t\t\t\"quantity\": {{item_quantity}},\n\t\t\t\"c_stickyioSubscriptionID\": \"{{item_subscriptionID}}\",\n\t\t\t\"c_stickyioBillingModelID\": {{item_llBMID}},\n\t\t\t\"c_stickyioBillingModelDetails\": \"{{item_llBMDetails}}\"\n\t\t}\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/baskets?client_id={{client_id}}",
+					"protocol": "https",
+					"host": [
+						"yourinstance",
+						"demandware",
+						"net"
+					],
+					"path": [
+						"s",
+						"RefArch",
+						"dw",
+						"shop",
+						"v19_10",
+						"baskets"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						}
+					]
+				},
+				"description": "Create a basket, using the information from the retrieved SFCC order along with our sticky.io information"
+			},
+			"response": [
+				{
+					"name": "oAuth2 Create Basket",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customer_info\": {{customer_info}},\n    \"billing_address\": {{billing_address}},\n    \"shipments\": [\n    \t{\n    \t\t\"shipping_address\": {{shipping_address}},\n    \t\t\"shipping_method\": {{shipping_method}},\n    \t\t\"c_stickyioOrderNo\": \"{{$randomInt}}\"\n    \t}\n    ],\n    \"product_items\": [\n    \t{\n\t\t\t\"product_id\": \"{{item_id}}\",\n\t\t\t\"quantity\": {{item_quantity}},\n\t\t\t\"c_stickyioSubscriptionID\": \"{{item_subscriptionID}}\",\n\t\t\t\"c_stickyioBillingModelID\": {{item_llBMID}},\n\t\t\t\"c_stickyioBillingModelDetails\": \"{{item_llBMDetails}}\"\n\t\t}\n\t]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/baskets?client_id={{client_id}}",
+							"protocol": "https",
+							"host": [
+								"yourinstance",
+								"demandware",
+								"net"
+							],
+							"path": [
+								"s",
+								"RefArch",
+								"dw",
+								"shop",
+								"v19_10",
+								"baskets"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}"
+								}
+							]
+						}
+					},
+					"status": "OK ",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Accept-Ranges",
+							"value": "bytes"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						},
+						{
+							"key": "x-dw-request-base-id",
+							"value": "MvFKYNEJQ16MAAAK"
+						},
+						{
+							"key": "ETag",
+							"value": "4e970d21b9c86163f957446fe9f979c9d549ee4d5f75926158ff6b173f57ea90"
+						},
+						{
+							"key": "x-dw-resource-state",
+							"value": "4e970d21b9c86163f957446fe9f979c9d549ee4d5f75926158ff6b173f57ea90"
+						},
+						{
+							"key": "Allow",
+							"value": "OPTIONS,POST"
+						},
+						{
+							"key": "x-dw-version-status",
+							"value": "deprecated"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "Thu, 01 Dec 1994 16:00:00 GMT"
+						},
+						{
+							"key": "vary",
+							"value": "accept-encoding"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json;charset=UTF-8"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 11 Feb 2020 20:08:49 GMT-00:00"
+						},
+						{
+							"key": "Server",
+							"value": "Apache"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"_v\": \"19.10\",\n    \"_type\": \"basket\",\n    \"_resource_state\": \"4e970d21b9c86163f957446fe9f979c9d549ee4d5f75926158ff6b173f57ea90\",\n    \"_flash\": [\n        {\n            \"_type\": \"flash\",\n            \"type\": \"PaymentMethodRequired\",\n            \"message\": \"No payment method ID was specified. Please provide a valid payment method ID.\",\n            \"path\": \"$.payment_instruments[0].payment_method_id\"\n        }\n    ],\n    \"adjusted_merchandize_total_tax\": 15,\n    \"adjusted_shipping_total_tax\": 0.5,\n    \"agent_basket\": true,\n    \"basket_id\": \"7d2f4da7dfde8078d63aaa8845\",\n    \"billing_address\": {\n        \"_type\": \"order_address\",\n        \"address1\": \"89 De Boom Street\",\n        \"city\": \"San Francisco\",\n        \"country_code\": \"US\",\n        \"first_name\": \"sticky\",\n        \"full_name\": \"sticky io\",\n        \"id\": \"ba0cdd1fcc13e25f3709461c38\",\n        \"last_name\": \"io\",\n        \"phone\": \"800-455-9645\",\n        \"postal_code\": \"94107\",\n        \"state_code\": \"CA\"\n    },\n    \"channel_type\": \"callcenter\",\n    \"creation_date\": \"2020-02-11T20:08:49.720Z\",\n    \"currency\": \"USD\",\n    \"customer_info\": {\n        \"_type\": \"customer_info\",\n        \"customer_id\": \"bcegdHmudJ7L7TKLNT8NWxaYbL\",\n        \"email\": \"product@sticky.io\"\n    },\n    \"last_modified\": \"2020-02-11T20:08:49.767Z\",\n    \"merchandize_total_tax\": 15,\n    \"notes\": {\n        \"_type\": \"simple_link\",\n        \"link\": \"https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/baskets/7d2f4da7dfde8078d63aaa8845/notes?client_id=dccf4d37-355e-4c32-bbdc-0b9d41ddc10e\"\n    },\n    \"order_total\": 325.48,\n    \"product_items\": [\n        {\n            \"_type\": \"product_item\",\n            \"adjusted_tax\": 15,\n            \"base_price\": 299.99,\n            \"bonus_product_line_item\": false,\n            \"gift\": false,\n            \"item_id\": \"20039a909a61978c77998e45a9\",\n            \"item_text\": \"Black Single Pleat Athletic Fit Wool Suit\",\n            \"price\": 299.99,\n            \"price_after_item_discount\": 299.99,\n            \"price_after_order_discount\": 299.99,\n            \"product_id\": \"750518699578M\",\n            \"product_name\": \"Black Single Pleat Athletic Fit Wool Suit\",\n            \"quantity\": 1,\n            \"shipment_id\": \"me\",\n            \"tax\": 15,\n            \"tax_basis\": 299.99,\n            \"tax_class_id\": \"standard\",\n            \"tax_rate\": 0.05,\n            \"c_stickyioBillingModelDetails\": \"Monthly Subscription (Bills on same date every month)\",\n            \"c_stickyioBillingModelID\": 3,\n            \"c_stickyioSubscriptionID\": \"deb9bed0be20f494f8f6363c01a59264\"\n        }\n    ],\n    \"product_sub_total\": 299.99,\n    \"product_total\": 299.99,\n    \"shipments\": [\n        {\n            \"_type\": \"shipment\",\n            \"adjusted_merchandize_total_tax\": 15,\n            \"adjusted_shipping_total_tax\": 0.5,\n            \"gift\": false,\n            \"merchandize_total_tax\": 15,\n            \"product_sub_total\": 299.99,\n            \"product_total\": 299.99,\n            \"shipment_id\": \"me\",\n            \"shipment_total\": 325.48,\n            \"shipping_address\": {\n                \"_type\": \"order_address\",\n                \"address1\": \"89 De Boom Street\",\n                \"city\": \"San Francisco\",\n                \"country_code\": \"US\",\n                \"first_name\": \"sticky\",\n                \"full_name\": \"sticky io\",\n                \"id\": \"946860eb25dff792abb0b9a6aa\",\n                \"last_name\": \"io\",\n                \"phone\": \"800-455-9645\",\n                \"postal_code\": \"94107\",\n                \"state_code\": \"CA\"\n            },\n            \"shipping_method\": {\n                \"_type\": \"shipping_method\",\n                \"description\": \"Order received within 7-10 business days\",\n                \"id\": \"001\",\n                \"name\": \"Ground\",\n                \"price\": 9.99,\n                \"c_estimatedArrivalTime\": \"7-10 Business Days\",\n                \"c_stickyioShippingID\": 8,\n                \"c_storePickupEnabled\": false\n            },\n            \"shipping_status\": \"not_shipped\",\n            \"shipping_total\": 9.99,\n            \"shipping_total_tax\": 0.5,\n            \"tax_total\": 15.5,\n            \"c_stickyioOrderNo\": \"356\"\n        }\n    ],\n    \"shipping_items\": [\n        {\n            \"_type\": \"shipping_item\",\n            \"adjusted_tax\": 0.5,\n            \"base_price\": 9.99,\n            \"item_id\": \"ac77373e2b73653beef2e89209\",\n            \"item_text\": \"Shipping\",\n            \"price\": 9.99,\n            \"price_after_item_discount\": 9.99,\n            \"shipment_id\": \"me\",\n            \"tax\": 0.5,\n            \"tax_basis\": 9.99,\n            \"tax_class_id\": \"standard\",\n            \"tax_rate\": 0.05\n        }\n    ],\n    \"shipping_total\": 9.99,\n    \"shipping_total_tax\": 0.5,\n    \"taxation\": \"net\",\n    \"tax_total\": 15.5\n}"
+				}
+			]
+		},
+		{
+			"name": "oAuth2 Add Payment Instrument",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0cac4728-15ab-4f07-86c5-6f49a12ac4fb",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "8a880510-8587-4c41-9720-80de36ca650b",
+						"exec": [
+							"var basketResponse = JSON.parse(responseBody);",
+							"if(basketResponse.basket_id!==null) {",
+							"    postman.setEnvironmentVariable(\"basket_id\", basketResponse.basket_id);",
+							"    postman.setEnvironmentVariable(\"basket_promo_item_id\", basketResponse.product_items[0].item_id)",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"payment_method_id\": \"sticky.io\",\n    \"amount\": 666.69,\n    \"c_stickyioTransactionID\": \"{{$randomUUID}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/baskets/{{basket_id}}/payment_instruments?client_id={{client_id}}",
+					"protocol": "https",
+					"host": [
+						"yourinstance",
+						"demandware",
+						"net"
+					],
+					"path": [
+						"s",
+						"RefArch",
+						"dw",
+						"shop",
+						"v19_10",
+						"baskets",
+						"{{basket_id}}",
+						"payment_instruments"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						}
+					]
+				},
+				"description": "Add the sticky.io Payment Instrument to the Basket along with the appropriate amount and other sticky.io-provided information"
+			},
+			"response": [
+				{
+					"name": "oAuth2 Add Payment Instrument",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"payment_method_id\": \"sticky.io\",\n    \"amount\": 666.69,\n    \"c_stickyioTransactionID\": \"{{$randomUUID}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/baskets/{{basket_id}}/payment_instruments?client_id={{client_id}}",
+							"protocol": "https",
+							"host": [
+								"yourinstance",
+								"demandware",
+								"net"
+							],
+							"path": [
+								"s",
+								"RefArch",
+								"dw",
+								"shop",
+								"v19_10",
+								"baskets",
+								"{{basket_id}}",
+								"payment_instruments"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}"
+								}
+							]
+						}
+					},
+					"status": "OK ",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Accept-Ranges",
+							"value": "bytes"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						},
+						{
+							"key": "x-dw-request-base-id",
+							"value": "MvFQYCoKQ16MAAAK"
+						},
+						{
+							"key": "ETag",
+							"value": "dc91ba5713540fa5a6a8ee662b13c11247cb094e0db733e4ddde00807603668b"
+						},
+						{
+							"key": "x-dw-resource-state",
+							"value": "dc91ba5713540fa5a6a8ee662b13c11247cb094e0db733e4ddde00807603668b"
+						},
+						{
+							"key": "Allow",
+							"value": "OPTIONS,POST"
+						},
+						{
+							"key": "x-dw-version-status",
+							"value": "deprecated"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "Thu, 01 Dec 1994 16:00:00 GMT"
+						},
+						{
+							"key": "vary",
+							"value": "accept-encoding"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json;charset=UTF-8"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 11 Feb 2020 20:10:18 GMT-00:00"
+						},
+						{
+							"key": "Server",
+							"value": "Apache"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"_v\": \"19.10\",\n    \"_type\": \"basket\",\n    \"_resource_state\": \"dc91ba5713540fa5a6a8ee662b13c11247cb094e0db733e4ddde00807603668b\",\n    \"adjusted_merchandize_total_tax\": 15,\n    \"adjusted_shipping_total_tax\": 0.5,\n    \"agent_basket\": true,\n    \"basket_id\": \"7d2f4da7dfde8078d63aaa8845\",\n    \"billing_address\": {\n        \"_type\": \"order_address\",\n        \"address1\": \"89 De Boom Street\",\n        \"city\": \"San Francisco\",\n        \"country_code\": \"US\",\n        \"first_name\": \"sticky\",\n        \"full_name\": \"sticky io\",\n        \"id\": \"ba0cdd1fcc13e25f3709461c38\",\n        \"last_name\": \"io\",\n        \"phone\": \"800-455-9645\",\n        \"postal_code\": \"94107\",\n        \"state_code\": \"CA\"\n    },\n    \"channel_type\": \"callcenter\",\n    \"creation_date\": \"2020-02-11T20:08:49.720Z\",\n    \"currency\": \"USD\",\n    \"customer_info\": {\n        \"_type\": \"customer_info\",\n        \"customer_id\": \"bcegdHmudJ7L7TKLNT8NWxaYbL\",\n        \"email\": \"product@sticky.io\"\n    },\n    \"last_modified\": \"2020-02-11T20:10:18.076Z\",\n    \"merchandize_total_tax\": 15,\n    \"notes\": {\n        \"_type\": \"simple_link\",\n        \"link\": \"https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/baskets/7d2f4da7dfde8078d63aaa8845/notes?client_id=dccf4d37-355e-4c32-bbdc-0b9d41ddc10e\"\n    },\n    \"order_total\": 325.48,\n    \"payment_instruments\": [\n        {\n            \"_type\": \"order_payment_instrument\",\n            \"amount\": 666.69,\n            \"payment_instrument_id\": \"92cb2e807fa0b2c653ad061980\",\n            \"payment_method_id\": \"sticky.io\"\n        }\n    ],\n    \"product_items\": [\n        {\n            \"_type\": \"product_item\",\n            \"adjusted_tax\": 15,\n            \"base_price\": 299.99,\n            \"bonus_product_line_item\": false,\n            \"gift\": false,\n            \"item_id\": \"20039a909a61978c77998e45a9\",\n            \"item_text\": \"Black Single Pleat Athletic Fit Wool Suit\",\n            \"price\": 299.99,\n            \"price_after_item_discount\": 299.99,\n            \"price_after_order_discount\": 299.99,\n            \"product_id\": \"750518699578M\",\n            \"product_name\": \"Black Single Pleat Athletic Fit Wool Suit\",\n            \"quantity\": 1,\n            \"shipment_id\": \"me\",\n            \"tax\": 15,\n            \"tax_basis\": 299.99,\n            \"tax_class_id\": \"standard\",\n            \"tax_rate\": 0.05,\n            \"c_stickyioBillingModelDetails\": \"Monthly Subscription (Bills on same date every month)\",\n            \"c_stickyioBillingModelID\": 3,\n            \"c_stickyioSubscriptionID\": \"deb9bed0be20f494f8f6363c01a59264\"\n        }\n    ],\n    \"product_sub_total\": 299.99,\n    \"product_total\": 299.99,\n    \"shipments\": [\n        {\n            \"_type\": \"shipment\",\n            \"adjusted_merchandize_total_tax\": 15,\n            \"adjusted_shipping_total_tax\": 0.5,\n            \"gift\": false,\n            \"merchandize_total_tax\": 15,\n            \"product_sub_total\": 299.99,\n            \"product_total\": 299.99,\n            \"shipment_id\": \"me\",\n            \"shipment_total\": 325.48,\n            \"shipping_address\": {\n                \"_type\": \"order_address\",\n                \"address1\": \"89 De Boom Street\",\n                \"city\": \"San Francisco\",\n                \"country_code\": \"US\",\n                \"first_name\": \"sticky\",\n                \"full_name\": \"sticky io\",\n                \"id\": \"946860eb25dff792abb0b9a6aa\",\n                \"last_name\": \"io\",\n                \"phone\": \"800-455-9645\",\n                \"postal_code\": \"94107\",\n                \"state_code\": \"CA\"\n            },\n            \"shipping_method\": {\n                \"_type\": \"shipping_method\",\n                \"description\": \"Order received within 7-10 business days\",\n                \"id\": \"001\",\n                \"name\": \"Ground\",\n                \"price\": 9.99,\n                \"c_estimatedArrivalTime\": \"7-10 Business Days\",\n                \"c_stickyioShippingID\": 8,\n                \"c_storePickupEnabled\": false\n            },\n            \"shipping_status\": \"not_shipped\",\n            \"shipping_total\": 9.99,\n            \"shipping_total_tax\": 0.5,\n            \"tax_total\": 15.5,\n            \"c_stickyioOrderNo\": \"356\"\n        }\n    ],\n    \"shipping_items\": [\n        {\n            \"_type\": \"shipping_item\",\n            \"adjusted_tax\": 0.5,\n            \"base_price\": 9.99,\n            \"item_id\": \"ac77373e2b73653beef2e89209\",\n            \"item_text\": \"Shipping\",\n            \"price\": 9.99,\n            \"price_after_item_discount\": 9.99,\n            \"shipment_id\": \"me\",\n            \"tax\": 0.5,\n            \"tax_basis\": 9.99,\n            \"tax_class_id\": \"standard\",\n            \"tax_rate\": 0.05\n        }\n    ],\n    \"shipping_total\": 9.99,\n    \"shipping_total_tax\": 0.5,\n    \"taxation\": \"net\",\n    \"tax_total\": 15.5\n}"
+				}
+			]
+		},
+		{
+			"name": "oAuth2 Create Order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4bbf5e80-6c4f-4aaf-9785-e9f5031230ca",
+						"exec": [
+							"var orderResponse = JSON.parse(responseBody);",
+							"if(orderResponse.basket_id!==null) {",
+							"    postman.setEnvironmentVariable(\"order_no\", orderResponse.order_no);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"basket_id\": \"{{basket_id}}\"\n}"
+				},
+				"url": {
+					"raw": "https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/orders?client_id={{client_id}}",
+					"protocol": "https",
+					"host": [
+						"yourinstance",
+						"demandware",
+						"net"
+					],
+					"path": [
+						"s",
+						"RefArch",
+						"dw",
+						"shop",
+						"v19_10",
+						"orders"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						}
+					]
+				},
+				"description": "Create the SFCC order from the Basket"
+			},
+			"response": [
+				{
+					"name": "oAuth2 Create Order",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"basket_id\": \"{{basket_id}}\"\n}"
+						},
+						"url": {
+							"raw": "https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/orders?client_id={{client_id}}",
+							"protocol": "https",
+							"host": [
+								"yourinstance",
+								"demandware",
+								"net"
+							],
+							"path": [
+								"s",
+								"RefArch",
+								"dw",
+								"shop",
+								"v19_10",
+								"orders"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}"
+								}
+							]
+						}
+					},
+					"status": "OK ",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Accept-Ranges",
+							"value": "bytes"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						},
+						{
+							"key": "x-dw-request-base-id",
+							"value": "MvFSYFQKQ16MAAAK"
+						},
+						{
+							"key": "ETag",
+							"value": "0e05074f53f47ec172c73f07773b882a518ddf3749de8ea06092caf076653ba9"
+						},
+						{
+							"key": "x-dw-resource-state",
+							"value": "0e05074f53f47ec172c73f07773b882a518ddf3749de8ea06092caf076653ba9"
+						},
+						{
+							"key": "Allow",
+							"value": "OPTIONS,POST"
+						},
+						{
+							"key": "x-dw-version-status",
+							"value": "deprecated"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "Thu, 01 Dec 1994 16:00:00 GMT"
+						},
+						{
+							"key": "vary",
+							"value": "accept-encoding"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json;charset=UTF-8"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 11 Feb 2020 20:11:02 GMT-00:00"
+						},
+						{
+							"key": "Server",
+							"value": "Apache"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"_v\": \"19.10\",\n    \"_type\": \"order\",\n    \"_resource_state\": \"0e05074f53f47ec172c73f07773b882a518ddf3749de8ea06092caf076653ba9\",\n    \"adjusted_merchandize_total_tax\": 15,\n    \"adjusted_shipping_total_tax\": 0.5,\n    \"billing_address\": {\n        \"_type\": \"order_address\",\n        \"address1\": \"89 De Boom Street\",\n        \"city\": \"San Francisco\",\n        \"country_code\": \"US\",\n        \"first_name\": \"sticky\",\n        \"full_name\": \"sticky io\",\n        \"id\": \"804ddafd4f0e198b23e6bd446a\",\n        \"last_name\": \"io\",\n        \"phone\": \"800-455-9645\",\n        \"postal_code\": \"94107\",\n        \"state_code\": \"CA\"\n    },\n    \"channel_type\": \"subscriptions\",\n    \"confirmation_status\": \"confirmed\",\n    \"created_by\": \"sticky.io\",\n    \"creation_date\": \"2020-02-11T20:11:00.684Z\",\n    \"currency\": \"USD\",\n    \"customer_info\": {\n        \"_type\": \"customer_info\",\n        \"customer_id\": \"bcegdHmudJ7L7TKLNT8NWxaYbL\",\n        \"customer_name\": \"sticky io\",\n        \"email\": \"product@sticky.io\"\n    },\n    \"customer_name\": \"sticky io\",\n    \"export_status\": \"ready\",\n    \"last_modified\": \"2020-02-11T20:11:01.044Z\",\n    \"merchandize_total_tax\": 15,\n    \"notes\": {\n        \"_type\": \"simple_link\",\n        \"link\": \"https://yourinstance.demandware.net/s/RefArch/dw/shop/v19_10/orders/00028201/notes?client_id=dccf4d37-355e-4c32-bbdc-0b9d41ddc10e\"\n    },\n    \"order_no\": \"00028201\",\n    \"order_token\": \"I_hFpWLZOHmZWALnmk82hm--ykLadh5oHRHYO8K7CsM\",\n    \"order_total\": 325.48,\n    \"payment_instruments\": [\n        {\n            \"_type\": \"order_payment_instrument\",\n            \"amount\": 666.69,\n            \"payment_instrument_id\": \"382281565901b6d43b74009ceb\",\n            \"payment_method_id\": \"sticky.io\"\n        }\n    ],\n    \"payment_status\": \"paid\",\n    \"product_items\": [\n        {\n            \"_type\": \"product_item\",\n            \"adjusted_tax\": 15,\n            \"base_price\": 299.99,\n            \"bonus_product_line_item\": false,\n            \"gift\": false,\n            \"item_id\": \"18816f065db352594ce643b606\",\n            \"item_text\": \"Black Single Pleat Athletic Fit Wool Suit\",\n            \"price\": 299.99,\n            \"price_after_item_discount\": 299.99,\n            \"price_after_order_discount\": 299.99,\n            \"product_id\": \"750518699578M\",\n            \"product_name\": \"Black Single Pleat Athletic Fit Wool Suit\",\n            \"quantity\": 1,\n            \"shipment_id\": \"me\",\n            \"tax\": 15,\n            \"tax_basis\": 299.99,\n            \"tax_class_id\": \"standard\",\n            \"tax_rate\": 0.05,\n            \"c_stickyioBillingModelDetails\": \"Monthly Subscription (Bills on same date every month)\",\n            \"c_stickyioBillingModelID\": 3,\n            \"c_stickyioSubscriptionID\": \"deb9bed0be20f494f8f6363c01a59264\"\n        }\n    ],\n    \"product_sub_total\": 299.99,\n    \"product_total\": 299.99,\n    \"shipments\": [\n        {\n            \"_type\": \"shipment\",\n            \"adjusted_merchandize_total_tax\": 15,\n            \"adjusted_shipping_total_tax\": 0.5,\n            \"gift\": false,\n            \"merchandize_total_tax\": 15,\n            \"product_sub_total\": 299.99,\n            \"product_total\": 299.99,\n            \"shipment_id\": \"me\",\n            \"shipment_no\": \"00061501\",\n            \"shipment_total\": 325.48,\n            \"shipping_address\": {\n                \"_type\": \"order_address\",\n                \"address1\": \"89 De Boom Street\",\n                \"city\": \"San Francisco\",\n                \"country_code\": \"US\",\n                \"first_name\": \"sticky\",\n                \"full_name\": \"sticky io\",\n                \"id\": \"425c9de12571b6c15c5ffc47ae\",\n                \"last_name\": \"io\",\n                \"phone\": \"800-455-9645\",\n                \"postal_code\": \"94107\",\n                \"state_code\": \"CA\"\n            },\n            \"shipping_method\": {\n                \"_type\": \"shipping_method\",\n                \"description\": \"Order received within 7-10 business days\",\n                \"id\": \"001\",\n                \"name\": \"Ground\",\n                \"price\": 9.99,\n                \"c_estimatedArrivalTime\": \"7-10 Business Days\",\n                \"c_stickyioShippingID\": 8,\n                \"c_storePickupEnabled\": false\n            },\n            \"shipping_status\": \"not_shipped\",\n            \"shipping_total\": 9.99,\n            \"shipping_total_tax\": 0.5,\n            \"tax_total\": 15.5,\n            \"c_stickyioOrderNo\": \"356\"\n        }\n    ],\n    \"shipping_items\": [\n        {\n            \"_type\": \"shipping_item\",\n            \"adjusted_tax\": 0.5,\n            \"base_price\": 9.99,\n            \"item_id\": \"2ae137aca58510abdaeb517d31\",\n            \"item_text\": \"Shipping\",\n            \"price\": 9.99,\n            \"price_after_item_discount\": 9.99,\n            \"shipment_id\": \"me\",\n            \"tax\": 0.5,\n            \"tax_basis\": 9.99,\n            \"tax_class_id\": \"standard\",\n            \"tax_rate\": 0.05\n        }\n    ],\n    \"shipping_status\": \"not_shipped\",\n    \"shipping_total\": 9.99,\n    \"shipping_total_tax\": 0.5,\n    \"site_id\": \"RefArch\",\n    \"status\": \"new\",\n    \"taxation\": \"net\",\n    \"tax_total\": 15.5,\n    \"c_stickyioOrder\": true\n}"
+				}
+			]
+		},
+		{
+			"name": "oAuth2 Get Password Expiration",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4bbf5e80-6c4f-4aaf-9785-e9f5031230ca",
+						"exec": [
+							"var orderResponse = JSON.parse(responseBody);",
+							"if(orderResponse.basket_id!==null) {",
+							"    postman.setEnvironmentVariable(\"order_no\", orderResponse.order_no);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://yourinstance.demandware.net/s/-/dw/data/v19_10/users/this?client_id={{client_id}}",
+					"protocol": "https",
+					"host": [
+						"yourinstance",
+						"demandware",
+						"net"
+					],
+					"path": [
+						"s",
+						"-",
+						"dw",
+						"data",
+						"v19_10",
+						"users",
+						"this"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						}
+					]
+				},
+				"description": "Get account data from SFCC so we can determine password expiration date"
+			},
+			"response": [
+				{
+					"name": "oAuth2 Get Password Expiration",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://yourinstance.demandware.net/s/-/dw/data/v19_10/users/this?client_id={{client_id}}",
+							"protocol": "https",
+							"host": [
+								"yourinstance",
+								"demandware",
+								"net"
+							],
+							"path": [
+								"s",
+								"-",
+								"dw",
+								"data",
+								"v19_10",
+								"users",
+								"this"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}"
+								}
+							]
+						}
+					},
+					"status": "OK ",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Accept-Ranges",
+							"value": "bytes"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						},
+						{
+							"key": "x-dw-request-base-id",
+							"value": "MvFUYGwKQ16MAAAK"
+						},
+						{
+							"key": "Allow",
+							"value": "GET,HEAD,OPTIONS"
+						},
+						{
+							"key": "x-dw-version-status",
+							"value": "deprecated"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "max-age=0,no-cache,no-store,must-revalidate"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json;charset=UTF-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "514"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 11 Feb 2020 20:11:24 GMT-00:00"
+						},
+						{
+							"key": "Server",
+							"value": "Apache"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"_v\": \"19.10\",\n    \"_type\": \"user\",\n    \"disabled\": false,\n    \"email\": \"product@sticky.io\",\n    \"first_name\": \"sticky.io\",\n    \"last_login_date\": \"2020-02-11\",\n    \"last_name\": \"Subscription Services\",\n    \"link\": \"https://yourinstance.demandware.net/s/-/dw/data/v19_10/users/sticky.io\",\n    \"locked\": false,\n    \"login\": \"sticky.io\",\n    \"password_expiration_date\": \"2020-04-22T22:41:45.000Z\",\n    \"password_modification_date\": \"2020-01-23T22:41:45.000Z\",\n    \"preferred_data_locale\": \"default\",\n    \"preferred_ui_locale\": \"default\",\n    \"roles\": [\n        \"Administrator\"\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "oAuth2 Change Password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4bbf5e80-6c4f-4aaf-9785-e9f5031230ca",
+						"exec": [
+							"var orderResponse = JSON.parse(responseBody);",
+							"if(orderResponse.basket_id!==null) {",
+							"    postman.setEnvironmentVariable(\"order_no\", orderResponse.order_no);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"current_password\" : \"MyOldPWD1!\",\n   \"password\": \"MyNewPWD1!\"\n}"
+				},
+				"url": {
+					"raw": "https://yourinstance.demandware.net/s/-/dw/data/v19_10/users/this/password?client_id={{client_id}}",
+					"protocol": "https",
+					"host": [
+						"yourinstance",
+						"demandware",
+						"net"
+					],
+					"path": [
+						"s",
+						"-",
+						"dw",
+						"data",
+						"v19_10",
+						"users",
+						"this",
+						"password"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						}
+					]
+				},
+				"description": "Change the sticky.io Business Manager user's password"
+			},
+			"response": []
+		},
+		{
+			"name": "oAuth2 Execute Job",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4bbf5e80-6c4f-4aaf-9785-e9f5031230ca",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://yourinstance.demandware.net/s/-/dw/data/v19_10/jobs/sticky.io Campaign Sync/executions?client_id={{client_id}}",
+					"protocol": "https",
+					"host": [
+						"yourinstance",
+						"demandware",
+						"net"
+					],
+					"path": [
+						"s",
+						"-",
+						"dw",
+						"data",
+						"v19_10",
+						"jobs",
+						"sticky.io Campaign Sync",
+						"executions"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						}
+					]
+				},
+				"description": "Execute the sticky.io Campaign Sync job"
+			},
+			"response": [
+				{
+					"name": "oAuth2 Execute Job",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://yourinstance.demandware.net/s/-/dw/data/v19_10/jobs/sticky.io Campaign Sync/executions?client_id={{client_id}}",
+							"protocol": "https",
+							"host": [
+								"yourinstance",
+								"demandware",
+								"net"
+							],
+							"path": [
+								"s",
+								"-",
+								"dw",
+								"data",
+								"v19_10",
+								"jobs",
+								"sticky.io Campaign Sync",
+								"executions"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}"
+								}
+							]
+						}
+					},
+					"status": "OK ",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Accept-Ranges",
+							"value": "bytes"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5"
+						},
+						{
+							"key": "x-dw-request-base-id",
+							"value": "MvFYYMgKQ16MAAAK"
+						},
+						{
+							"key": "Allow",
+							"value": "OPTIONS,POST"
+						},
+						{
+							"key": "x-dw-version-status",
+							"value": "deprecated"
+						},
+						{
+							"key": "x-dw-resource-state",
+							"value": "9e1abab0a2f0ad49fa3d9d23662003ff72ce9599ffbcb60834840575d8a85912"
+						},
+						{
+							"key": "ETag",
+							"value": "9e1abab0a2f0ad49fa3d9d23662003ff72ce9599ffbcb60834840575d8a85912"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "Thu, 01 Dec 1994 16:00:00 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json;charset=UTF-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "502"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 11 Feb 2020 20:12:56 GMT-00:00"
+						},
+						{
+							"key": "Server",
+							"value": "Apache"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"_v\": \"19.10\",\n    \"_type\": \"job_execution\",\n    \"_resource_state\": \"9e1abab0a2f0ad49fa3d9d23662003ff72ce9599ffbcb60834840575d8a85912\",\n    \"client_id\": \"dccf4d37-355e-4c32-bbdc-0b9d41ddc10e\",\n    \"execution_status\": \"pending\",\n    \"id\": \"197681392\",\n    \"is_log_file_existing\": false,\n    \"is_restart\": false,\n    \"job_id\": \"sticky.io Campaign Sync\",\n    \"log_file_name\": \"Job-sticky.io Campaign Sync-20200211201256212.log\",\n    \"modification_time\": \"2020-02-11T20:12:56.218Z\",\n    \"start_time\": \"2020-02-11T20:12:56.218Z\",\n    \"status\": \"PENDING\",\n    \"user_login\": \"sticky.io\"\n}"
+				}
+			]
+		}
+	],
+	"protocolProfileBehavior": {}
+}

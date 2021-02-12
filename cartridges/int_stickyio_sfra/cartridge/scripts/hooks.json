@@ -1,0 +1,20 @@
+{
+    "hooks": [
+        {
+            "name": "app.payment.processor.basic_credit_stickyio",
+            "script": "./hooks/payment/processor/basic_credit_stickyio.js"
+        },
+        {
+            "name": "dw.ocapi.shop.order.beforePOST",
+            "script": "./hooks/stickyioOCAPI/order.js"
+        },
+        {
+            "name": "dw.ocapi.shop.order.afterPOST",
+            "script": "./hooks/stickyioOCAPI/order.js"
+        },
+        {
+            "name": "dw.ocapi.shop.basket.payment_instrument.afterPOST",
+            "script": "./hooks/stickyioOCAPI/auth.js"
+        }
+    ]
+}

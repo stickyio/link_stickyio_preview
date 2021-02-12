@@ -1,0 +1,50 @@
+.stickyiosubscriptionresponse {
+  border: .1em dashed #000000;
+  padding: .5em;
+  display: none;
+  margin-top: .5em; }
+
+.stickyiohide {
+  display: none; }
+
+.stickyioconfirm {
+  text-align: center; }
+
+.stickyioconfirm .error {
+  background-color: #f08080;
+  padding: .5em; }
+
+.stickyioconfirmbutton {
+  background-color: #98ff98; }
+
+.stickyiosubmansuccess {
+  background-color: #98ff98; }
+
+.stickyiosubmanerror {
+  background-color: #f08080; }
+
+.ui-datepicker {
+  z-index: 2 !important; }
+
+/*sadly, this important is necessary because the native datepicker css doesn't set a z-index high enough*/
+/*modal overrides for the standard Bootstrap modal
+Bootstrap modal is built in such a way that capturing a click
+on the "fade" overlay is indistinguishable from a dialog or its 
+controls click.
+By changing the way the modal is drawn (having the fade truly be
+behind the dialog) we can detect a click in our javascript
+and react to that event accordingly.
+*/
+.modal {
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  max-width: 100%;
+  width: 75%;
+  height: initial; }
+
+.modal .modal-dialog {
+  margin: 0; }
+
+.modal .quick-view-dialog {
+  max-width: 100%; }

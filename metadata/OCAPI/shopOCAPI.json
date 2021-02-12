@@ -1,0 +1,37 @@
+{
+    "_v": "19.10",
+    "clients": [{
+        "client_id": "{API CLIENT ID}",
+        "allowed_origins": [],
+        "resources": [{
+                "resource_id": "/baskets",
+                "methods": ["post"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/baskets/*/payment_instruments",
+                "methods": ["post"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/baskets/*/price_adjustments",
+                "methods": ["post"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/orders",
+                "methods": ["post", "get"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/orders/*",
+                "methods": ["get"],
+                "read_attributes": "(**)"
+            }
+        ]
+    }]
+}

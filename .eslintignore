@@ -1,0 +1,11 @@
+/test
+/node_modules
+/webpack.config.js
+/package.json
+/dw.json
+/jsconfig.json
+/cartridges/int_stickyio_sfra/cartridge/static
+/cartridges/bm_stickyio/cartridge/static
+/cartridges/modules
+/cartridges/app_storefront_base
+/cartridges/bm_app_storefront_base

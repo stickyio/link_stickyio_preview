@@ -1,0 +1,93 @@
+<isdecorate template="application/MenuFrame">
+    <iscontent type="text/html" charset="UTF-8"/>
+    <isinclude template="inc/Modules"/>
+    <!-- Page Navigator -->
+    <isset name="TOP_URL" value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', pdict.CurrentHttpParameterMap.CurrentMenuItemId)}" scope="page"/>
+    <isbreadcrumb name1="${pdict.CurrentHttpParameterMap.SelectedMenuItem.stringValue}" url1="${TOP_URL.toString()}" name2="Custom Product Configuration"/>
+    <!-- EO Page Navigator -->
+    <link href="${URLUtils.staticURL('css/productConfig.css')}" rel="stylesheet" type="text/css" />
+    <script src="${URLUtils.staticURL('js/stickyio_bm.js')}"></script>
+    <div class="stickyioproductconfig">
+        <hr/>
+        <p>${Resource.msg('productconfig.campaignlastupdate', 'stickyio', null)}: <span class="stickyioupdatetime">${(pdict.stickyioCampaigns && pdict.stickyioCampaigns.updateTime?new Date(pdict.stickyioCampaigns.updateTime):Resource.msg('productconfig.campaignlastupdatenever', 'stickyio', null))}</span><br/>
+        <span class="stickyionumoffers">${parseInt(pdict.numOffers).toFixed(0);}</span> ${Resource.msg('productconfig.numoffers', 'stickyio', null)} <button class="stickyiogetcampaigns" href="${URLUtils.url('Stickyio_bm-GetCampaigns')}">${Resource.msg('productconfig.button.updatecampaigns', 'stickyio', null)}</button> <img alt="${Resource.msg('productconfig.imgalt.loading', 'stickyio', null)}" class="stickyiogetcampaignloading stickyioload" src="${URLUtils.staticURL('images/stickyioload.gif')}" /><br/>
+        <span class="stickyionumproducts">${pdict.customOfferProducts.length.toFixed(0)}</span> ${Resource.msg('productconfig.numproducts', 'stickyio', null)}</p>
+        <isif condition="${pdict.noCustoms}">
+            <hr/>
+            <h2 class="stickyioerror">${Resource.msg('productconfig.nocustoms', 'stickyio', null)}</h2>
+            <ol>
+                <li><a href="${URLUtils.url('Stickyio_bm-CustomOffer','SelectedMenuItem','Stickyio','CurrentMenuItemId','Stickyio')}">${Resource.msg('productconfig.nocustoms.step1', 'stickyio', null)}</a></li>
+                <li>${Resource.msg('productconfig.nocustoms.step2', 'stickyio', null)}: <button class="stickyiogetcampaigns" href="${URLUtils.url('Stickyio_bm-GetCampaigns')}">${Resource.msg('productconfig.button.updatecampaigns', 'stickyio', null)}</button> <img alt="${Resource.msg('productconfig.imgalt.loading', 'stickyio', null)}" class="stickyiogetcampaignloading stickyioload" src="${URLUtils.staticURL('images/stickyioload.gif')}" /></li>
+                <li>${Resource.msg('productconfig.nocustoms.step3', 'stickyio', null)}</li>
+                <li>${Resource.msg('productconfig.nocustoms.step4', 'stickyio', null)}</li>
+            </ol>
+        </isif>
+        <isif condition="${pdict.stickyioCampaigns && Object.keys(pdict.stickyioCampaigns.campaigns).length > 0 && pdict.customOfferProducts.length > 0 && !pdict.noCustoms}">
+            <span class="stickyiocampaigns" data-stickyiocampaigns="${JSON.stringify(pdict.stickyioCampaigns.campaigns)}"></span>
+            <hr/>
+                ${Resource.msg('productconfig.instructions', 'stickyio', null)}<br/>
+                <select class="stickyioproductselect">
+                    <option value="0">${Resource.msg('productconfig.selectproduct', 'stickyio', null)}</option>
+                    <isloop items="${pdict.customOfferProducts}" var="thisProduct">
+                        <option value="${thisProduct.ID}">${thisProduct.custom.stickyioReady?Resource.msg('productconfig.productready', 'stickyio', null)+' ':''} ${thisProduct.ID} (${thisProduct.name})</option>
+                    </isloop>
+                </select> ${Resource.msg('productconfig.instructions.or', 'stickyio', null)} 
+            <input class="stickyioproductsearch" type="text" placeholder="${Resource.msg('productconfig.field.productsearchdefault', 'stickyio', null)}" /> <button class="stickyioproductsearchbutton" href="${URLUtils.url('Stickyio_bm-GetProduct')}">${Resource.msg('productconfig.button.getproduct', 'stickyio', null)}</button> <span class="stickyioproducterror">${Resource.msg('productconfig.error.invalidpid', 'stickyio', null)}</span>
+        </isif>
+        <isif condition="${!empty(pdict.product) && !pdict.noCustoms}">
+            <hr/>
+            <isif condition="${empty(pdict.product) || !pdict.product.custom.stickyioSubscriptionActive}">
+                <p class="stickyioproductnosubscription stickyioerror">${(pdict.product?pdict.product.ID:'This product')} ${Resource.msg('productconfig.error.notvalid', 'stickyio', null)}</p>
+            <iselse/>
+                <span class="stickyioproductid" data-stickyioproductid="${pdict.product.ID}"></span>
+                <span class="stickyioproductcampaigndata" data-stickyioproductcampaigndata="${JSON.stringify(pdict.productCampaignData)}"></span>
+                <table border="0">
+                    <tr class="stickyioproductofferselectrow">
+                        <td><label for="stickyioproductofferselect">${Resource.msg('productconfig.heading.offer', 'stickyio', null)}:</label></td>
+                        <td>
+                            <select class="stickyioproductofferselect" data-default="${Resource.msg('productconfig.selectoffer', 'stickyio', null)}">
+                                <option value="0">${Resource.msg('productconfig.selectoffer', 'stickyio', null)}</option>
+                                <isloop items="${Object.keys(pdict.stickyioCampaigns.campaigns[pdict.product.custom.stickyioCampaignID].offers)}" var="offerID">
+                                    <isif condition="${offerID > pdict.packagedOffersMaxID}">
+                                        <option value="${offerID}" ${(offerID == pdict.product.custom.stickyioCustomOfferID?"selected":'')}>${pdict.stickyioCampaigns.campaigns[pdict.product.custom.stickyioCampaignID].offers[offerID].name}</option>
+                                    </isif>
+                                </isloop>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="stickyioproductbillingmodelselectrow">
+                        <td class="stickyioproductaligntop"><label for="stickyioproductbillingmodelselect">${Resource.msg('productconfig.heading.billingmodel', 'stickyio', null)}:</label></td>
+                        <td>
+                            <isset name="soloBM" value="false" scope="page"/>
+                            <isif condition="${!empty(pdict.product.custom.stickyioCustomOfferID) && Object.keys(pdict.stickyioCampaigns.campaigns[pdict.product.custom.stickyioCampaignID].offers[pdict.product.custom.stickyioCustomOfferID].billing_models).length == 1}">
+                                <isset name="soloBM" value="true" scope="page"/>
+                                <isset name="soloBMDetails" value="${pdict.stickyioCampaigns.campaigns[pdict.product.custom.stickyioCampaignID].offers[pdict.product.custom.stickyioCustomOfferID].billing_models[Object.keys(pdict.stickyioCampaigns.campaigns[pdict.product.custom.stickyioCampaignID].offers[pdict.product.custom.stickyioCustomOfferID].billing_models)[0]].name}" scope="page"/>
+                            </isif>
+                            <select multiple class="stickyioproductbillingmodelselect" data-default="${Resource.msg('productconfig.selectbillingmodel', 'stickyio', null)}">
+                                <isif condition="${soloBM === true}">
+                                    <option value="${billingModelID}" selected>${soloBMDetails}</option>
+                                <iselse/>
+                                    <option value="0" disabled>${Resource.msg('productconfig.selectbillingmodel', 'stickyio', null)}</option>
+                                    <isif condition="${!empty(pdict.product.custom.stickyioCustomOfferID)}">
+                                        <isloop items="${Object.keys(pdict.stickyioCampaigns.campaigns[pdict.product.custom.stickyioCampaignID].offers[pdict.product.custom.stickyioCustomOfferID].billing_models)}" var="billingModelID">
+                                            <option value="${billingModelID}" ${pdict.productAvailableBillingModels.toArray().indexOf(Number(billingModelID)) != -1?"selected":''}>${pdict.stickyioCampaigns.campaigns[pdict.product.custom.stickyioCampaignID].offers[pdict.product.custom.stickyioCustomOfferID].billing_models[billingModelID].name}</option>
+                                        </isloop>
+                                    </isif>
+                                </isif>
+                            </select><br/>
+                            <isif condition="${!!soloBM}">
+                                <span class="stickyioproductbillingmodelselecthint">${Resource.msg('productconfig.selectbillingmodelhint', 'stickyio', null)}</span><br/>
+                            </isif>
+                            <span class="stickyiobillingmodelerror">${Resource.msg('productconfig.error.nobillingmodels', 'stickyio', null)}</span>
+                        </td>
+                    </tr>
+                    <tr class="stickyioproductallowconsumerselectrow">
+                        <td><label for="stickyioproductallowconsumerselect">${Resource.msg('productconfig.heading.billingmodelselectable', 'stickyio', null)}:</label></td>
+                        <td><input id="stickyioproductallowconsumerselect" class="stickyioproductallowconsumerselect" type="checkbox" ${(pdict.product.custom.stickyioBillingModelConsumerSelectable&&!!soloBM?"checked":"")} ${soloBM===true?"disabled":""} /></td>
+                    </tr>
+                    <tr class="stickyioproductsaverow"><td>&nbsp;</td><td><button class="stickyioproductsavebutton" href="${URLUtils.url('Stickyio_bm-SaveProduct')}">${Resource.msg('productconfig.button.save', 'stickyio', null)}</button> <span class="stickyioproductsavestatus"></span> <img alt="${Resource.msg('productconfig.imgalt.saving', 'stickyio', null)}" class="stickyioproductsaving stickyioload" src="${URLUtils.staticURL('images/stickyioload.gif')}" /></td></tr>
+                </table>
+            </isif>
+        </isif>
+    </div>
+</isdecorate>

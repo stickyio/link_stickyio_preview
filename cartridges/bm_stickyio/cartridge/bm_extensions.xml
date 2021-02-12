@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<extensions xmlns="http://www.demandware.com/xml/bmmodules/2007-12-11" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.demandware.com/xml/bmmodules/2007-12-11 bmext.xsd">
+	<menuitem id="stickyio" position="399999" site="true">
+		<name xml:lang="x-default">sticky.io</name>
+		<short_description xml:lang="x-default">sticky.io Subscription Management</short_description>
+		<description xml:lang="x-default">sticky.io Subscription Management</description>
+		<icon>icons/logo.png</icon>
+	</menuitem>
+	<menuaction id="stickyio_id01" menupath="stickyio" position="99999" site="true">
+		<name xml:lang="x-default">Custom Offer Configuration</name>
+		<short_description xml:lang="x-default">Custom Offer Configuration</short_description>
+		<description xml:lang="x-default">Custom Offer Configuration</description>
+		<exec pipeline="Stickyio_bm" node="CustomOffer" />
+		<sub-pipelines>
+			<pipeline name="Stickyio_bm-CustomOffer" />
+			<pipeline name="Stickyio_bm-sso" />
+		</sub-pipelines>
+		<icon>icons/logo.png</icon>
+	</menuaction>
+	<menuaction id="stickyio_id02" menupath="stickyio" position="199999" site="true">
+		<name xml:lang="x-default">Custom Product Configuration</name>
+		<short_description xml:lang="x-default">Custom Product Configuration</short_description>
+		<description xml:lang="x-default">Custom Product Configuration</description>
+		<exec pipeline="Stickyio_bm" node="ProductConfig" />
+		<sub-pipelines>
+			<pipeline name="Stickyio_bm-ProductConfig" />
+			<pipeline name="Stickyio_bm-GetCampaigns" />
+			<pipeline name="Stickyio_bm-SetProduct" />
+			<pipeline name="Stickyio_bm-SaveProduct" />
+		</sub-pipelines>
+		<icon>icons/logo.png</icon>
+	</menuaction>
+	<menuaction id="stickyio_id03" menupath="stickyio" position="299999" site="true">
+		<name xml:lang="x-default">Preferences</name>
+		<short_description xml:lang="x-default">Preferences</short_description>
+		<description xml:lang="x-default">Preferences</description>
+		<exec pipeline="Stickyio_bm" node="Prefs" />
+		<sub-pipelines>
+			<pipeline name="Stickyio_bm-Prefs" />
+		</sub-pipelines>
+		<icon>icons/logo.png</icon>
+	</menuaction>
+	<menuaction id="stickyio_id04" menupath="orders" position="299999" site="true">
+		<name xml:lang="x-default">sticky.io Order Management</name>
+		<short_description xml:lang="x-default">sticky.io Order Management</short_description>
+		<description xml:lang="x-default">sticky.io Order Management</description>
+		<exec pipeline="Stickyio_bm" node="OrderManagement" />
+		<sub-pipelines>
+			<pipeline name="Stickyio_bm-OrderManagement" />
+			<pipeline name="Stickyio_bm-sso" />
+		</sub-pipelines>
+		<icon>icons/logo.png</icon>
+	</menuaction>
+</extensions>

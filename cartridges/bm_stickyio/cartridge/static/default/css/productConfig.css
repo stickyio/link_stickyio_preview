@@ -1,0 +1,12 @@
+.stickyioproductconfig button, .stickyioproductconfig input, .stickyioproductconfig select, .stickyioproductconfig label, .stickyioproductsavestatus { vertical-align: middle; }
+.stickyioproductconfig label { margin-bottom: 0; }
+.stickyioproductconfig button { cursor: pointer; }
+.stickyiogetcampaignloading, .stickyioproductsaving { vertical-align: middle; display: none; }
+.stickyionumcampaigns, .stickyioupdatetime, .stickyionumproducts, .stickyioproductconfig label { font-weight: bold; }
+.stickyioproducterror, .stickyioproductcampaigndata, .stickyiocampaigns, .stickyioproductsavestatus, .stickyiobillingmodelerror { display: none; }
+.stickyioproducterror, .stickyioproductnosubscription, .stickyioproductsavestatus, .stickyiobillingmodelerror { font-weight: bold; }
+.stickyioerror { color: #8b0000; }
+.stickyiosuccess { color: #006400; }
+.stickyioload { height: 1.5em; }
+.stickyioproductaligntop { vertical-align: top; }
+.stickyioproductbillingmodelselecthint { font-size: .5em; }

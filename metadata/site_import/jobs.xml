@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs xmlns="http://www.demandware.com/xml/impex/jobs/2015-07-01">
+    <job job-id="sticky.io Campaign Sync" priority="0">
+        <description>Updates SFCC storage of Campaigns, Offers, and Billing models with latest data from sticky.io.</description>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="sticky.io Campaign Sync" type="custom.stickyioCampaignSync" enforce-restart="false">
+                <description>Updates SFCC storage of Campaigns, Offers, and Billing models with latest data from sticky.io.</description>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2019-11-15Z</date>
+                <time>18:26:58.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="sticky.io sticky.io-&gt;SFCC Order Update" priority="0">
+        <description>Retrieve tracking numbers and update order statuses from sticky.io and update SFCC</description>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="sticky.io Order Update" type="custom.stickyioOrderUpdateStickyioToSFCC" enforce-restart="false">
+                <description>Retrieve tracking numbers and update order statuses from sticky.io and update SFCC</description>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2019-12-09Z</date>
+                <time>18:33:10.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="sticky.io Product Sync" priority="0">
+        <description>Pushes all sticky.io subscription products and SFCC subscription products that have changed since the last push, to sticky.io.
+Updates sticky.io Offers with relevant products.
+Updates SFCC storage of Campaigns, Offers, and Billing models with latest data from sticky.io.</description>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="sticky.io Product Sync" type="custom.stickyioProductSync" enforce-restart="false">
+                <description>Pushes all sticky.io subscription products and SFCC subscription products that have changed since the last push, to sticky.io.</description>
+                <parameters/>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="sticky.io Campaign Sync" type="custom.stickyioCampaignSync" enforce-restart="false">
+                <description>Updates SFCC storage of Campaigns, Offers, and Billing models with latest data from sticky.io.</description>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2020-01-12Z</date>
+                <time>05:39:43.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="sticky.io SFCC-&gt;sticky.io Order Update" priority="0">
+        <description>Update tracking numbers in sticky.io from SFCC</description>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="sticky.io SFCC-&gt;sticky.io Order Update" type="custom.stickyioOrderUpdateSFCCtoStickyio" enforce-restart="false">
+                <description>Update tracking numbers in sticky.io from SFCC</description>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2019-12-11Z</date>
+                <time>16:23:06.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="sticky.io Shipping Methods Update" priority="0">
+        <description>Create/Update Shipping Methods in sticky.io with data from SFCC</description>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="sticky.io Shipping Methods Update" type="custom.stickyioShippingMethods" enforce-restart="false">
+                <description>Create/Update Shipping Methods in sticky.io with data from SFCC</description>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2020-01-11Z</date>
+                <time>01:50:37.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+</jobs>

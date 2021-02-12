@@ -1,0 +1,41 @@
+<isif condition="${pdict && pdict.stickyio && pdict.stickyio.stickyioReady}">
+    <isset name="stickyio" value="${pdict.stickyio}" scope="page" />
+<iselseif condition="${typeof (product) !== 'undefined' && product.stickyio && product.stickyio.stickyioReady}" />
+    <isset name="stickyio" value="${product.stickyio}" scope="page" />
+<iselseif condition="${typeof (thisProduct) !== 'undefined' && thisProduct.stickyio && thisProduct.stickyio.stickyioReady}" />
+    <isset name="stickyio" value="${thisProduct.stickyio}" scope="page" />
+</isif>
+
+<isif condition="${typeof (stickyio) !== 'undefined'}">
+    <iscontent type="text/html" charset="UTF-8" compact="true" />
+    <div class="col-8">
+        <div class="attribute stickyiosubscription"
+            data-wrapperpid="${stickyio.stickyioProductWrapper}"
+            data-pid="${stickyio.id}"
+            data-producttype="${stickyio.productType}"
+            data-stickyiourl="${stickyio.stickyioBaseURL}"
+            data-stickyiosubscriptionactive="${stickyio.stickyioSubscriptionActive}"
+            data-stickyiobillingmodelconsumerselectable="${stickyio.stickyioBillingModelConsumerSelectable}"
+            data-stickyiopid="${stickyio.stickyioPID}"
+            data-stickyiocid="${stickyio.stickyioCID}"
+            data-stickyiovid="${stickyio.stickyioVID}"
+            data-stickyiooid="${stickyio.stickyioOID}"
+            data-stickyiobmid="${stickyio.stickyioBMID}"
+        >
+            <label for="stickyioproductbillingmodelselect">${Resource.msg('productdetail.title', 'stickyio', null)}:</label>
+            <isif condition="${stickyio.stickyioBillingModelConsumerSelectable}">
+                <select class="stickyioproductbillingmodelselect custom-select select-stickyiobillingmodel">
+                    <option value="${stickyio.stickyioBaseURL + '&bmid=0'}" data-bmid="0">${Resource.msg('productdetail.selectdefault', 'stickyio', null)}</option>
+                    <isloop items="${Object.keys(stickyio.stickyioProductBillingModels)}" var="billingmodel">
+                        <option value="${stickyio.stickyioBaseURL + '&bmid=' + billingmodel}"
+                            data-bmid="${stickyio.stickyioProductBillingModels[billingmodel].id}"
+                            ${stickyio.stickyioBMID && stickyio.stickyioBMID.toString() === billingmodel ? "selected" : ""}
+                        >${stickyio.stickyioProductBillingModels[billingmodel].name}</option>
+                    </isloop>
+                </select>
+            <iselse/>
+                <span class="stickyioproductbillingmodeldetails">${stickyio.stickyioProductBillingModels[Object.keys(stickyio.stickyioProductBillingModels)[0]].name}</span>
+            </isif>
+        </div>
+    </div>
+</isif>

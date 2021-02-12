@@ -1,0 +1,242 @@
+{
+    "step-types": {
+        "script-module-step": [{
+            "@type-id": "custom.stickyioProductSync",
+            "@supports-parallel-execution": "true",
+            "@supports-site-context": "true",
+            "@supports-organization-context": "false",
+            "description": "Sync subscription products with sticky.io",
+            "module": "bm_stickyio/cartridge/scripts/steps/productSync.js",
+            "function": "productSync",
+            "transactional": "true",
+            "timeout-in-seconds": "900",
+            "parameters": {
+                "parameters": [
+                    {
+                        "@name": "Email Log",
+                        "description": "Enables sending of an email log with created/updated SKU information",
+                        "@type": "boolean",
+                        "@required": false
+                    },
+                    {
+                        "@name": "Email Address",
+                        "description": "Email address to receive the email Log",
+                        "@type": "string",
+                        "@required": false,
+                        "@trim": true,
+                        "@pattern": "^[A-Za-z0-9]+([-+._][A-Za-z0-9]+)*@([A-Za-z0-9]+(-[A-Za-z0-9]+)*\.)+[A-Za-z]{2,4}$"
+                    },
+                    {
+                        "@name": "Reset All Products",
+                        "description": "Resets all sticky.io custom attributes in SFCC, and creates products again in sticky.io. Only turn on if you know what you're doing!",
+                        "@type": "boolean",
+                        "@required": false
+                    },
+                    {
+                        "@name": "Persist Product IDs",
+                        "description": "When Reset All Products is checked, don't create new products in sticky.io and use existing sticky.io product IDs. If Reset All Products is checked and Persist Product IDs is unchecked, products will be created again in sticky.io.",
+                        "@type": "boolean",
+                        "@required": false
+                    },
+                    {
+                        "@name": "Wipe Preferences",
+                        "description": "Resets non-merchant administrable custom preferences related to products and orders. Only activate if you know what you're doing!",
+                        "@type": "boolean",
+                        "@required": false
+                    }
+                ]
+            },
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "FINISHED",
+                        "description": "Used when the step finished successfully."
+                    },
+                    {
+                        "@code": "FINISHED_WITH_WARNINGS",
+                        "description": "Used when the step finished with warnings."
+                    }
+                ]
+            }
+        },
+        {
+            "@type-id": "custom.stickyioCampaignSync",
+            "@supports-parallel-execution": "true",
+            "@supports-site-context": "true",
+            "@supports-organization-context": "false",
+            "description": "Sync sticky.io Campaign data with SFCC",
+            "module": "bm_stickyio/cartridge/scripts/steps/campaignSync.js",
+            "function": "campaignSync",
+            "transactional": "true",
+            "timeout-in-seconds": "900",
+            "parameters": {
+                "parameters": [
+                    {
+                        "@name": "Email Log",
+                        "description": "Enables sending of an email log with raw campaign information",
+                        "@type": "boolean",
+                        "@required": false
+                    },
+                    {
+                        "@name": "Email Address",
+                        "description": "Email address to receive the email Log",
+                        "@type": "string",
+                        "@required": false,
+                        "@trim": true,
+                        "@pattern": "^[A-Za-z0-9]+([-+._][A-Za-z0-9]+)*@([A-Za-z0-9]+(-[A-Za-z0-9]+)*\.)+[A-Za-z]{2,4}$"
+                    }
+                ]
+            },
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "FINISHED",
+                        "description": "Used when the step finished successfully."
+                    },
+                    {
+                        "@code": "FINISHED_WITH_WARNINGS",
+                        "description": "Used when the step finished with warnings."
+                    }
+                ]
+            }
+        },
+        {
+            "@type-id": "custom.stickyioOrderUpdateStickyioToSFCC",
+            "@supports-parallel-execution": "true",
+            "@supports-site-context": "true",
+            "@supports-organization-context": "false",
+            "description": "Update SFCC orders with sticky.io data",
+            "module": "bm_stickyio/cartridge/scripts/steps/orderUpdate.js",
+            "function": "orderUpdateStickyioToSFCC",
+            "transactional": "true",
+            "timeout-in-seconds": "900",
+            "parameters": {
+                "parameters": [
+                    {
+                        "@name": "Email Log",
+                        "description": "Enables sending of an email log with updated order information",
+                        "@type": "boolean",
+                        "@required": false
+                    },
+                    {
+                        "@name": "Email Address",
+                        "description": "Email address to receive the email Log",
+                        "@type": "string",
+                        "@required": false,
+                        "@trim": true,
+                        "@pattern": "^[A-Za-z0-9]+([-+._][A-Za-z0-9]+)*@([A-Za-z0-9]+(-[A-Za-z0-9]+)*\.)+[A-Za-z]{2,4}$"
+                    }
+                ]
+            },
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "FINISHED",
+                        "description": "Used when the step finished successfully."
+                    },
+                    {
+                        "@code": "FINISHED_WITH_WARNINGS",
+                        "description": "Used when the step finished with warnings."
+                    }
+                ]
+            }
+        },
+        {
+            "@type-id": "custom.stickyioOrderUpdateSFCCtoStickyio",
+            "@supports-parallel-execution": "true",
+            "@supports-site-context": "true",
+            "@supports-organization-context": "false",
+            "description": "Update sticky.io orders with SFCC data",
+            "module": "bm_stickyio/cartridge/scripts/steps/orderUpdate.js",
+            "function": "orderUpdateSFCCtoStickyio",
+            "transactional": "true",
+            "timeout-in-seconds": "900",
+            "parameters": {
+                "parameters": [
+                    {
+                        "@name": "Email Log",
+                        "description": "Enables sending of an email log with updated order information",
+                        "@type": "boolean",
+                        "@required": false
+                    },
+                    {
+                        "@name": "Email Address",
+                        "description": "Email address to receive the email Log",
+                        "@type": "string",
+                        "@required": false,
+                        "@trim": true,
+                        "@pattern": "^[A-Za-z0-9]+([-+._][A-Za-z0-9]+)*@([A-Za-z0-9]+(-[A-Za-z0-9]+)*\.)+[A-Za-z]{2,4}$"
+                    }
+                ]
+            },
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "FINISHED",
+                        "description": "Used when the step finished successfully."
+                    },
+                    {
+                        "@code": "FINISHED_WITH_WARNINGS",
+                        "description": "Used when the step finished with warnings."
+                    }
+                ]
+            }
+        },
+        {
+            "@type-id": "custom.stickyioShippingMethods",
+            "@supports-parallel-execution": "true",
+            "@supports-site-context": "true",
+            "@supports-organization-context": "false",
+            "description": "Update sticky.io Shipping Methods with SFCC data",
+            "module": "bm_stickyio/cartridge/scripts/steps/shippingMethods.js",
+            "function": "updateShippingMethods",
+            "transactional": "true",
+            "timeout-in-seconds": "900",
+            "parameters": {
+                "parameters": [
+                    {
+                        "@name": "Email Log",
+                        "description": "Enables sending of an email log with updated shipping information",
+                        "@type": "boolean",
+                        "@required": false
+                    },
+                    {
+                        "@name": "Email Address",
+                        "description": "Email address to receive the email Log",
+                        "@type": "string",
+                        "@required": false,
+                        "@trim": true,
+                        "@pattern": "^[A-Za-z0-9]+([-+._][A-Za-z0-9]+)*@([A-Za-z0-9]+(-[A-Za-z0-9]+)*\.)+[A-Za-z]{2,4}$"
+                    }
+                ]
+            },
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "FINISHED",
+                        "description": "Used when the step finished successfully."
+                    },
+                    {
+                        "@code": "FINISHED_WITH_WARNINGS",
+                        "description": "Used when the step finished with warnings."
+                    }
+                ]
+            }
+        }]
+    }
+}

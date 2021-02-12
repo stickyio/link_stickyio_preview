@@ -1,0 +1,25 @@
+{
+    "_v": "19.10",
+    "clients": [{
+        "client_id": "{API CLIENT ID}",
+        "allowed_origins": [],
+        "resources": [{
+                "resource_id": "/users/this",
+                "methods": ["get"],
+                "read_attributes": "(**)"
+            },
+            {
+                "resource_id": "/users/this/password",
+                "methods": ["patch"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/jobs/sticky.io%20Campaign%20Sync/executions",
+                "methods": ["post"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            }
+        ]
+    }]
+}

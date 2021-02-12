@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns="http://www.demandware.com/xml/impex/services/2014-09-26">
+    <service-credential service-credential-id="sticky.io">
+        <url>https://{HOST}/api/{V}/{ENDPOINT}</url>
+    </service-credential>
+
+    <service-profile service-profile-id="stickyio.http.delete.v2">
+        <timeout-millis>5000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>1000</cb-millis>
+    </service-profile>
+
+    <service-profile service-profile-id="stickyio.http.get.v1">
+        <timeout-millis>5000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>true</cb-enabled>
+        <cb-calls>10</cb-calls>
+        <cb-millis>1000</cb-millis>
+    </service-profile>
+
+    <service-profile service-profile-id="stickyio.http.get.v2">
+        <timeout-millis>5000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>true</cb-enabled>
+        <cb-calls>10</cb-calls>
+        <cb-millis>1000</cb-millis>
+    </service-profile>
+
+    <service-profile service-profile-id="stickyio.http.post.v1">
+        <timeout-millis>5000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>1000</cb-millis>
+    </service-profile>
+
+    <service-profile service-profile-id="stickyio.http.post.v2">
+        <timeout-millis>5000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>1000</cb-millis>
+    </service-profile>
+
+    <service-profile service-profile-id="stickyio.http.put.v2">
+        <timeout-millis>5000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>1000</cb-millis>
+    </service-profile>
+
+    <service service-id="stickyio.http.delete.products.variants">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.delete.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.get.billing_models">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.get.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.get.campaigns">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.get.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.get.custom_fields">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.get.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.get.offers">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.get.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.get.products.attributes">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio-prod-attributes</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.get.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.get.products.variants">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.get.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.get.shipping">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.get.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.get.subscriptions.billing_models">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.get.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.authorize_payment">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v1</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.custom_fields">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.new_order">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v1</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.order_total.calculate">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.order_update">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v1</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.order_view">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v1</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.product_create">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio-product_create</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v1</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.product_index">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v1</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.product_update">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v1</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.products.attributes">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.products.custom_fields">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio-prod-customfld</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.shipping">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.sso.login">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.subscriptions.bill_now">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.subscriptions.reset">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.subscriptions.start">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.subscriptions.stop">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.tokenize_payment">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.put.campaigns">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.put.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.put.offers">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.put.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.put.products.variants">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.put.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.put.shipping">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.put.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.put.subscriptions.billing_model">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.put.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.put.subscriptions.pause">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.put.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.put.subscriptions.recur_at">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.put.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.put.subscriptions.terminate_next">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.put.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+</services>
