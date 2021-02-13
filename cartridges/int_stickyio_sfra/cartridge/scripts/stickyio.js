@@ -173,7 +173,6 @@ function getShippingMethods(pageNum, shippingMethods) {
     var theseShippingMethods = shippingMethods;
     var thisPageNum = pageNum;
     var i;
-    if (theseShippingMethods === null) { theseShippingMethods = {}; }
     var params = {};
     if (!thisPageNum) { thisPageNum = 1; }
     params.queryString = 'page=' + thisPageNum;
@@ -243,7 +242,7 @@ function updateShippingMethods(parameters) {
     var updatedShippingMethods = [];
     var stickyioShippingMethodIDs = [];
     var shippingMethods = ShippingMgr.getAllShippingMethods();
-    var stickyioShippingMethods = getShippingMethods();
+    var stickyioShippingMethods = getShippingMethods(null, {});
     var i;
     for (i = 0; i < shippingMethods.length; i++) {
         var thisShippingMethod = shippingMethods[i];
@@ -399,7 +398,6 @@ function getCampaignsFromStickyio(pageNum, campaignData) {
     var i;
     var thisPageNum = pageNum;
     var thisCampaignData = campaignData;
-    if (thisCampaignData === null) { thisCampaignData = {}; }
     var params = {};
     if (!thisPageNum) { thisPageNum = 1; }
     params.queryString = 'page=' + thisPageNum;
@@ -712,7 +710,7 @@ function getCampaigns(isJob, parameters) {
             stickyioCampaigns = CustomObjectMgr.createCustomObject('stickyioCampaigns', 'campaigns');
         });
     }
-    campaignData = getCampaignsFromStickyio(1, null);
+    campaignData = getCampaignsFromStickyio(1, {});
     if (Object.keys(campaignData).length > 0) {
         campaignJSON.updateTime = new Date();
         campaignData = reshapeCampaignData(campaignData);

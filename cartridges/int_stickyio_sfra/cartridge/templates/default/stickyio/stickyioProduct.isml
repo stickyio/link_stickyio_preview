@@ -7,7 +7,7 @@
     <isset name="stickyio" value="${thisProduct.stickyio}" scope="page" />
 </isif>
 
-<isif condition="${stickyio.stickyioReady === true}">
+<isif condition="${stickyio && stickyio.stickyioReady === true}">
     <iscontent type="text/html" charset="UTF-8" compact="true" />
     <div class="col-8">
         <div class="attribute stickyiosubscription"
