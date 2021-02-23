@@ -15,7 +15,7 @@ function setBaseURLAndBMID(pid, querystring, bmid, productViewData) {
     var thisProductViewData = productViewData;
     var thisBMID = bmid;
 
-    if (thisProductViewData.stickyio.stickyioReady === true) {
+    if (thisProductViewData.stickyio && thisProductViewData.stickyio.stickyioReady === true) {
         if (typeof (thisBMID) !== 'undefined') {
             if ((/^bmid/).test(thisQueryString)) {
                 thisQueryString = thisQueryString.toString().replace(/^bmid=[0-9,]+&/, '');
