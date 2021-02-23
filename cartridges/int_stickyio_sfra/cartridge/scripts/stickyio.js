@@ -705,7 +705,7 @@ function getCampaigns(isJob, parameters) {
     var campaignData = {};
     var campaignJSON = {};
     stickyioCampaigns = getCampaignCustomObject();
-    if (Object.keys(stickyioCampaigns).length === 0) { // if we don't have a default object, create one
+    if (!stickyioCampaigns || Object.keys(stickyioCampaigns).length === 0) { // if we don't have a default object, create one
         Transaction.wrap(function () {
             stickyioCampaigns = CustomObjectMgr.createCustomObject('stickyioCampaigns', 'campaigns');
         });
