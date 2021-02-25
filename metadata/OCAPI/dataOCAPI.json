@@ -31,6 +31,24 @@
                 "methods": ["put"],
                 "read_attributes": "(**)",
                 "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/system_object_definitions/*",
+                "methods": ["get"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/system_object_definitions/*/attribute_definitions",
+                "methods": ["get"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/system_object_definitions/*/attribute_definitions/*",
+                "methods": ["get", "put", "patch", "delete"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
             }
         ]
     }]
