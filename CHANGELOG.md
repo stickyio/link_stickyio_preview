@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [20.1.2] - 2021-02-24
+[https://github.com/stickyio/link_stickyio_preview/tree/cc23828f0d4a2c1e20a756c87f03bef1977df910](https://github.com/stickyio/link_stickyio_preview/tree/cc23828f0d4a2c1e20a756c87f03bef1977df910)
+[https://github.com/stickyio/link_stickyio_preview/tree/d4248006cd29153c448c542ba846b50c40bf056b](https://github.com/stickyio/link_stickyio_preview/tree/d4248006cd29153c448c542ba846b50c40bf056b)
+[https://github.com/stickyio/link_stickyio_preview/tree/74bb06c4f9f7d11c3276800ca3ca15dc4ee8f5f8](https://github.com/stickyio/link_stickyio_preview/tree/74bb06c4f9f7d11c3276800ca3ca15dc4ee8f5f8)
+### Added
+- New Data OCAPI permissions to allow access to System Objects in preparation for infintely customizable offer types and billing models
+
+### Changed
+- Sanity checks for various internal and external functions to keep error logs clean
+
 ## [20.1.1] - 2021-02-11
 [https://github.com/stickyio/link_stickyio_preview/tree/804a169218bb0b54914219fcc76aabe60f1dbe60](https://github.com/stickyio/link_stickyio_preview/tree/804a169218bb0b54914219fcc76aabe60f1dbe60)
 ### Added
