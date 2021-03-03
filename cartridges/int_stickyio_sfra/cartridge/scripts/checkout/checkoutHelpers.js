@@ -638,7 +638,7 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
         params.body.phone = billingAddress.phone;
         params.body.email = order.getCustomerEmail();
         params.body.temp_customer_id = paymentInstrument.custom.stickyioTempCustomerID;
-        params.body.forceGatewayId = stickyioGatewayID?stickyioGatewayID:0;
+        params.body.forceGatewayId = stickyioGatewayID?stickyioGatewayID:1;
         params.body.preserve_force_gateway = 1;
         params.body.sessionId = paymentInstrument.custom.stickyioKountSessionID;
         params.body.tranType = 'Sale';
