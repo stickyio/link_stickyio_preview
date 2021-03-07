@@ -546,14 +546,6 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
-            <attribute-definition attribute-id="stickyioPlatformKey">
-                <display-name xml:lang="x-default">Platform Key</display-name>
-                <description xml:lang="x-default">Platform Key provided by sticky.io</description>
-                <type>string</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>false</externally-managed-flag>
-                <min-length>0</min-length>
-            </attribute-definition>
             <attribute-definition attribute-id="stickyioStraightSaleBillingModelName">
                 <display-name xml:lang="x-default">Straight-Sale Billing Model Name</display-name>
                 <description xml:lang="x-default">The default, when blank, is "Straight Sale," and comes directly from sticky.io, but maybe you'd like something more consumer-friendly?</description>
@@ -638,7 +630,6 @@
             <attribute-group group-id="STICKYIO">
                 <display-name xml:lang="x-default">sticky.io Configurations</display-name>
                 <attribute attribute-id="stickyioEnabled"/>
-                <attribute attribute-id="stickyioPlatformKey"/>
                 <attribute attribute-id="stickyioAPIURL"/>
                 <attribute attribute-id="stickyioGatewayID"/>
                 <attribute attribute-id="stickyioKountMerchantID"/>
