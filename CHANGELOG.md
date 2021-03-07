@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [20.1.3] - 2021-03-06
+[https://github.com/stickyio/link_stickyio_preview/commit/a65c12c2b71960fcc8237f05835c1ad2323e9b15](https://github.com/stickyio/link_stickyio_preview/commit/a65c12c2b71960fcc8237f05835c1ad2323e9b15)
+[https://github.com/stickyio/link_stickyio_preview/commit/5d2e54ccdb5e6adf8f91ce84e2ad1206b0a93cb2](https://github.com/stickyio/link_stickyio_preview/commit/5d2e54ccdb5e6adf8f91ce84e2ad1206b0a93cb2)
+### Removed
+- Site Custom Preference "Platform-Key" no longer in use - switched to a pure service API User/Password authentication model
+
+### Changed
+- Default to gateway id 1 when no gateway is set
+
 ## [20.1.2] - 2021-02-24
 [https://github.com/stickyio/link_stickyio_preview/tree/cc23828f0d4a2c1e20a756c87f03bef1977df910](https://github.com/stickyio/link_stickyio_preview/tree/cc23828f0d4a2c1e20a756c87f03bef1977df910)
 [https://github.com/stickyio/link_stickyio_preview/tree/d4248006cd29153c448c542ba846b50c40bf056b](https://github.com/stickyio/link_stickyio_preview/tree/d4248006cd29153c448c542ba846b50c40bf056b)
