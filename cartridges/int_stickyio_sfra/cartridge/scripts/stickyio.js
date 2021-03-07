@@ -73,11 +73,9 @@ function stickyioAPI(svcName) {
             thisSvc.addHeader('Content-Type', 'application/json');
             if (endpoint === 'sso') { // special treatment for the versionless SSO endpoint
                 url = url.replace('api/v2/', '');
-                thisSvc.setAuthentication('NONE');
-                thisSvc.addHeader('Platform-Key', Site.getCurrent().getCustomPreferenceValue('stickyioPlatformKey'));
-            } else {
-                thisSvc.setAuthentication('BASIC');
+                delete(params.body);
             }
+            thisSvc.setAuthentication('BASIC');
             thisSvc.setURL(url);
             if (params && params.body) { return JSON.stringify(params.body); }
             return null;
