@@ -1293,7 +1293,7 @@ function syncOffers() {
 
 /**
  * Sync products between SFCC and sticky.io
- * @param {dw.catalog.Product} product - SFCC product
+ * @param {dw.catalog.Product} product - an online SFCC product
  * @param {Object} localAllStickyioProducts - Lite data of All sticky.io products
  * @param {boolean} reset - Job parameter to reset all custom sticky.io attributes
  * @param {boolean} persist - Job parameter to persist sticky.io product IDs in the face of a rest
@@ -1309,7 +1309,7 @@ function syncProduct(product, localAllStickyioProducts, reset, persist, recursed
         allStickyioProducts = getAllStickyioProducts();
     } else { allStickyioProducts = localAllStickyioProducts; }
 
-    if (thisProduct && thisProduct.custom.stickyioSubscriptionActive === true && !subscriptionProductsLog[thisProduct.ID]) {
+    if (thisProduct && thisProduct.online && thisProduct.custom.stickyioSubscriptionActive === true && !subscriptionProductsLog[thisProduct.ID]) {
         // Prevent variants that are marked active making it to sticky.io. Only Products, Master Products, and Product Sets can be marked as subscribe-able
         if (thisProduct.isVariant() && thisProduct.masterProduct.getVariants().length > 1) { // >1 because sometimes there are masters with only one variant... which is weird, but they should be allowed and will be treated as a 'product'
             turnOffSubscription(thisProduct);
