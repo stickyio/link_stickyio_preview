@@ -28,7 +28,7 @@ This cartridge is built against [SFCC SFRA](https://github.com/SalesforceCommerc
 
 7. Add the `bm_stickyio` cartridge to your cartridge path in Business Manager at: _Administration >  Sites >  Manage Sites > Business Manager - Settings_.
 
-8. Grant write permissions to the appropriate Business Manager user(s) for the new sticky.io Business Manager Extension by visiting: _Administration > Organization > Roles_, selecting the appropriate Role, switching to the "Business Manager Modules" tab, selecting the appropriate Site context(s), and scrolling down until you see the new sticky.io modules. This will append a new sticky.io submenu under the Business Manager's site's _Merchant Tools_ as well as add a new menu item under the existing _Ordering_ menu.
+8. Grant write permissions to the appropriate Business Manager user(s) for the new sticky.io Business Manager Extension by visiting: _Administration > Organization > Roles_, selecting the appropriate Role, switching to the "Business Manager Modules" tab, selecting the appropriate Site context(s), and scrolling down until you see the new sticky.io modules. This will append a new sticky.io submenu under the Business Manager's site's _Merchant Tools_.
 
 9. Open the `./metadata/site_import/sites` folder and change the name of `yourSiteID` to your Storefront's Site ID.
 
@@ -36,7 +36,7 @@ This cartridge is built against [SFCC SFRA](https://github.com/SalesforceCommerc
 
 11. Navigate to _Administration -> Site Development -> Site Import & Export_ to import the zip file you created in the previous step, which will install the custom STICKYIO Site Preferences, jobs, services, payment method and processor, and system and custom-objects.
 
-12. Navigate to the new STICKYIO custom site preferences in Business Manager (_Merchant Tools -> Site Preferences -> Custom Preferences -> STICKYIO_) and configure your preferences. If you haven't yet become a [sticky.io](https://sticky.io), now would be a good time... you're gonna need the `Platform-Key` and `Instance Domain` to proceed!
+12. Navigate to the new STICKYIO custom site preferences in Business Manager (_Merchant Tools -> Site Preferences -> Custom Preferences -> STICKYIO_) and configure your preferences. If you haven't yet signed up for [sticky.io](https://sticky.io), now would be a good time as you will need the `Instance Domain` and `Service Credentials` (_Administrationg -> Services -> Credentials -> sticky.io_) to proceed!
 
 13. Run the `sticky.io Shipping Methods Update` job.
 
