@@ -1,7 +1,7 @@
 /**
  * The main sticky.io library providing API connectivity,
  * object parsing, storage and retrieval, validation and helper functions.
- * Function are selectively exported at the end for precise control.
+ * Functions are selectively exported at the end for precise control.
 */
 
 'use strict';
@@ -74,6 +74,7 @@ function stickyioAPI(svcName) {
             if (endpoint === 'sso') { // special treatment for the versionless SSO endpoint
                 url = url.replace('api/v2/', '');
                 delete(params.body);
+                thisSvc.addHeader('Ignore-Redis-Session', '1');
             }
             thisSvc.setAuthentication('BASIC');
             thisSvc.setURL(url);
@@ -1331,73 +1332,6 @@ function syncProduct(product, localAllStickyioProducts, reset, persist, recursed
 }
 
 /**
- * Business Manager Product Config save method for subscription
- * products with custom offers and billing models
- * @param {Object} request - httpParameterMap object from the client call
- * @returns {Object} - JSON response
-*/
-function saveProduct(request) {
-    var pid = request.pid.value;
-    var stickyioBillingModelConsumerSelectable = !!JSON.parse(request.cs.value);
-    var stickyioCustomOfferID = Number(request.oid.value);
-    var stickyioCustomBillingModelsRaw = JSON.parse(request.bmid.value); // billing models are an array
-    var stickyioCustomBillingModels = [];
-    var outputJSON = {};
-    var i;
-    for (i = 0; i < stickyioCustomBillingModelsRaw.length; i++) {
-        stickyioCustomBillingModels.push(Number(stickyioCustomBillingModelsRaw[i]));
-    }
-    var product = ProductMgr.getProduct(pid);
-    if (product) {
-        if (stickyioCustomOfferID !== '0') {
-            if (stickyioCustomBillingModels.length === 0 || stickyioCustomBillingModels[0] === '0') {
-                if (stickyioCustomBillingModels.length === 0) {
-                    outputJSON = { error: 'Billing Model can not be blank if Consumer Selectable is unchecked.' };
-                } else { outputJSON = { error: 'Billing Model can not be Custom.' }; }
-            } else {
-                // allStickyioProducts = getAllStickyioProducts();
-                createOrUpdateProduct(product);
-                // update the Offer in sticky.io. If it's valid, update the data locally as well
-                if (updateOffer(stickyioCustomOfferID, product.custom.stickyioProductID)) {
-                    try {
-                        Transaction.wrap(function () {
-                            product.custom.stickyioCampaignID = masterCampaignID;
-                            product.custom.stickyioCustomOfferID = stickyioCustomOfferID;
-                            product.custom.stickyioCustomBillingModels = stickyioCustomBillingModels;
-                            product.custom.stickyioBillingModelConsumerSelectable = stickyioBillingModelConsumerSelectable;
-                            product.custom.stickyioReady = true;
-                            product.custom.stickyioLastSync = calendar().time; // set the last sync time to now
-                        });
-                        outputJSON = { result: 'Saved! Syncing sticky.io data...' };
-                    } catch (e) {
-                        outputJSON = { error: e.message };
-                    }
-                } else {
-                    outputJSON = { error: 'There was a problem saving the subscription configuration in sticky.io.' };
-                }
-            }
-        } else { outputJSON = { error: 'OfferID can not be blank or Custom.' }; }
-    } else { outputJSON = { error: 'Product with ID ' + pid + ' not found.' }; }
-    return outputJSON;
-}
-
-/**
- * Method to get all SFCC subscription products that are set to custom offer
- * @returns {Array} - Custom offer products
-*/
-function getCustomOfferProducts() {
-    var returnProducts = [];
-    var products = ProductMgr.queryAllSiteProducts();
-    while (products.hasNext()) {
-        var product = products.next();
-        if (product && product.custom.stickyioSubscriptionActive === true && product.custom.stickyioOfferID.value === '0' && getProductType(product).match(/product|master|bundle|productset/i)) {
-            returnProducts.push(product);
-        }
-    }
-    return returnProducts;
-}
-
-/**
  * Method to make sure our productLineItem has a valid combination
  * of sticky.io Campaign/Offer/Billing Models
  * @param {dw.order.ProductLineItem} product - Basket/Order product line item
@@ -2034,109 +1968,6 @@ function generateStickyioPromoID() {
     return 'stickyio-' + UUIDUtils.createUUID();
 }
 
-/**
- * Actually create the discount for a lineItem
- * This is not currently in use and SFCC is considered
- * the system of truth for discounts.
- * @param {boolean} percentDiscount - Percent discount type or amount type
- * @param {Object} stickyioItem - sticky.io product
- * @param {Object} lineItem - SFCC lineitem
- * @returns {void}
- */
-function createDiscount(percentDiscount, stickyioItem, lineItem) {
-    var PercentageDiscount = require('dw/campaign/PercentageDiscount');
-    var AmountDiscount = require('dw/campaign/AmountDiscount');
-    var discount;
-    if (percentDiscount) {
-        discount = new PercentageDiscount(stickyioItem.discount.percent);
-    } else { discount = new AmountDiscount(stickyioItem.discount.total); }
-    Transaction.wrap(function () { lineItem.createPriceAdjustment(generateStickyioPromoID(), discount); });
-}
-
-/**
- * Remove existing sticky.io-applied adjustment for a lineItem
- * This is not currently in use and SFCC is considered
- * the system of truth for discounts.
- * @param {Object} lineItem - SFCC lineitem
- * @param {Object} adjustment - SFCC price adjustment
- * @returns {void}
- */
-function removeStickyioAdjustment(lineItem, adjustment) {
-    Transaction.wrap(function () { lineItem.removePriceAdjustment(adjustment); });
-}
-
-/**
- * Apply discounts from sticky.io to a Basket
- * This is not currently in use and SFCC is considered
- * the system of truth for discounts.
- * @param {dw.order.Basket} basket - The customer's basket
- * @returns {boolean} - Only possible return is a success
- */
-function applyDiscounts(basket) {
-    var plis = basket.getAllProductLineItems();
-    if (!plis) { return false; }
-    var params = {};
-    params.helper = 'calculate';
-    var body = {};
-    var offers = [];
-    var thisLineItem;
-    var i;
-    var j;
-    var k;
-    for (i = 0; i < plis.length; i++) {
-        thisLineItem = plis[i];
-        if (thisLineItem.custom.stickyioOfferID !== null) {
-            var thisOffer = {};
-            body.campaign_id = thisLineItem.custom.stickyioCampaignID;
-            thisOffer.id = thisLineItem.custom.stickyioOfferID;
-            thisOffer.product_id = thisLineItem.custom.stickyioProductID;
-            thisOffer.billing_model_id = thisLineItem.custom.stickyioBillingModelID;
-            thisOffer.quantity = thisLineItem.quantity.value;
-            offers.push(thisOffer);
-        }
-    }
-    // body.shipping_id = ShippingMgr.defaultShippingMethod.custom.stickyioShippingID;
-    // safer to loop through all shipping methods until we find one that has the attribute we need
-    var shippingMethods = ShippingMgr.getAllShippingMethods();
-    for (i = 0; i < shippingMethods.length; i++) {
-        var thisShippingMethod = shippingMethods[i];
-        if (thisShippingMethod.custom.stickyioShippingID) {
-            body.shipping_id = thisShippingMethod.custom.stickyioShippingID;
-            break;
-        }
-    }
-    body.use_tax_provider = -1;
-    body.offers = offers;
-    params.body = body;
-    var stickyioResponse = stickyioAPI('stickyio.http.post.order_total.calculate').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
-        for (i = 0; i < plis.length; i++) {
-            thisLineItem = plis[i];
-            if (thisLineItem.custom.stickyioOfferID !== null) {
-                for (j = 0; j < stickyioResponse.object.result.data.line_items.length; j++) {
-                    var thisStickyioItem = stickyioResponse.object.result.data.line_items[j];
-                    if (thisLineItem.custom.stickyioProductID === thisStickyioItem.id) {
-                        // remove all stickyio- promotions for this lineitem, if any
-                        var priceAdjustments = thisLineItem.getPriceAdjustments();
-                        if (priceAdjustments.length > 0) {
-                            for (k = 0; k < priceAdjustments.length; k++) {
-                                var thisPriceAdjustment = priceAdjustments[k];
-                                if ((/^stickyio-/).test(thisPriceAdjustment.promotionID)) {
-                                    removeStickyioAdjustment(thisLineItem, thisPriceAdjustment);
-                                }
-                            }
-                        }
-                        if (thisStickyioItem.discount) { // add new promotions based on returned data
-                            createDiscount(thisStickyioItem.discount.percent, thisStickyioItem, thisLineItem);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return true;
-}
-
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2144,7 +1975,6 @@ module.exports = {
     getProduct: getProduct,
     getCampaigns: getCampaigns,
     getCampaignCustomObjectJSON: getCampaignCustomObjectJSON,
-    saveProduct: saveProduct,
     getVariants: getVariants,
     hasSubscriptionProducts: hasSubscriptionProducts,
     validateAllProducts: validateAllProducts,
@@ -2167,7 +1997,5 @@ module.exports = {
     updateOrderView: updateOrderView,
     appendPLIs: appendPLIs,
     updateStickyioOrderDetails: updateStickyioOrderDetails,
-    stickyioSubMan: stickyioSubMan,
-    getCustomOfferProducts: getCustomOfferProducts,
-    applyDiscounts: applyDiscounts
+    stickyioSubMan: stickyioSubMan
 };

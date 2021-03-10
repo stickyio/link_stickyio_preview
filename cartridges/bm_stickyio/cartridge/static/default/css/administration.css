@@ -1,3 +1,4 @@
 #bm_content_column { padding: 2em; }
 #bm_content_column table { height: 100%; }
 body { height: 100%; }
+iframe { width: 100%; border: none; height: 100vh; }

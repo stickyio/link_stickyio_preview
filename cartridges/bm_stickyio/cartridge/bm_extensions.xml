@@ -6,44 +6,32 @@
 		<description xml:lang="x-default">sticky.io Subscription Management</description>
 		<icon>icons/logo.png</icon>
 	</menuitem>
-	<menuaction id="stickyio_id01" menupath="stickyio" position="99999" site="true">
-		<name xml:lang="x-default">Custom Offer Configuration</name>
-		<short_description xml:lang="x-default">Custom Offer Configuration</short_description>
-		<description xml:lang="x-default">Custom Offer Configuration</description>
-		<exec pipeline="Stickyio_bm" node="CustomOffer" />
+	<menuaction id="stickyio_id01" menupath="stickyio" position="19999" site="true">
+		<name xml:lang="x-default">Offer Configuration</name>
+		<short_description xml:lang="x-default">Offer Configuration</short_description>
+		<description xml:lang="x-default">Offer Configuration</description>
+		<exec pipeline="Stickyio_bm" node="Offer" />
 		<sub-pipelines>
-			<pipeline name="Stickyio_bm-CustomOffer" />
+			<pipeline name="Stickyio_bm-Offer" />
 			<pipeline name="Stickyio_bm-sso" />
 		</sub-pipelines>
 		<icon>icons/logo.png</icon>
 	</menuaction>
-	<menuaction id="stickyio_id02" menupath="stickyio" position="199999" site="true">
-		<name xml:lang="x-default">Custom Product Configuration</name>
-		<short_description xml:lang="x-default">Custom Product Configuration</short_description>
-		<description xml:lang="x-default">Custom Product Configuration</description>
-		<exec pipeline="Stickyio_bm" node="ProductConfig" />
+	<menuaction id="stickyio_id02" menupath="stickyio" position="29999" site="true">
+		<name xml:lang="x-default">Billing Model Configuration</name>
+		<short_description xml:lang="x-default">Billing Model Configuration</short_description>
+		<description xml:lang="x-default">Billing Model Configuration</description>
+		<exec pipeline="Stickyio_bm" node="BillingModel" />
 		<sub-pipelines>
-			<pipeline name="Stickyio_bm-ProductConfig" />
-			<pipeline name="Stickyio_bm-GetCampaigns" />
-			<pipeline name="Stickyio_bm-SetProduct" />
-			<pipeline name="Stickyio_bm-SaveProduct" />
+			<pipeline name="Stickyio_bm-BillingModel" />
+			<pipeline name="Stickyio_bm-sso" />
 		</sub-pipelines>
 		<icon>icons/logo.png</icon>
 	</menuaction>
-	<menuaction id="stickyio_id03" menupath="stickyio" position="299999" site="true">
-		<name xml:lang="x-default">Preferences</name>
-		<short_description xml:lang="x-default">Preferences</short_description>
-		<description xml:lang="x-default">Preferences</description>
-		<exec pipeline="Stickyio_bm" node="Prefs" />
-		<sub-pipelines>
-			<pipeline name="Stickyio_bm-Prefs" />
-		</sub-pipelines>
-		<icon>icons/logo.png</icon>
-	</menuaction>
-	<menuaction id="stickyio_id04" menupath="orders" position="299999" site="true">
-		<name xml:lang="x-default">sticky.io Order Management</name>
-		<short_description xml:lang="x-default">sticky.io Order Management</short_description>
-		<description xml:lang="x-default">sticky.io Order Management</description>
+	<menuaction id="stickyio_id03" menupath="stickyio" position="399999" site="true">
+		<name xml:lang="x-default">Subscription Management</name>
+		<short_description xml:lang="x-default">Subscription Management</short_description>
+		<description xml:lang="x-default">Subscription Management</description>
 		<exec pipeline="Stickyio_bm" node="OrderManagement" />
 		<sub-pipelines>
 			<pipeline name="Stickyio_bm-OrderManagement" />
@@ -51,14 +39,24 @@
 		</sub-pipelines>
 		<icon>icons/logo.png</icon>
 	</menuaction>
-	<menuaction id="stickyio_id05" menupath="analytics" position="299999" site="true">
-		<name xml:lang="x-default">sticky.io Analytics</name>
-		<short_description xml:lang="x-default">sticky.io Analytics</short_description>
-		<description xml:lang="x-default">sticky.io Analytics</description>
+	<menuaction id="stickyio_id04" menupath="stickyio" position="499999" site="true">
+		<name xml:lang="x-default">Subscription Analytics</name>
+		<short_description xml:lang="x-default">Subscription Analytics</short_description>
+		<description xml:lang="x-default">Subscription Analytics</description>
 		<exec pipeline="Stickyio_bm" node="Analytics" />
 		<sub-pipelines>
 			<pipeline name="Stickyio_bm-Analytics" />
 			<pipeline name="Stickyio_bm-sso" />
+		</sub-pipelines>
+		<icon>icons/logo.png</icon>
+	</menuaction>
+	<menuaction id="stickyio_id05" menupath="stickyio" position="599999" site="true">
+		<name xml:lang="x-default">Preferences</name>
+		<short_description xml:lang="x-default">Preferences</short_description>
+		<description xml:lang="x-default">Preferences</description>
+		<exec pipeline="Stickyio_bm" node="Prefs" />
+		<sub-pipelines>
+			<pipeline name="Stickyio_bm-Prefs" />
 		</sub-pipelines>
 		<icon>icons/logo.png</icon>
 	</menuaction>

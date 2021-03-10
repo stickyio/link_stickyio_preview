@@ -133,7 +133,7 @@
     <service service-id="stickyio.http.get.products.attributes">
         <service-type>HTTP</service-type>
         <enabled>true</enabled>
-        <log-prefix>stickyio-prod-attributes</log-prefix>
+        <log-prefix>stickyio</log-prefix>
         <comm-log-enabled>true</comm-log-enabled>
         <force-prd-enabled>false</force-prd-enabled>
         <mock-mode-enabled>false</mock-mode-enabled>
@@ -243,7 +243,7 @@
     <service service-id="stickyio.http.post.product_create">
         <service-type>HTTP</service-type>
         <enabled>true</enabled>
-        <log-prefix>stickyio-product_create</log-prefix>
+        <log-prefix>stickyio</log-prefix>
         <comm-log-enabled>true</comm-log-enabled>
         <force-prd-enabled>false</force-prd-enabled>
         <mock-mode-enabled>false</mock-mode-enabled>
@@ -287,7 +287,18 @@
     <service service-id="stickyio.http.post.products.custom_fields">
         <service-type>HTTP</service-type>
         <enabled>true</enabled>
-        <log-prefix>stickyio-prod-customfld</log-prefix>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.post.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
+    <service service-id="stickyio.http.post.providers.sfccbridge">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
         <comm-log-enabled>true</comm-log-enabled>
         <force-prd-enabled>false</force-prd-enabled>
         <mock-mode-enabled>false</mock-mode-enabled>
