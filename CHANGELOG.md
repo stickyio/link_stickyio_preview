@@ -1,6 +1,26 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [20.1.4] - 2021-03-10
+[https://github.com/stickyio/link_stickyio_preview/commit/4e597fc29ef53dc225fffdaf111be0174bafbee8](https://github.com/stickyio/link_stickyio_preview/commit/4e597fc29ef53dc225fffdaf111be0174bafbee8)
+### Removed
+- Unused functions for discounts and legacy Business Manager functions
+- Unused Business Manager templates
+- Unused Business Manager javascript
+- Unused Business Manager localization strings
+
+### Changed
+- Consolidation of Business Manager extensions under sticky.io menu
+- iframe rendering to use single template
+- iframe CSS moved from inline to file
+- SSO route to use cache-busting header
+- Various typo-in-comments fixes
+- service log file prefix normalization
+
+### Added
+- New Billing Model and Configuration sticky.io menu actions
+- Business Manager localization strings for sticky.io breadcrumbs
+
 ## [20.1.3] - 2021-03-06
 [https://github.com/stickyio/link_stickyio_preview/commit/619066aa5e7023cd81db6e778b8313f3b885e6cb](https://github.com/stickyio/link_stickyio_preview/commit/619066aa5e7023cd81db6e778b8313f3b885e6cb)
 [https://github.com/stickyio/link_stickyio_preview/commit/a65c12c2b71960fcc8237f05835c1ad2323e9b15](https://github.com/stickyio/link_stickyio_preview/commit/a65c12c2b71960fcc8237f05835c1ad2323e9b15)
