@@ -73,7 +73,6 @@ function setBaseURLAndBMID(pid, querystring, productViewData) {
         if (thisProductViewData.stickyio && !thisProductViewData.stickyio.stickyioBMID && typeof (thisBMID) !== 'undefined') { thisProductViewData.stickyio.stickyioBMID = thisBMID; }
         if (thisProductViewData.stickyio && !thisProductViewData.stickyio.stickyioTID && typeof (thisTID) !== 'undefined') {
             thisProductViewData.stickyio.stickyioTID = thisTID;
-            thisProductViewData.stickyio.stickyioCycles = thisCycles;
         }
         if (thisProductViewData.stickyio && !thisProductViewData.stickyio.offerType && typeof (thisOfferType) !== 'undefined') { thisProductViewData.stickyio.offerType = thisOfferType; }
         if (thisProductViewData.stickyio &&

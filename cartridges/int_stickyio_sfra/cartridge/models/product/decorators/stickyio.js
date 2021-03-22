@@ -73,7 +73,6 @@ function getAttributes(product) {
                 attributes.offerType = 'prepaid';
                 if (attributes.offers[Object.keys(attributes.offers)[0]].terms.length === 1) {
                     attributes.stickyioTID = attributes.offers[Object.keys(attributes.offers)[0]].terms[0].id;
-                    attributes.stickyioCycles = attributes.offers[Object.keys(attributes.offers)[0]].terms[0].id.split('-')[1];
                 }
             }
         }

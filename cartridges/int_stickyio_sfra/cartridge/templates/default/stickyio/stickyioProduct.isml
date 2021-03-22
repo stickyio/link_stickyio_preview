@@ -25,7 +25,6 @@
 			data-stickyiooid="${stickyio.stickyioOID}"
 			data-stickyiobmid="${stickyio.stickyioBMID}"
 			data-stickyiotid="${stickyio.stickyioTID}"
-			data-stickyiocycles="${stickyio.stickyioCycles}"
 		>
 			<label class="subscriptionlabel" for="stickyioproductbillingmodelselect">${Resource.msg('productdetail.title', 'stickyio', null)}:</label>
 			<ul>
