@@ -23,6 +23,7 @@ var stubStickyioProductID = sinon.stub();
 var stubStickyioVariationID = sinon.stub();
 var stubStickyioCampaignID = sinon.stub();
 var stubStickyioOfferID = sinon.stub();
+var stubStickyioTermsID = sinon.stub();
 var stubStickyioBillingModelID = sinon.stub();
 var stubStickyioBillingModelDetails = sinon.stub();
 var stubStickyioSubscriptionID = sinon.stub();
@@ -50,6 +51,7 @@ function proxyModel() {
             '~/cartridge/models/productLineItem/decorators/stickyioVariationID': stubStickyioVariationID,
             '~/cartridge/models/productLineItem/decorators/stickyioCampaignID': stubStickyioCampaignID,
             '~/cartridge/models/productLineItem/decorators/stickyioOfferID': stubStickyioOfferID,
+            '~/cartridge/models/productLineItem/decorators/stickyioTermsID': stubStickyioTermsID,
             '~/cartridge/models/productLineItem/decorators/stickyioBillingModelID': stubStickyioBillingModelID,
             '~/cartridge/models/productLineItem/decorators/stickyioBillingModelDetails': stubStickyioBillingModelDetails,
             '~/cartridge/models/productLineItem/decorators/stickyioSubscriptionID': stubStickyioSubscriptionID
@@ -75,6 +77,7 @@ function proxyModel() {
             stubStickyioVariationID: stubStickyioVariationID,
             stubStickyioCampaignID: stubStickyioCampaignID,
             stubStickyioOfferID: stubStickyioOfferID,
+            stubStickyioTermsID: stubStickyioTermsID,
             stubStickyioBillingModelID: stubStickyioBillingModelID,
             stubStickyioBillingModelDetails: stubStickyioBillingModelDetails,
             stubStickyioSubscriptionID: stubStickyioSubscriptionID

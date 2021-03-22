@@ -15,11 +15,12 @@ var opts = Object.assign({}, getConfig({
 //Subscription product variant 1
 opts.variantPid1 = '640188016204M';
 opts.qty1 = 1;
-opts.stickyioProductID1 = 1;
-opts.stickyioVariationID1 = 1;
-opts.stickyioCampaignID1 = 1;
-opts.stickyioOfferID1 = 1;
-opts.stickyioBillingModelID1 = 6;
-opts.stickyioBillingModelDetails1 = '60 Day Subscription';
+opts.stickyioProductID = 1;
+opts.stickyioVariationID = 1;
+opts.stickyioCampaignID = 1;
+opts.stickyioOfferID = 1;
+opts.stickyioTermsID = 0;
+opts.stickyioBillingModelID = 3;
+opts.stickyioBillingModelDetails = '90 Days';
 
 module.exports = opts;

@@ -31,6 +31,7 @@ var optionsMock = {
             stubStickyioVariationID: 123,
             stubStickyioCampaignID: 123,
             stubStickyioOfferID: 123,
+            stubStickyioTermsID: 'someString',
             stubStickyioBillingModelID: 123,
             stubStickyioBillingModelDetails: 'someBillingModelDetails'
         }
@@ -85,6 +86,7 @@ describe('Product Line Item Model', function () {
         productLineItemDecorators.stubs.stubStickyioVariationID.reset();
         productLineItemDecorators.stubs.stubStickyioCampaignID.reset();
         productLineItemDecorators.stubs.stubStickyioOfferID.reset();
+        productLineItemDecorators.stubs.stubStickyioTermsID.reset();
         productLineItemDecorators.stubs.stubStickyioBillingModelID.reset();
         productLineItemDecorators.stubs.stubStickyioBillingModelDetails.reset();
     });
@@ -207,6 +209,12 @@ describe('Product Line Item Model', function () {
         productLineItem(object, productMock, optionsMock);
 
         assert.isTrue(productLineItemDecorators.stubs.stubStickyioOfferID.calledOnce);
+    });
+
+    it('should call stickyioTermsID for product line item model', function () {
+        productLineItem(object, productMock, optionsMock);
+
+        assert.isTrue(productLineItemDecorators.stubs.stubStickyioTermsID.calledOnce);
     });
 
     it('should call stickyioBillingModelID for product line item model', function () {
