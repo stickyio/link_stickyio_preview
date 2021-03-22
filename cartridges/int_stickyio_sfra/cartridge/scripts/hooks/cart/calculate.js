@@ -171,7 +171,7 @@ function calculateProductPrices (basket) {
             productLineItem.setPriceValue(productPrices.get(product).valueOrNull);
         }
 
-        if (productLineItem.custom.stickyioTermsID && productLineItem.custom.stickyioTermsID !== '0') {
+        if (productLineItem.custom.stickyioTermsID && productLineItem.custom.stickyioTermsID !== '0' && productLineItem.custom.stickyioTermsID !== 'null') {
             productLineItem.setPriceValue(productLineItem.getBasePrice().multiply(Number(productLineItem.custom.stickyioTermsID.split('-')[1])).value);
         }
     }
