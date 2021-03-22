@@ -3,11 +3,13 @@ All notable changes to this project will be documented in this file.
 
 ## [21.1.0] - 2021-03-22
 [https://github.com/stickyio/link_stickyio_preview/commit/68b2ca5de17c9c92979e44a426d033316978e398](https://github.com/stickyio/link_stickyio_preview/commit/68b2ca5de17c9c92979e44a426d033316978e398)
+[https://github.com/stickyio/link_stickyio_preview/commit/8305073013a4c5150a143831caf9000c258040a2](https://github.com/stickyio/link_stickyio_preview/commit/8305073013a4c5150a143831caf9000c258040a2)
 ### Removed
 - SSO cache-busting header
 - Straight Sale custom preference
 - Out of the box Billing Models
 - "Custom" Billing Model/Offer configuration and underlying processes/code
+- Unused stickyioCycles decoratot
 
 ### Changed
 - SSO route endpoint
@@ -16,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Template and Javascript efficencies
 - Rewritten documentation
 - Job steps aligned with new system and custom object manipulation processes
+- Literal "null" sanity check on calculate.js
 
 ### Added
 - Support for any Billing Model
@@ -25,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - XML and OCAPI system manipulation of sticky.io-related objects
 - Baseline template CSS
 - SFRA support for Products with multiple _selectable_ Product Options (core SFRA bug fix)
+- Working unit tests
 
 ## [20.1.4] - 2021-03-10
 [https://github.com/stickyio/link_stickyio_preview/commit/4e597fc29ef53dc225fffdaf111be0174bafbee8](https://github.com/stickyio/link_stickyio_preview/commit/4e597fc29ef53dc225fffdaf111be0174bafbee8)
