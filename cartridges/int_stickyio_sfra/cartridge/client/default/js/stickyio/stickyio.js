@@ -45,17 +45,20 @@ var stickyio = {
     },
     getProductData: function (pid, callback) {
         stickyioProductData = {};
-        stickyioProductData.pid = $('[data-wrapperpid="' + pid + '"]').attr('data-sfccpid');
-        stickyioProductData.stickyioSubscriptionActive = $('[data-wrapperpid="' + pid + '"]').data('stickyiosubscriptionactive');
-        stickyioProductData.productType = $('[data-wrapperpid="' + pid + '"]').attr('data-producttype');
-        stickyioProductData.offerType = $('[data-wrapperpid="' + pid + '"]').attr('data-offertype');
-        stickyioProductData.stickyioPID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiopid');
-        stickyioProductData.stickyioCID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiocid');
-        stickyioProductData.stickyioOID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiooid');
-        stickyioProductData.stickyioTID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiotid');
-        stickyioProductData.stickyioBMID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiobmid');
-        stickyioProductData.stickyioVID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiovid');
-        stickyioProductData.stickyioBillingModelConsumerSelectable = $('[data-wrapperpid="' + pid + '"]').data('stickyiobillingmodelconsumerselectable');
+        var stickyioProductWrapper;
+        stickyioProductWrapper = $('[data-wrapperpid="' + pid + '"]');
+        if (stickyioProductWrapper.length > 1) { stickyioProductWrapper = $(stickyioProductWrapper[stickyioProductWrapper.length - 1]); }
+        stickyioProductData.pid = stickyioProductWrapper.attr('data-sfccpid');
+        stickyioProductData.stickyioSubscriptionActive = stickyioProductWrapper.data('stickyiosubscriptionactive');
+        stickyioProductData.productType = stickyioProductWrapper.attr('data-producttype');
+        stickyioProductData.offerType = stickyioProductWrapper.attr('data-offertype');
+        stickyioProductData.stickyioPID = stickyioProductWrapper.attr('data-stickyiopid');
+        stickyioProductData.stickyioCID = stickyioProductWrapper.attr('data-stickyiocid');
+        stickyioProductData.stickyioOID = stickyioProductWrapper.attr('data-stickyiooid');
+        stickyioProductData.stickyioTID = stickyioProductWrapper.attr('data-stickyiotid');
+        stickyioProductData.stickyioBMID = stickyioProductWrapper.attr('data-stickyiobmid');
+        stickyioProductData.stickyioVID = stickyioProductWrapper.attr('data-stickyiovid');
+        stickyioProductData.stickyioBillingModelConsumerSelectable = stickyioProductWrapper.data('stickyiobillingmodelconsumerselectable');
         var offerType = stickyioProductData.offerType && stickyioProductData.offerType !== 'null' ? ' (' + stickyioProductData.offerType + ')' : '';
         var selectedBillingModelDetails = [];
         if ($(':not(".select-hiddenselect") option:checked', $('[data-wrapperpid="' + pid + '"] [data-oid="' + stickyioProductData.stickyioOID + '"] .subscriptionselect:checked').parent()).length > 0) {
