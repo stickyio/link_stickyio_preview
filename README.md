@@ -46,8 +46,6 @@ This cartridge is built against [SFCC SFRA](https://github.com/SalesforceCommerc
 
 # Testing
 
-**Not yet available for v2!!**
-
 `npm run test:unit` for unit tests
 
 `npm run test:integration` for integration tests - assumes a well-configured `dw.json` file is present
