@@ -273,7 +273,7 @@ if (stickyioEnabled) {
         var uuidToBeDeleted = null;
         var pliToBeDeleted;
         var newPidAlreadyExist = collections.find(productLineItems, function (item) {
-            if (item.productID === productId && item.UUID !== uuid && item.custom.stickyioCampaignID.toString() !== stickyioCampaignID.toString() && item.custom.stickyioOfferID.toString() !== stickyioOfferID.toString() && item.custom.stickyioTermsID.toString() !== stickyioTermsID.toString() && item.custom.stickyioBillingModelID.toString() !== stickyioBillingModelID.toString()) {
+            if (item.productID === productId && item.UUID !== uuid) {
                 uuidToBeDeleted = item.UUID;
                 pliToBeDeleted = item;
                 updateQuantity += parseInt(item.quantity, 10);
@@ -349,13 +349,13 @@ if (stickyioEnabled) {
                         var optionProductLineItem = optionProductLineItems.iterator().next();
                         optionProductLineItem.updateOptionValue(productOptionValue);
                     }
-                    requestLineItem.custom.stickyioProductID = Number(stickyioProductID);
-                    requestLineItem.custom.stickyioVariationID = Number(stickyioVariationID);
-                    requestLineItem.custom.stickyioCampaignID = Number(stickyioCampaignID);
-                    requestLineItem.custom.stickyioOfferID = Number(stickyioOfferID);
-                    requestLineItem.custom.stickyioTermsID = stickyioTermsID;
-                    requestLineItem.custom.stickyioBillingModelID = Number(stickyioBillingModelID);
-                    requestLineItem.custom.stickyioBillingModelDetails = stickyioBillingModelDetails;
+                    if (requestLineItem.custom.stickyioProductID) { requestLineItem.custom.stickyioProductID = Number(stickyioProductID); }
+                    if (requestLineItem.custom.stickyioVariationID) { requestLineItem.custom.stickyioVariationID = Number(stickyioVariationID); }
+                    if (requestLineItem.custom.stickyioCampaignID) { requestLineItem.custom.stickyioCampaignID = Number(stickyioCampaignID); }
+                    if (requestLineItem.custom.stickyioOfferID) { requestLineItem.custom.stickyioOfferID = Number(stickyioOfferID); }
+                    if (requestLineItem.custom.stickyioTermsID) { requestLineItem.custom.stickyioTermsID = stickyioTermsID; }
+                    if (requestLineItem.custom.stickyioBillingModelID) { requestLineItem.custom.stickyioBillingModelID = Number(stickyioBillingModelID); }
+                    if (requestLineItem.custom.stickyioBillingModelDetails) { requestLineItem.custom.stickyioBillingModelDetails = stickyioBillingModelDetails; }
 
                     requestLineItem.setQuantityValue(updateQuantity);
                     basketCalculationHelpers.calculateTotals(currentBasket);
