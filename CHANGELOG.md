@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 [https://github.com/stickyio/link_stickyio_preview/commit/68b2ca5de17c9c92979e44a426d033316978e398](https://github.com/stickyio/link_stickyio_preview/commit/68b2ca5de17c9c92979e44a426d033316978e398)
 [https://github.com/stickyio/link_stickyio_preview/commit/8305073013a4c5150a143831caf9000c258040a2](https://github.com/stickyio/link_stickyio_preview/commit/8305073013a4c5150a143831caf9000c258040a2)
 [https://github.com/stickyio/link_stickyio_preview/commit/5310696c35e0a2e4abed6d69be3494d3087eab36](https://github.com/stickyio/link_stickyio_preview/commit/5310696c35e0a2e4abed6d69be3494d3087eab36)
+[https://github.com/stickyio/link_stickyio_preview/commit/9ac988fe786872bc486d7cda596dc04b5b333019](https://github.com/stickyio/link_stickyio_preview/commit/9ac988fe786872bc486d7cda596dc04b5b333019)
 ### Removed
 - SSO cache-busting header
 - Straight Sale custom preference
@@ -21,6 +22,7 @@ All notable changes to this project will be documented in this file.
 - Job steps aligned with new system and custom object manipulation processes
 - Literal "null" sanity check on calculate.js
 - Simplified Cart-EditProductLineItem route and additional sanity checks
+- Quickview targetting
 
 ### Added
 - Support for any Billing Model
