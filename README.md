@@ -38,11 +38,15 @@ This cartridge is built against [SFCC SFRA](https://github.com/SalesforceCommerc
 
 12. Navigate to the new STICKYIO custom site preferences in Business Manager (_Merchant Tools -> Site Preferences -> Custom Preferences -> STICKYIO_) and configure your preferences. If you haven't yet signed up for [sticky.io](https://sticky.io), now would be a good time as you will need the `Instance Domain` and `Service Credentials` (_Administration -> Services -> Credentials -> sticky.io_) to proceed!
 
-13. Run the `sticky.io Shipping Methods Update` job.
+13. Add the required `SHOP` and `DATA` OCAPI settings to your Business Manager, by opening the respective files located in the `./metadata/OCAPI` folder. Be sure to replace `{API CLIENT ID}` with the Client ID provided to your sticky.io representative! More information is available in the _official documentation_.
 
-14. Set up some subscription products in Business Manager, run the `sticky.io Product Sync` job, and you're on your way!
+14. Run the `sticky.io Shipping Methods Update` job.
+
+15. Set up some subscription products in Business Manager, run the `sticky.io Product Sync` job, and you're on your way!
 
 # Testing
+
+**Not yet available for v2!!**
 
 `npm run test:unit` for unit tests
 

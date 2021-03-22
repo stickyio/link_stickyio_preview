@@ -19,10 +19,10 @@ if (stickyioEnabled) {
             if (viewData.product.productType === 'set') {
                 var i;
                 for (i = 0; i < viewData.product.individualProducts.length; i++) {
-                    viewData.product.individualProducts[i] = stickyioHelper.setBaseURLAndBMID(viewData.product.individualProducts[i].id, req.querystring, req.querystring.bmid, viewData.product.individualProducts[i]);
+                    viewData.product.individualProducts[i] = stickyioHelper.setBaseURLAndBMID(viewData.product.individualProducts[i].id, req.querystring, viewData.product.individualProducts[i]);
                 }
             } else {
-                viewData.product = stickyioHelper.setBaseURLAndBMID(viewData.product.id, req.querystring, req.querystring.bmid, viewData.product);
+                viewData.product = stickyioHelper.setBaseURLAndBMID(viewData.product.id, req.querystring, viewData.product);
             }
             res.setViewData(viewData);
         }
@@ -35,10 +35,10 @@ if (stickyioEnabled) {
             if (viewData.product.productType === 'set') {
                 var i;
                 for (i = 0; i < viewData.product.individualProducts.length; i++) {
-                    viewData.product.individualProducts[i] = stickyioHelper.setBaseURLAndBMID(viewData.product.individualProducts[i].id, req.querystring, req.querystring.bmid, viewData.product.individualProducts[i]);
+                    viewData.product.individualProducts[i] = stickyioHelper.setBaseURLAndBMID(viewData.product.individualProducts[i].id, req.querystring, viewData.product.individualProducts[i]);
                 }
             } else {
-                viewData.product = stickyioHelper.setBaseURLAndBMID(viewData.product.id, req.querystring, req.querystring.bmid, viewData.product);
+                viewData.product = stickyioHelper.setBaseURLAndBMID(viewData.product.id, req.querystring, viewData.product);
             }
             res.setViewData(viewData);
         }
@@ -50,7 +50,7 @@ if (stickyioEnabled) {
         var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
         var viewData = res.getViewData();
         if (viewData.product) {
-            viewData.product = stickyioHelper.setBaseURLAndBMID(viewData.product.id, req.querystring, req.querystring.bmid, viewData.product);
+            viewData.product = stickyioHelper.setBaseURLAndBMID(viewData.product.id, req.querystring, viewData.product);
             if (viewData.product.stickyio.stickyioReady) {
                 var attributeTemplate = 'stickyio/stickyioProduct';
                 viewData.product.stickyioHTML = renderTemplateHelper.getRenderedHtml(

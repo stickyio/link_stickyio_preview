@@ -44,6 +44,7 @@ module.exports = function productLineItem(product, apiProduct, options) {
     productLineItemDecorators.stickyioVariationID(product, options.lineItem);
     productLineItemDecorators.stickyioCampaignID(product, options.lineItem);
     productLineItemDecorators.stickyioOfferID(product, options.lineItem);
+    productLineItemDecorators.stickyioTermsID(product, options.lineItem);
     productLineItemDecorators.stickyioBillingModelID(product, options.lineItem);
     productLineItemDecorators.stickyioBillingModelDetails(product, options.lineItem);
 

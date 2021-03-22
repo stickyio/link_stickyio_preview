@@ -14,12 +14,17 @@ var stickyio = {
         stickyioProductData = stickyio.getProductData(closestWrapperPID);
         // console.log(closestWrapperPID, stickyioProductData);
         if (stickyioProductData.stickyioSubscriptionActive === true) {
-            // console.log('found subscription product (' + stickyioProductData.pid + '), with consumer-selectable offer');
-            if ((stickyioProductData.stickyioBillingModelConsumerSelectable &&
-                (stickyioProductData.stickyioBMID === 'null' ||
-                stickyioProductData.stickyioBMID === '0')) ||
+            // console.log('found subscription product (' + stickyioProductData.pid + '), with consumer-selectable offer', stickyioProductData);
+            if (
+                (stickyioProductData.stickyioOID === 'null' ||
+                stickyioProductData.stickyioOID === '0' ||
+                stickyioProductData.stickyioBMID === 'null' ||
+                stickyioProductData.stickyioBMID === '0') ||
                 (stickyioProductData.productType === 'variant' &&
-                stickyioProductData.stickyioVID === 'null')
+                stickyioProductData.stickyioVID === 'null') ||
+                (stickyioProductData.offerType === 'prepaid' &&
+                (stickyioProductData.stickyioTID === '0' ||
+                stickyioProductData.stickyioTID === 'null'))
             ) {
                 $('button.add-to-cart[data-sfccpid="' + closestWrapperPID + '"]').attr('disabled', true);
                 $('button.add-to-cart-global[data-sfccpid="' + closestWrapperPID + '"]').attr('disabled', true);
@@ -31,6 +36,10 @@ var stickyio = {
                     product: product, $productContainer: $(this)
                 }).trigger('product:statusUpdate', product);
             }
+            if (stickyioProductData.productType === 'master') {
+                $('.stickyiosubscription[data-sfccpid="' + closestWrapperPID + '"] input').prop('disabled', true);
+                $('.stickyiosubscription[data-sfccpid="' + closestWrapperPID + '"] select').prop('disabled', true);
+            }
         }
         // console.log('found subscription product (' + stickyioProductData.pid + ')');
     },
@@ -38,16 +47,27 @@ var stickyio = {
         stickyioProductData = {};
         stickyioProductData.pid = $('[data-wrapperpid="' + pid + '"]').attr('data-sfccpid');
         stickyioProductData.stickyioSubscriptionActive = $('[data-wrapperpid="' + pid + '"]').data('stickyiosubscriptionactive');
-        stickyioProductData.stickyioBillingModelConsumerSelectable = $('[data-wrapperpid="' + pid + '"]').data('stickyiobillingmodelconsumerselectable');
-        if (stickyioProductData.stickyioBillingModelConsumerSelectable) {
-            stickyioProductData.stickyioSelectedBillingModelDetails = $('[data-wrapperpid="' + pid + '"] .stickyioproductbillingmodelselect option:selected').text().trim();
-        } else { stickyioProductData.stickyioSelectedBillingModelDetails = $('[data-wrapperpid="' + pid + '"] .stickyioproductbillingmodeldetails').text().trim(); }
         stickyioProductData.productType = $('[data-wrapperpid="' + pid + '"]').attr('data-producttype');
+        stickyioProductData.offerType = $('[data-wrapperpid="' + pid + '"]').attr('data-offertype');
         stickyioProductData.stickyioPID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiopid');
         stickyioProductData.stickyioCID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiocid');
         stickyioProductData.stickyioOID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiooid');
+        stickyioProductData.stickyioTID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiotid');
         stickyioProductData.stickyioBMID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiobmid');
         stickyioProductData.stickyioVID = $('[data-wrapperpid="' + pid + '"]').attr('data-stickyiovid');
+        stickyioProductData.stickyioBillingModelConsumerSelectable = $('[data-wrapperpid="' + pid + '"]').data('stickyiobillingmodelconsumerselectable');
+        var offerType = stickyioProductData.offerType && stickyioProductData.offerType !== 'null' ? ' (' + stickyioProductData.offerType + ')' : '';
+        var selectedBillingModelDetails = [];
+        if ($(':not(".select-hiddenselect") option:checked', $('[data-wrapperpid="' + pid + '"] [data-oid="' + stickyioProductData.stickyioOID + '"] .subscriptionselect:checked').parent()).length > 0) {
+            $(':not(".select-hiddenselect") option:checked', $('[data-wrapperpid="' + pid + '"] [data-oid="' + stickyioProductData.stickyioOID + '"] .subscriptionselect:checked').parent()).each(function (index, obj) {
+                selectedBillingModelDetails.push($(obj).text().trim());
+            });
+        } else {
+            $('.stickyioproductbillingmodeldetails', $('[data-wrapperpid="' + pid + '"] [data-oid="' + stickyioProductData.stickyioOID + '"] .subscriptionselect:checked').parent()).each(function (index, obj) {
+                selectedBillingModelDetails.push($(obj).text().trim());
+            });
+        }
+        stickyioProductData.stickyioSelectedBillingModelDetails = selectedBillingModelDetails.join(' - ') + offerType;
         if (callback) { callback(stickyioProductData); }
         return stickyioProductData;
     },
@@ -84,18 +104,29 @@ var stickyio = {
             if ($('#editProductModal').length > 0 && $('#editProductModal').is(':visible')) { editProductModal = true; dialog = $('#editProductModal'); }
             if (editProductModal) { // editProductModal
                 closestWrapperPID = $('[data-sfccpid="' + thisResponse.data.product.id + '"] .stickyiosubscription').attr('data-wrapperpid');
-            } else {
+            }
+            if (typeof (closestWrapperPID) === 'undefined') {
                 closestWrapperPID = $('[data-sfccpid="' + thisResponse.data.product.id + '"]', $(thisResponse.container)).attr('data-wrapperpid');
             }
             stickyio.getProductData(closestWrapperPID, function (thisStickyioProductData) {
                 // console.log(closestWrapperPID, thisStickyioProductData, thisResponse);
                 if (thisStickyioProductData.stickyioSubscriptionActive === true) {
-                    if (thisStickyioProductData.stickyioSubscriptionActive === true &&
+                    if (
+                        (thisStickyioProductData.stickyioCID !== 'null' &&
                         thisStickyioProductData.stickyioPID !== 'null' &&
-                        thisStickyioProductData.stickyioCID !== 'null' &&
                         thisStickyioProductData.stickyioOID !== 'null' &&
+                        thisStickyioProductData.stickyioOID !== '0' &&
                         thisStickyioProductData.stickyioBMID !== 'null' &&
-                        thisStickyioProductData.stickyioBMID !== '0') { // this is a stickyio subscription Product and has a PID or it's a subscription variation and has both a PID and a VID
+                        thisStickyioProductData.stickyioBMID !== '0' &&
+                        thisStickyioProductData.offerType !== 'prepaid') ||
+                        (thisStickyioProductData.offerType === 'prepaid' &&
+                        thisStickyioProductData.stickyioTID !== 'null' &&
+                        thisStickyioProductData.stickyioTID !== '0' &&
+                        thisStickyioProductData.stickyioOID !== 'null' &&
+                        thisStickyioProductData.stickyioOID !== '0' &&
+                        thisStickyioProductData.stickyioBMID !== 'null' &&
+                        thisStickyioProductData.stickyioBMID !== '0')
+                        ) { // this is a stickyio subscription Product and has a PID or it's a subscription variation and has both a PID and a VID
                         if (thisStickyioProductData.productType !== 'product' && (thisStickyioProductData.productType === 'variant' && thisStickyioProductData.stickyioVID === 'null')) {
                             if (quickView || editProductModal) { $('.global-availability', dialog).data('ready-to-order', false); }
                             thisResponse.data.product.readyToOrder = false;
@@ -103,6 +134,10 @@ var stickyio = {
                     } else {
                         if (quickView || editProductModal) { $('.global-availability', dialog).data('ready-to-order', false); }
                         thisResponse.data.product.readyToOrder = false;
+                    }
+                    if (stickyioProductData.productType === 'master') {
+                        $('.stickyiosubscription input', stickyio.getClosestWrapper($('[data-wrapperpid="' + closestWrapperPID + '"]'))).prop('disabled', true);
+                        $('.stickyiosubscription select', stickyio.getClosestWrapper($('[data-wrapperpid="' + closestWrapperPID + '"]'))).prop('disabled', true);
                     }
                     // console.log('thisResponse.data.product.readyToOrder: ' + thisResponse.data.product.readyToOrder);
 
@@ -128,7 +163,7 @@ var stickyio = {
     }
 };
 
-$(document).ready(function () {
+$(function () {
     if ($('.stickyiosubscription', $('body')).length > 0) {
         $('.stickyiosubscription', $('body')).each(function () {
             stickyio.disableAddToCart(null, $(this));
@@ -150,10 +185,12 @@ $('body').on('updateAddToCartFormData', function (e, data) {
             }
             stickyioProductData = stickyio.getProductData(closestWrapperPID);
             if (stickyioProductData.stickyioPID) {
+                thisData.offerType = stickyioProductData.offerType;
                 thisData.stickyioProductID = Number(stickyioProductData.stickyioPID);
                 thisData.stickyioVariationID = stickyioProductData.stickyioVID !== '0' && stickyioProductData.stickyioVID !== 'null' ? Number(stickyioProductData.stickyioVID) : null;
                 thisData.stickyioCampaignID = Number(stickyioProductData.stickyioCID);
                 thisData.stickyioOfferID = Number(stickyioProductData.stickyioOID);
+                thisData.stickyioTermsID = stickyioProductData.stickyioTID;
                 thisData.stickyioBillingModelID = Number(stickyioProductData.stickyioBMID);
                 thisData.stickyioBillingModelDetails = stickyioProductData.stickyioSelectedBillingModelDetails;
             }
@@ -168,10 +205,12 @@ $('body').on('updateAddToCartFormData', function (e, data) {
                 }
                 stickyioProductData = stickyio.getProductData(closestWrapperPID);
                 if (stickyioProductData.stickyioPID) {
+                    pids[i].offerType = stickyioProductData.offerType;
                     pids[i].stickyioProductID = Number(stickyioProductData.stickyioPID);
                     pids[i].stickyioVariationID = stickyioProductData.stickyioVID !== '0' && stickyioProductData.stickyioVID !== 'null' ? Number(stickyioProductData.stickyioVID) : null;
                     pids[i].stickyioCampaignID = Number(stickyioProductData.stickyioCID);
                     pids[i].stickyioOfferID = Number(stickyioProductData.stickyioOID);
+                    pids[i].stickyioTermsID = stickyioProductData.stickyioTID;
                     pids[i].stickyioBillingModelID = Number(stickyioProductData.stickyioBMID);
                     pids[i].stickyioBillingModelDetails = stickyioProductData.stickyioSelectedBillingModelDetails;
                 }
@@ -189,6 +228,17 @@ $('body').on('product:afterAttributeSelect', function (e, response) { // update 
     } else {
         $(response.container).find('.stickyiosubscriptioncontainer').empty().html('');
     }
+});
+
+/*
+This mechanism to make the radio buttons respond to being clicked and updating product data is a horrible hack and, honestly, I'm embarassed about it.
+What *should* happen is the product/base.js's selectAttribute method is overriden with a new selector to allow the same behavior, but I cannot figure out
+how to export that function cleanly and then overwrite. SFRA is a mess! So, in order to make this work, we have hidden select dropdowns on the PDP that
+are programmatically changed when a radio button/label is clicked, and then THAT fires the selectAttribute method. If you know how to cleanly export and
+override a SFRA javascript method, without cloning an entire tree of js files, please get in touch so we can do away with this awfulness.
+*/
+$('body').on('change', '.subscriptionselect', function () { // register radio button changes
+    $('.select-hiddenselect :nth-child(2)', $(this).parent()).prop('selected', true).trigger('change');
 });
 
 $('body').on('quickview:ready', function () {

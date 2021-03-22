@@ -3,9 +3,10 @@
     <isscript>
         var assets = require('*/cartridge/scripts/assets');
         if(dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioEnabled')) {
-        assets.addJs('/js/productDetailStickyio.js');
+            assets.addJs('/js/productDetailStickyio.js');
+            assets.addCss('/css/subscriptionDetails.css');
         } else {
-        assets.addJs('/js/productDetail.js');
+            assets.addJs('/js/productDetail.js');
         }
         assets.addCss('/css/product/detail.css');
     </isscript>

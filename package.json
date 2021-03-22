@@ -1,6 +1,6 @@
 {
   "name": "int_stickyio_sfra",
-  "version": "20.1.0",
+  "version": "21.1.0",
   "description": "sticky.io",
   "author": "product@sticky.io",
   "repository": {
@@ -23,25 +23,25 @@
     "test:integration": "sgmf-scripts --integration 'test/integration/**/*.js'"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-subset": "^1.6.0",
+    "cheerio": "0.22.0",
+    "css-loader": "^0.28.11",
     "eslint": "^3.2.2",
     "eslint-config-airbnb-base": "^5.0.1",
     "eslint-plugin-import": "^1.12.0",
-    "stylelint": "^7.1.0",
-    "stylelint-config-standard": "^12.0.0",
-    "stylelint-scss": "^1.3.4",
     "istanbul": "^0.4.4",
     "mocha": "^5.2.0",
-    "sinon": "^1.17.4",
-    "chai": "^3.5.0",
-    "cheerio": "0.22.0",
-    "chai-subset": "^1.6.0",
-    "proxyquire": "1.7.4",
-    "request-promise": "^4.2.4",
-    "sgmf-scripts": "^2.0.0",
-    "css-loader": "^0.28.11",
     "node-sass": "^4.9.0",
     "postcss-loader": "^2.1.5",
-    "sass-loader": "^7.0.3"
+    "proxyquire": "1.7.4",
+    "request-promise": "^4.2.4",
+    "sass-loader": "^7.0.3",
+    "sgmf-scripts": "^2.0.0",
+    "sinon": "^1.17.4",
+    "stylelint": "^7.1.0",
+    "stylelint-config-standard": "^12.0.0",
+    "stylelint-scss": "^1.3.4"
   },
   "browserslist": [
     "last 2 versions",

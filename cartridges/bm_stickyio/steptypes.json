@@ -72,24 +72,58 @@
             "function": "campaignSync",
             "transactional": "true",
             "timeout-in-seconds": "900",
-            "parameters": {
-                "parameters": [
-                    {
-                        "@name": "Email Log",
-                        "description": "Enables sending of an email log with raw campaign information",
-                        "@type": "boolean",
-                        "@required": false
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
                     },
                     {
-                        "@name": "Email Address",
-                        "description": "Email address to receive the email Log",
-                        "@type": "string",
-                        "@required": false,
-                        "@trim": true,
-                        "@pattern": "^[A-Za-z0-9]+([-+._][A-Za-z0-9]+)*@([A-Za-z0-9]+(-[A-Za-z0-9]+)*\.)+[A-Za-z]{2,4}$"
+                        "@code": "FINISHED",
+                        "description": "Used when the step finished successfully."
+                    },
+                    {
+                        "@code": "FINISHED_WITH_WARNINGS",
+                        "description": "Used when the step finished with warnings."
                     }
                 ]
-            },
+            }
+        },
+        {
+            "@type-id": "custom.stickyioGenerateObjects",
+            "@supports-parallel-execution": "true",
+            "@supports-site-context": "true",
+            "@supports-organization-context": "false",
+            "description": "Generate sticky.io SFCC system objects with latest data",
+            "module": "bm_stickyio/cartridge/scripts/steps/generateObjects.js",
+            "function": "generateObjects",
+            "transactional": "true",
+            "timeout-in-seconds": "900",
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "FINISHED",
+                        "description": "Used when the step finished successfully."
+                    },
+                    {
+                        "@code": "FINISHED_WITH_WARNINGS",
+                        "description": "Used when the step finished with warnings."
+                    }
+                ]
+            }
+        },
+        {
+            "@type-id": "custom.stickyioCleanup",
+            "@supports-parallel-execution": "false",
+            "@supports-site-context": "false",
+            "@supports-organization-context": "true",
+            "description": "Clean up any temporary filesystem objects",
+            "module": "bm_stickyio/cartridge/scripts/steps/cleanupFiles.js",
+            "function": "cleanupFiles",
+            "transactional": "true",
+            "timeout-in-seconds": "900",
             "status-codes": {
                 "status": [{
                         "@code": "ERROR",

@@ -1,7 +1,6 @@
 <isset name="product" value="${pdict.product}" scope="page" />
-
 <isloop items="${product.options}" var="option" status="loopStatus">
-    <isif condition="${option.id !== 'stickyioBillingModelOptions'}">
+    <isif condition="${option.id !== 'stickyioOfferOptions' && option.id !== 'stickyioBillingModelOptions' && option.id !== 'stickyioTermOptions'}">
         <div class="row product-option" data-option-id="${option.id}">
             <div class="col-8">
                 <isinclude template="product/components/option" />

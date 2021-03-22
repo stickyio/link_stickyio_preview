@@ -114,7 +114,7 @@ function getNewBonusDiscountLineItem(
  * @typedef SelectedOption
  * @type Object
  * @property {string} optionId - Option ID
- * @property {string} selectedValueId - Selected option value ID
+ * @property {Object} selectedValueId - Selected option value ID
  */
 
 /**
@@ -127,17 +127,18 @@ function getNewBonusDiscountLineItem(
 function hasSameOptions(existingOptions, selectedOptions) {
     var newOptions = [];
     var i;
+    var j;
     for (i = selectedOptions.length - 1; i >= 0; i--) {
-        if (selectedOptions[i].optionId !== 'stickyioBillingModelOptions') {
-            newOptions.push(options[i]);
+        if (selectedOptions[i].optionId !== 'stickyioBillingModelOptions' && selectedOptions[i].optionId !== 'stickyioOfferOptions' && selectedOptions[i].optionId !== 'stickyioTermOptions') {
+            newOptions.push(selectedOptions[i]);
         }
     }
     var selected = {};
-    for (var i = 0, j = newOptions.length; i < j; i++) {
+    for (i = 0, j = newOptions.length; i < j; i++) {
         selected[newOptions[i].optionId] = newOptions[i].selectedValueId;
     }
     return collections.every(existingOptions, function (option) {
-        if (option.optionID === 'stickyioBillingModelOptions') {
+        if (option.optionID === 'stickyioBillingModelOptions' || option.optionID === 'stickyioOfferOptions' || option.optionID === 'stickyioTermOptions') {
             return true;
         }
         return option.optionValueID === selected[option.optionID];
@@ -170,7 +171,21 @@ function allBundleItemsSame(productLineItems, childProducts) {
  */
 function hasSameStickyioBillingModel(stickyioBillingModelIDExisting, stickyioBillingModelIDSelected) {
     if (stickyioBillingModelIDExisting) {
-        return stickyioBillingModelIDExisting.toString() === stickyioBillingModelIDSelected;
+        return stickyioBillingModelIDExisting.toString() === stickyioBillingModelIDSelected.toString();
+    }
+    return false;
+}
+
+/**
+ * Determines whether a product's current sticky.io prepaid terms are the same as those just selected
+ *
+ * @param {string} stickyioTermsIDExisting - sticky.io term ID currently associated with this product
+ * @param {string} stickyioTermsIDSelected - sticky.io term ID just selected
+ * @return {boolean} - Whether a product's current sticky.io Term ID is the same as those just selected
+ */
+function hasSameStickyioTerms(stickyioTermsIDExisting, stickyioTermsIDSelected) {
+    if (stickyioTermsIDExisting) {
+        return stickyioTermsIDExisting === stickyioTermsIDSelected;
     }
     return false;
 }
@@ -188,6 +203,7 @@ function hasSameStickyioBillingModel(stickyioBillingModelIDExisting, stickyioBil
  * @param {number} stickyioVariationID - sticky.io Variation ID
  * @param {number} stickyioCampaignID - sticky.io Campaign ID
  * @param {number} stickyioOfferID - sticky.io Offer ID
+ * @param {string} stickyioTermsID - sticky.io Term ID
  * @param {number} stickyioBillingModelID - sticky.io Offer ID
  * @param {string[]} stickyioBillingModelDetails - sticky.io Offer details
  * @return {dw.order.ProductLineItem} - The added product line item
@@ -203,17 +219,32 @@ function addLineItem(
     stickyioVariationID,
     stickyioCampaignID,
     stickyioOfferID,
+    stickyioTermsID,
     stickyioBillingModelID,
     stickyioBillingModelDetails
 ) {
+    var thisOptionModel = optionModel;
     var options = [];
-    if (optionModel.options.length === 1 && optionModel.options[0].ID === 'stickyioBillingModelOptions') {
-        options.push({ optionId : 'stickyioBillingModelOptions', selectedValueId : Number(stickyioBillingModelID) });
-        optionModel = productHelper.getCurrentOptionModel(product.optionModel, options);
+    if (thisOptionModel.options.length > 0) {
+        var i;
+        for (i = 0; i < thisOptionModel.options.length; i++) {
+            if (thisOptionModel.options[i].ID === 'stickyioBillingModelOptions') {
+                options.push({ optionId: thisOptionModel.options[i].ID, selectedValueId: Number(stickyioBillingModelID) });
+            }
+            if (thisOptionModel.options[i].ID === 'stickyioTermOptions') {
+                options.push({ optionId: thisOptionModel.options[i].ID, selectedValueId: stickyioTermsID });
+            }
+            if (thisOptionModel.options[i].ID === 'stickyioOfferOptions') {
+                options.push({ optionId: thisOptionModel.options[i].ID, selectedValueId: Number(stickyioOfferID) });
+            }
+        }
+        if (options.length > 0) {
+            thisOptionModel = productHelper.getCurrentOptionModel(product.optionModel, options);
+        }
     }
     var productLineItem = currentBasket.createProductLineItem(
         product,
-        optionModel,
+        thisOptionModel,
         defaultShipment
     );
 
@@ -227,6 +258,7 @@ function addLineItem(
     if (stickyioVariationID) { productLineItem.custom.stickyioVariationID = Number(stickyioVariationID); }
     if (stickyioCampaignID) { productLineItem.custom.stickyioCampaignID = Number(stickyioCampaignID); }
     if (stickyioOfferID) { productLineItem.custom.stickyioOfferID = Number(stickyioOfferID); }
+    if (stickyioTermsID) { productLineItem.custom.stickyioTermsID = stickyioTermsID; }
     if (stickyioBillingModelID) { productLineItem.custom.stickyioBillingModelID = Number(stickyioBillingModelID); }
     if (stickyioBillingModelDetails) { productLineItem.custom.stickyioBillingModelDetails = stickyioBillingModelDetails; }
 
@@ -287,7 +319,7 @@ function getQtyAlreadyInCart(productId, lineItems, uuid) {
  * @return {Object} properties includes,
  *                  matchingProducts - collection of matching products
  *                  uuid - string value for the last product line item
- * @return {dw.order.ProductLineItem[]} - Filtered list of product line items matching productId
+ *  ................{dw.order.ProductLineItem[]} - Filtered list of product line items matching productId
  */
 function getMatchingProducts(productId, productLineItems) {
     var matchingProducts = [];
@@ -314,10 +346,11 @@ function getMatchingProducts(productId, productLineItems) {
  * @param {string[]} childProducts - the products' sub-products
  * @param {SelectedOption[]} options - product options
  * @param {number} stickyioBillingModelID - stickyioBillingModelID
+ * @param {string} stickyioTermsID - stickyioTermsID
  * @return {dw.order.ProductLineItem[]} - Filtered all the product line item matching productId and
  *     has the same bundled items or options
  */
-function getExistingProductLineItemsInCart(product, productId, productLineItems, childProducts, options, stickyioBillingModelID) {
+function getExistingProductLineItemsInCart(product, productId, productLineItems, childProducts, options, stickyioBillingModelID, stickyioTermsID) {
     var matchingProductsObj = getMatchingProducts(productId, productLineItems);
     var matchingProducts = matchingProductsObj.matchingProducts;
     var productLineItemsInCart = matchingProducts.filter(function (matchingProduct) {
@@ -326,8 +359,9 @@ function getExistingProductLineItemsInCart(product, productId, productLineItems,
         }
         if (hasSameOptions(matchingProduct.optionProductLineItems, options || [])) {
             if (!stickyioBillingModelID) { return true; }
-            return hasSameStickyioBillingModel(matchingProduct.custom.stickyioBillingModelID, stickyioBillingModelID);
+            return hasSameStickyioBillingModel(matchingProduct.custom.stickyioBillingModelID, stickyioBillingModelID) && hasSameStickyioTerms(matchingProduct.custom.stickyioTermsID, stickyioTermsID);
         }
+        return [];
     });
 
     return productLineItemsInCart;
@@ -343,11 +377,12 @@ function getExistingProductLineItemsInCart(product, productId, productLineItems,
  * @param {string[]} childProducts - the products' sub-products
  * @param {SelectedOption[]} options - product options
  * @param {number} stickyioBillingModelID - stickyioBillingModelID
+ * @param {string} stickyioTermsID - stickyioTermsID
  * @return {dw.order.ProductLineItem} - get the first product line item matching productId and
  *     has the same bundled items or options
  */
-function getExistingProductLineItemInCart(product, productId, productLineItems, childProducts, options, stickyioBillingModelID) {
-    return getExistingProductLineItemsInCart(product, productId, productLineItems, childProducts, options, stickyioBillingModelID)[0];
+function getExistingProductLineItemInCart(product, productId, productLineItems, childProducts, options, stickyioBillingModelID, stickyioTermsID) {
+    return getExistingProductLineItemsInCart(product, productId, productLineItems, childProducts, options, stickyioBillingModelID, stickyioTermsID)[0];
 }
 
 /**
@@ -392,11 +427,12 @@ function checkBundledProductCanBeAdded(childProducts, productLineItems, quantity
  * @param {number} stickyioVariationID - sticky.io Subscription Variation ID
  * @param {number} stickyioCampaignID - sticky.io Subscription Campaign ID
  * @param {number} stickyioOfferID - sticky.io Subscription Offer ID
+ * @param {string} stickyioTermsID - sticky.io Prepaid Term ID
  * @param {number} stickyioBillingModelID - sticky.io Subscription BillingModel ID
  * @param {string[]} stickyioBillingModelDetails - sticky.io Offer details
  *  @return {Object} returns an error object
  */
-function addProductToCart(currentBasket, productId, quantity, childProducts, options, stickyioProductID, stickyioVariationID, stickyioCampaignID, stickyioOfferID, stickyioBillingModelID, stickyioBillingModelDetails) {
+function addProductToCart(currentBasket, productId, quantity, childProducts, options, stickyioProductID, stickyioVariationID, stickyioCampaignID, stickyioOfferID, stickyioTermsID, stickyioBillingModelID, stickyioBillingModelDetails) {
     var availableToSell;
     var defaultShipment = currentBasket.defaultShipment;
     var perpetual;
@@ -406,7 +442,13 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
     var productQuantityInCart;
     var quantityToSet;
     if (stickyioBillingModelID) {
-        options.push({ optionId : 'stickyioBillingModelOptions', selectedValueId : Number(stickyioBillingModelID) });
+        options.push({ optionId: 'stickyioBillingModelOptions', selectedValueId: Number(stickyioBillingModelID) });
+    }
+    if (stickyioTermsID) {
+        options.push({ optionId: 'stickyioTermOptions', selectedValueId: stickyioTermsID });
+    }
+    if (stickyioOfferID) {
+        options.push({ optionId: 'stickyioOfferOptions', selectedValueId: Number(stickyioOfferID) });
     }
     var optionModel = productHelper.getCurrentOptionModel(product.optionModel, options);
     var result = {
@@ -440,7 +482,7 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
     }
 
     productInCart = getExistingProductLineItemInCart(
-        product, productId, productLineItems, childProducts, options, stickyioBillingModelID);
+        product, productId, productLineItems, childProducts, options, stickyioBillingModelID, stickyioTermsID);
 
     if (productInCart) {
         productQuantityInCart = productInCart.quantity.value;
@@ -457,21 +499,22 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
                 : Resource.msg('error.alert.selected.quantity.cannot.be.added', 'product', null);
         }
     } else {
-        var productInCartNoSticky = getExistingProductLineItemInCart(product, productId, productLineItems, childProducts, options);
+        var productInCartNoSticky = getExistingProductLineItemInCart(product, productId, productLineItems, childProducts, options, null, null);
         var productLineItem;
-        if (productInCartNoSticky) { // this is the same product, but with a different stickyio billing model, so replace it
+        if (productInCartNoSticky) { // this is the same product, but with a different stickyio billing model/offer/terms, so replace it
             currentBasket.removeProductLineItem(productInCartNoSticky);
             productLineItem = addLineItem(
                 currentBasket,
                 product,
                 productInCartNoSticky.quantity.value,
                 childProducts,
-                optionModel, 
+                optionModel,
                 defaultShipment,
                 stickyioProductID,
                 stickyioVariationID,
                 stickyioCampaignID,
                 stickyioOfferID,
+                stickyioTermsID,
                 stickyioBillingModelID,
                 stickyioBillingModelDetails
             );
@@ -487,6 +530,7 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
                 stickyioVariationID,
                 stickyioCampaignID,
                 stickyioOfferID,
+                stickyioTermsID,
                 stickyioBillingModelID,
                 stickyioBillingModelDetails
             );

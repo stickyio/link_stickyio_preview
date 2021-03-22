@@ -26,7 +26,7 @@
 
                 <div class="item-options">
                     <isloop items="${lineItem.options}" var="option">
-                        <isif condition="${option.optionId !== 'stickyioBillingModelOptions'}">
+                        <isif condition="${option.optionId !== 'stickyioOfferOptions' && option.optionId !== 'stickyioBillingModelOptions' && option.optionId !== 'stickyioTermOptions'}">
                             <div class="line-item-option">${option.displayName}</div>
                         </isif>
                     </isloop>

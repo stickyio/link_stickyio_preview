@@ -161,7 +161,7 @@ if (stickyioEnabled) {
             var billingAddress = currentBasket.billingAddress;
             var billingForm = server.forms.getForm('billing');
             var paymentMethodID = billingData.paymentMethod.value;
-            if(billingData.stickyioKountSessionID) {
+            if (billingData.stickyioKountSessionID) {
                 billingData.paymentInformation.stickyioKountSessionID = billingData.stickyioKountSessionID;
             }
 

@@ -31,6 +31,8 @@ module.exports = function bonusOrderLineItem(product, apiProduct, options) {
     productLineItemDecorators.options(product, options.lineItemOptions);
     productLineItemDecorators.bonusProductLineItemUUID(product, options.lineItem);
     productLineItemDecorators.preOrderUUID(product, options.lineItem);
+    productLineItemDecorators.stickyioOfferID(product, options.lineItem);
+    productLineItemDecorators.stickyioTermsID(product, options.lineItem);
     productLineItemDecorators.stickyioBillingModelID(product, options.lineItem);
     productLineItemDecorators.stickyioBillingModelDetails(product, options.lineItem);
     productLineItemDecorators.stickyioSubscriptionID(product, options.lineItem);

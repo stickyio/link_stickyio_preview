@@ -29,9 +29,9 @@
 		<icon>icons/logo.png</icon>
 	</menuaction>
 	<menuaction id="stickyio_id03" menupath="stickyio" position="399999" site="true">
-		<name xml:lang="x-default">Subscription Management</name>
-		<short_description xml:lang="x-default">Subscription Management</short_description>
-		<description xml:lang="x-default">Subscription Management</description>
+		<name xml:lang="x-default">Subscription Order Management</name>
+		<short_description xml:lang="x-default">Subscription Order Management</short_description>
+		<description xml:lang="x-default">Subscription Order Management</description>
 		<exec pipeline="Stickyio_bm" node="OrderManagement" />
 		<sub-pipelines>
 			<pipeline name="Stickyio_bm-OrderManagement" />

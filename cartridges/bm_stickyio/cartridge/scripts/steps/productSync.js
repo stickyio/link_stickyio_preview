@@ -5,13 +5,12 @@ var stickyio = require('int_stickyio_sfra/cartridge/scripts/stickyio'); // hard-
 
 exports.productSync = function (parameters) {
     var products = ProductMgr.queryAllSiteProducts();
+    var allStickyioProducts = stickyio.getAllStickyioMasterProducts();
 
     while (products.hasNext()) {
         var product = products.next();
-        stickyio.syncProduct(product, null, parameters['Reset All Products'], parameters['Persist Product IDs']);
+        stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false);
     }
-
-    stickyio.syncOffers();
 
     // first-time run setup, but checked on each sync just in case.
     stickyio.createStraightSaleProduct(parameters['Wipe Preferences']);
@@ -19,6 +18,7 @@ exports.productSync = function (parameters) {
     stickyio.createCustomField('stickyioCustomFieldOrderNo', 'SFCC Order Number', 'order_number', 1, 2, parameters['Wipe Preferences']);
     stickyio.createCustomField('stickyioCustomFieldShipmentID', 'SFCC Shipment ID', 'shipment_id', 1, 2, parameters['Wipe Preferences']);
     stickyio.createCustomField('stickyioCustomFieldCustomerID', 'SFCC Customer ID', 'customer_id', 1, 2, parameters['Wipe Preferences']);
+    stickyio.createCustomField('stickyioCustomFieldOrderToken', 'SFCC Order Token', 'order_token', 1, 2, parameters['Wipe Preferences']);
 
     var content = '';
     if (Object.keys(stickyio.subscriptionProductsLog).length > 0 || stickyio.offerProductsLog.length > 0) {

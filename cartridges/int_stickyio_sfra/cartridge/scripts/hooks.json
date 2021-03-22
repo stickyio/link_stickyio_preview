@@ -1,6 +1,10 @@
 {
     "hooks": [
         {
+            "name": "dw.order.calculate",
+            "script": "./hooks/cart/calculate.js"
+        },
+        {
             "name": "app.payment.processor.basic_credit_stickyio",
             "script": "./hooks/payment/processor/basic_credit_stickyio.js"
         },

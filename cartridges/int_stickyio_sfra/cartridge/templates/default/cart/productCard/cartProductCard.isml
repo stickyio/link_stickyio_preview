@@ -18,10 +18,12 @@
                             <p class="line-item-attributes ${attribute.displayName}-${lineItem.UUID}">${attribute.displayName}: ${attribute.displayValue}</p>
                         </isloop>
                         <isloop items="${lineItem.options}" var="option">
-                            <isif condition="${!!option}" />
-                                <div class="lineItem-options-values" data-option-id="${option.optionId}" data-value-id="${option.selectedValueId}">
-                                    <p class="line-item-attributes">${option.displayName}</p>
-                                </div>
+                            <isif condition="${option.optionId !== 'stickyioOfferOptions' && option.optionId !== 'stickyioBillingModelOptions' && option.optionId !== 'stickyioTermOptions'}">
+                                <isif condition="${!!option}" />
+                                    <div class="lineItem-options-values" data-option-id="${option.optionId}" data-value-id="${option.selectedValueId}">
+                                        <p class="line-item-attributes">${option.displayName}</p>
+                                    </div>
+                                </isif>
                             </isif>
                         </isloop>
                         <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioEnabled') && lineItem.stickyioBillingModelID}">

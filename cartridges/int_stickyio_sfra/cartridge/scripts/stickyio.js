@@ -14,10 +14,10 @@ var ProductMgr = require('dw/catalog/ProductMgr');
 var CustomObjectMgr = require('dw/object/CustomObjectMgr');
 var OrderMgr = require('dw/order/OrderMgr');
 var ShippingMgr = require('dw/order/ShippingMgr');
-var calendar = require('dw/util/Calendar');
+var Calendar = require('dw/util/Calendar');
 var Shipment = require('dw/order/Shipment');
 var Order = require('dw/order/Order');
-var masterCampaignID = 1;
+var OCAPI_VERSION = 'v19_10';
 var tokenPrefix = 'sfcc_';
 var subscriptionProductsLog = {};
 var offerProductsLog = [];
@@ -50,13 +50,13 @@ function maskObject(jsonObject) {
 /**
  * sticky.io API service caller
  * @param {string} svcName - The registered sticky.io service
- * @param {Object} params - Params to be passed along to the service url and body
  * @returns {Object} - The results of the parsed service response
  */
 function stickyioAPI(svcName) {
     var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
     var svc = LocalServiceRegistry.createService(svcName, {
         createRequest: function (thisSvc, params) {
+            var theseParams = params;
             var serviceConfig = thisSvc.getConfiguration();
             var serviceParts = serviceConfig.ID.split('.');
             var profileID = thisSvc.getConfiguration().profile.ID;
@@ -67,18 +67,13 @@ function stickyioAPI(svcName) {
             var url = thisSvc.getURL();
             url = url.replace('{HOST}', Site.getCurrent().getCustomPreferenceValue('stickyioAPIURL'));
             url = url.replace('{V}', version); // service calls may be using v1 or v2 API
-            url = url.replace('{ENDPOINT}', endpoint + (params ? (params.id ? '/' + params.id : '') + (params.helper ? '/' + params.helper : '') + (params.id2 ? '/' + params.id2 : '') : ''));
-            if (params.queryString) { url += '?' + params.queryString; }
+            url = url.replace('{ENDPOINT}', endpoint + (theseParams ? (theseParams.id ? '/' + theseParams.id : '') + (theseParams.helper ? '/' + theseParams.helper : '') + (theseParams.id2 ? '/' + theseParams.id2 : '') : ''));
+            if (theseParams.queryString) { url += '?' + theseParams.queryString; }
             thisSvc.setRequestMethod(method);
             thisSvc.addHeader('Content-Type', 'application/json');
-            if (endpoint === 'sso') { // special treatment for the versionless SSO endpoint
-                url = url.replace('api/v2/', '');
-                delete(params.body);
-                thisSvc.addHeader('Ignore-Redis-Session', '1');
-            }
             thisSvc.setAuthentication('BASIC');
             thisSvc.setURL(url);
-            if (params && params.body) { return JSON.stringify(params.body); }
+            if (theseParams && theseParams.body) { return JSON.stringify(theseParams.body); }
             return null;
         },
         parseResponse: function (thisSVC, result) {
@@ -129,15 +124,15 @@ function stickyioAPI(svcName) {
  */
 function sso(redirect, user) {
     var params = {};
-    params.helper = 'login';
+    params.helper = 'basic_auth';
     params.body = {};
     params.body.username = user;
     params.body.email = Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com';
     params.body.fullname = 'Customer Service';
     params.body.department_id = 'demandware';
-    var stickyioResponse = stickyioAPI('stickyio.http.post.sso.login').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.code === 200) {
-        return stickyioResponse.object.result.url + '?redirect=' + redirect;
+    var stickyioResponse = stickyioAPI('stickyio.http.post.sso.basic_auth').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+        return stickyioResponse.object.result.data.url + '?redirect=' + redirect;
     }
     return false;
 }
@@ -152,13 +147,13 @@ function sso(redirect, user) {
 function sendNotificationEmail(emailAddress, body, subject) {
     var thisBody = body;
     var Mail = require('dw/net/Mail');
-    var mimeEncodedText = require('dw/value/MimeEncodedText');
+    var MimeEncodedText = require('dw/value/MimeEncodedText');
     if (thisBody === '') { thisBody = 'Nothing to do.'; }
     var mail = new Mail();
     mail.addTo(emailAddress);
     mail.setFrom(Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com');
     mail.setSubject(subject);
-    mail.setContent(mimeEncodedText(thisBody));
+    mail.setContent(new MimeEncodedText(thisBody));
     mail.send();
 }
 
@@ -176,7 +171,7 @@ function getShippingMethods(pageNum, shippingMethods) {
     if (!thisPageNum) { thisPageNum = 1; }
     params.queryString = 'page=' + thisPageNum;
     var stickyioResponse = stickyioAPI('stickyio.http.get.shipping').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
             var thisShippingMethod = stickyioResponse.object.result.data[i];
             theseShippingMethods[thisShippingMethod.id] = thisShippingMethod;
@@ -206,7 +201,7 @@ function createShippingMethod(shippingMethod) {
     params.body.amount_trial = 1;
     params.body.amount_recurring = 1;
     var stickyioResponse = stickyioAPI('stickyio.http.post.shipping').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         Transaction.wrap(function () { thisShippingMethod.custom.stickyioShippingID = stickyioResponse.object.result.data.id; });
         return stickyioResponse.object.result.data.id;
     }
@@ -226,7 +221,7 @@ function updateShippingMethod(shippingMethod, stickyioShippingMethodID) {
     params.body.name = shippingMethod.displayName;
     params.body.description = shippingMethod.description;
     var stickyioResponse = stickyioAPI('stickyio.http.put.shipping').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         return stickyioResponse.object.result.data.id;
     }
     return false;
@@ -279,18 +274,47 @@ function updateShippingMethods(parameters) {
     }
 }
 
-/** Get all existing products from sticky.io and return an Object of product_skus containing the product_id
+/**
+ * Get product variants from sticky.io
+ * @param {number} stickyioPID - sticky.io product ID
+ * @param {boolean} raw - sticky.io product ID
+ * @returns {Object} - Raw result of API call or Object with variants
+ */
+function getVariants(stickyioPID, raw) {
+    var i;
+    var j;
+    var variantData = [];
+    var params = {};
+    params.id = stickyioPID;
+    params.helper = 'variants';
+    var stickyioResponse = stickyioAPI('stickyio.http.get.products.variants').call(params);
+    if (raw) { return stickyioResponse; }
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
+        for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
+            var thisVariant = stickyioResponse.object.result.data[i];
+            var thisVariantProperties = '';
+            for (j = 0; j < thisVariant.attributes.length; j++) {
+                thisVariantProperties += thisVariant.attributes[j].attribute.option.name;
+                if (j < (thisVariant.attributes.length - 1)) { thisVariantProperties += '/'; }
+            }
+            variantData.push({ id: thisVariant.id, sku_num: thisVariant.sku_num, attributes: thisVariantProperties });
+        }
+    }
+    return variantData;
+}
+
+/** Get all existing MASTER products from sticky.io and return an Object of product_skus containing the product_id
  * @returns {Object} - Return object of products or false if no products
  *
  */
-function getAllStickyioProducts() {
+function getAllStickyioMasterProducts() {
     if (allStickyioProducts && Object.keys(allStickyioProducts).length > 0) { return allStickyioProducts; }
     var returnProducts = {};
     var params = {};
     params.body = {};
     params.body.product_id = 'all';
     var stickyioResponse = stickyioAPI('stickyio.http.post.product_index').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.response_code === '100' && parseInt(stickyioResponse.object.result.total_products, 10) > 0) {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.response_code === '100' && parseInt(stickyioResponse.object.result.total_products, 10) > 0) {
         var thisProduct;
         Object.keys(stickyioResponse.object.result.products).forEach(function (thisProductID) {
             thisProduct = stickyioResponse.object.result.products[thisProductID];
@@ -303,6 +327,29 @@ function getAllStickyioProducts() {
     return false;
 }
 
+/** Get all existing variant products from sticky.io and return an Object of product_skus containing the product_id and variant_id
+ * @param {Object} masterProducts - stickyio master products object
+ * @returns {Object} - Return object of products or false if no products
+ *
+ */
+function getAllStickyioVariantProducts(masterProducts) {
+    var returnProducts = masterProducts;
+    var i;
+    for (i = 0; i < Object.keys(returnProducts).length; i++) {
+        var thisMasterProduct = returnProducts[Object.keys(returnProducts)[i]];
+        var stickyioResponse = getVariants(thisMasterProduct.stickyioProductID, true);
+        if (stickyioResponse && stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data) {
+            var j;
+            for (j = 0; j < Object.keys(stickyioResponse.object.result.data).length; j++) {
+                var variant = Object.keys(stickyioResponse.object.result.data)[j];
+                var thisVariant = stickyioResponse.object.result.data[variant];
+                returnProducts[thisVariant.sku_num] = { stickyioProductID: thisMasterProduct.stickyioProductID, stickyioVariantID: thisVariant.id, name: thisMasterProduct.name };
+            }
+        }
+    }
+    return returnProducts;
+}
+
 /**
  * Get the product IDs (SFCC and sticky.io) from the allStickyioProducts global object
  * @param {string} sfccProductID - SFCC sku/pid
@@ -310,8 +357,8 @@ function getAllStickyioProducts() {
  * @returns {Object} - Return IDs or false
  */
 function getCorrespondingPIDandName(sfccProductID, stickyioProductID) {
-    if (sfccProductID && allStickyioProducts && allStickyioProducts[sfccProductID]) { return { sfccProductID: sfccProductID, stickyioProductID: allStickyioProducts[sfccProductID].stickyioProductID, name: allStickyioProducts[sfccProductID].name }; }
-    if (stickyioProductID && allStickyioProducts) {
+    if (sfccProductID && stickyioProductID === 0 && allStickyioProducts && allStickyioProducts[sfccProductID]) { return { sfccProductID: sfccProductID, stickyioProductID: allStickyioProducts[sfccProductID].stickyioProductID, name: allStickyioProducts[sfccProductID].name }; }
+    if (stickyioProductID !== 0 && allStickyioProducts) {
         var thisKey;
         var i;
         for (i = 0; i < Object.keys(allStickyioProducts).length; i++) {
@@ -323,25 +370,9 @@ function getCorrespondingPIDandName(sfccProductID, stickyioProductID) {
 }
 
 /**
- * Get a product or just its ID from SFCC
- * @param {boolean} returnProduct - boolean to declare if product should be returned or just its ID
- * @param {string} passedPID - Function passed product ID
- * @returns {Object} - Return SFCC product, product id, boolean false (if not found), or JSON
- */
-function getProduct(returnProduct, passedPID) {
-    var product = ProductMgr.getProduct(passedPID);
-    if (returnProduct) {
-        if (product) { return product; }
-        return false;
-    }
-    if (!product) { return JSON.stringify(product.ID); }
-    return { error: 'Product with ID ' + passedPID + ' not found.' };
-}
-
-/**
  * Method to get the SFCC product type
  * @param {dw.catalog.Product} product - SFCC product
- * @returns {string} - Product type
+ * @returns {Object} - Product type
 */
 function getProductType(product) {
     if (product.isMaster()) { return 'master'; }
@@ -359,32 +390,29 @@ function getProductType(product) {
 }
 
 /**
- * Get product variants from sticky.io
- * @param {number} stickyioPID - sticky.io product ID
- * @param {boolean} raw - sticky.io product ID
- * @returns {Object} - Raw result of API call or Object with variants
+ * Get Billing Models from sticky.io
+ * @param {number} pageNum - Pagination page number
+ * @param {Object} billingModels - Object containging billing models
+ * @returns {Object} - Return billing models object
  */
-function getVariants(stickyioPID, raw) {
+function getBillingModelsFromStickyio(pageNum, billingModels) {
     var i;
-    var j;
-    var variantData = [];
+    var thisPageNum = pageNum;
+    var thisBillingModels = billingModels;
     var params = {};
-    params.id = stickyioPID;
-    params.helper = 'variants';
-    var stickyioResponse = stickyioAPI('stickyio.http.get.products.variants').call(params);
-    if (raw) { return stickyioResponse; }
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
+    if (!thisPageNum) { thisPageNum = 1; }
+    params.queryString = 'page=' + thisPageNum;
+    var stickyioResponse = stickyioAPI('stickyio.http.get.billing_models').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
-            var thisVariant = stickyioResponse.object.result.data[i];
-            var thisVariantProperties = '';
-            for (j = 0; j < thisVariant.attributes.length; j++) {
-                thisVariantProperties += thisVariant.attributes[j].attribute.option.name;
-                if (j < (thisVariant.attributes.length - 1)) { thisVariantProperties += '/'; }
+            var thisBillingModel = stickyioResponse.object.result.data[i];
+            if (!thisBillingModel.is_archived) {
+                thisBillingModels[thisBillingModel.id] = thisBillingModel; // change the billing model array in to an object with the id as key
             }
-            variantData.push({ id: thisVariant.id, sku_num: thisVariant.sku_num, attributes: thisVariantProperties });
         }
+        if (thisPageNum < parseInt(stickyioResponse.object.result.last_page, 10)) { thisPageNum++; getBillingModelsFromStickyio(thisPageNum, thisBillingModels); }
     }
-    return variantData;
+    return thisBillingModels;
 }
 
 /**
@@ -401,7 +429,7 @@ function getCampaignsFromStickyio(pageNum, campaignData) {
     if (!thisPageNum) { thisPageNum = 1; }
     params.queryString = 'page=' + thisPageNum;
     var stickyioResponse = stickyioAPI('stickyio.http.get.campaigns').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
             var thisCampaign = stickyioResponse.object.result.data[i];
             if (thisCampaign.is_active) {
@@ -414,41 +442,6 @@ function getCampaignsFromStickyio(pageNum, campaignData) {
 }
 
 /**
- * Add a new object to the custom object campaignData that keys each
- * Subscription Product to its relevant Campaign/Offer/Billing Model for easy and quick access.
- * @param {Object} campaignProducts - Object containing the sticky.io Campaign's products
- * @param {string} SFCCProductID - SFCC Product ID, but returned from sticky.io
- * @param {string} name - SFCC Product name
- * @param {number} productID - sticky.io Product ID
- * @param {number} variantID - sticky.io Variant ID
- * @param {Object} variantAttributes - sticky.io Variant Attributes
- * @param {number} campaignID - sticky.io Campaign ID
- * @param {number} offerID - sticky.io Offer ID
- * @param {number} bmID - sticky.io Billing Model ID
- * @param {boolean} skipBillingModel - boolean flag to skip storage of a billing model if it's been archived in sticky.io
- * @returns {Object} - Return campaignProducts object
- */
-function addCampaignProductData(campaignProducts, SFCCProductID, name, productID, variantID, variantAttributes, campaignID, offerID, bmID, skipBillingModel) {
-    var productType = getProductType(ProductMgr.getProduct(SFCCProductID));
-    var theseCampaignProducts = campaignProducts;
-    if (typeof (theseCampaignProducts[SFCCProductID]) === 'undefined') { // does the SKU exist in our theseCampaignProducts array?
-        if (variantID) {
-            theseCampaignProducts[SFCCProductID] = { name: name, productType: productType, product_id: productID, variant_id: variantID, attributes: variantAttributes, campaigns: {} };
-        } else { theseCampaignProducts[SFCCProductID] = { name: name, productType: productType, product_id: productID, campaigns: {} }; }
-    }
-    if (typeof (theseCampaignProducts[SFCCProductID].campaigns[campaignID]) === 'undefined') { // does the campaignID exist for this SKU?
-        theseCampaignProducts[SFCCProductID].campaigns[campaignID] = { offers: {} };
-    }
-    if (typeof (theseCampaignProducts[SFCCProductID].campaigns[campaignID].offers[offerID]) === 'undefined') { // does the offerID for this campaignID exist?
-        theseCampaignProducts[SFCCProductID].campaigns[campaignID].offers[offerID] = { billing_models: [] };
-    }
-    if (bmID && !skipBillingModel && theseCampaignProducts[SFCCProductID].campaigns[campaignID].offers[offerID].billing_models.indexOf(bmID) === -1) { // does the billingModelID for this offerID exist?
-        theseCampaignProducts[SFCCProductID].campaigns[campaignID].offers[offerID].billing_models.push(bmID);
-    }
-    return theseCampaignProducts;
-}
-
-/**
  * sticky.io's Campaign object is not set up for SFCC to rapidly access data.
  * We reshape the object for local storage as a 'cache' in a custom object, keyed by
  * Campaign ID, Offer ID, and Billing Model ID.
@@ -457,80 +450,27 @@ function addCampaignProductData(campaignProducts, SFCCProductID, name, productID
  */
 function reshapeCampaignData(campaignData) {
     var thisCampaignData = campaignData;
-    var campaignProducts = {};
+    var thisCampaignID = 1; // hardcoded to only look at Campaign ID 1
+    var offerObject = {};
+    var termsObject = {};
     var i;
     var j;
-    var k;
-    var m;
-    var z;
-    for (i = 0; i < Object.keys(thisCampaignData).length; i++) {
-        var thisCampaignID = Object.keys(thisCampaignData)[i];
-        var thisCampaign = thisCampaignData[thisCampaignID];
-        var offerObject = {};
-        for (j = 0; j < thisCampaign.offers.length; j++) {
-            var billingModelObject = {};
-            var thisBillingModel;
-            var skipBillingModel;
-            var thisOffer = thisCampaign.offers[j];
-            if (!thisOffer.is_archived) {
-                if (thisOffer.products.length > 0) {
-                    for (k = 0; k < thisOffer.products.length; k++) {
-                        var thisProduct = thisOffer.products[k];
-                        var thisProductData = getCorrespondingPIDandName(null, thisProduct.id);
-                        var thisSFCCProduct = ProductMgr.getProduct(thisProductData.sfccProductID);
-                        if (thisSFCCProduct) {
-                            if (thisProductData && typeof (thisProductData.name) !== 'undefined' && thisProductData.name !== '') {
-                                campaignProducts = addCampaignProductData(campaignProducts, thisProductData.sfccProductID, thisProductData.name, thisProduct.id, null, null, thisCampaign.id, thisOffer.id);
-                                thisCampaignData[thisCampaignID].offers[j].products[k].sku_num = thisProductData.sfccProductID;
-                                var theseProductVariants = getVariants(thisProduct.id);
-                                for (z = 0; z < theseProductVariants.length; z++) {
-                                    var thisProductVariant = theseProductVariants[z];
-                                    campaignProducts = addCampaignProductData(campaignProducts, thisProductVariant.sku_num, thisProductData.name, thisProduct.id, thisProductVariant.id, thisProductVariant.attributes, thisCampaign.id, thisOffer.id);
-                                    for (m = 0; m < thisOffer.billing_models.length; m++) {
-                                        thisBillingModel = thisOffer.billing_models[m];
-                                        skipBillingModel = false;
-                                        if (thisBillingModel.is_archived) { skipBillingModel = true; }
-                                        campaignProducts = addCampaignProductData(campaignProducts, thisProductVariant.sku_num, thisProductData.name, thisProduct.id, thisProductVariant.id, thisProductVariant.attributes, thisCampaign.id, thisOffer.id, thisBillingModel.id, skipBillingModel);
-                                    }
-                                }
-                                thisCampaignData[thisCampaignID].offers[j].products[k].variants = [];
-                                thisCampaignData[thisCampaignID].offers[j].products[k].variants = theseProductVariants;
-                                for (m = 0; m < thisOffer.billing_models.length; m++) {
-                                    thisBillingModel = thisOffer.billing_models[m];
-                                    if (thisBillingModel.id === 2 && Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleBillingModelName') !== '') {
-                                        // rename the Straight Sale billing model
-                                        thisBillingModel.name = Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleBillingModelName');
-                                    }
-                                    skipBillingModel = false;
-                                    if (thisBillingModel.is_archived) { skipBillingModel = true; }
-                                    campaignProducts = addCampaignProductData(campaignProducts, thisProductData.sfccProductID, thisProductData.name, thisProduct.id, null, null, thisCampaign.id, thisOffer.id, thisBillingModel.id, skipBillingModel);
-                                    if (!skipBillingModel) { billingModelObject[thisBillingModel.id] = thisBillingModel; }
-                                }
-                            } else {
-                                throw new Error('Invalid product data in Campaign or global sticky.io products object.');
-                            }
-                        }
-                    }
-                } else {
-                    for (m = 0; m < thisOffer.billing_models.length; m++) {
-                        thisBillingModel = thisOffer.billing_models[m];
-                        if (thisBillingModel.id === 2 && Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleBillingModelName') !== '') {
-                            // rename the Straight Sale billing model
-                            thisBillingModel.name = Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleBillingModelName');
-                        }
-                        skipBillingModel = false;
-                        if (thisBillingModel.is_archived) { skipBillingModel = true; }
-                        if (!skipBillingModel) { billingModelObject[thisBillingModel.id] = thisBillingModel; }
-                    }
+    for (i = 0; i < thisCampaignData[thisCampaignID].offers.length; i++) {
+        var thisOffer = thisCampaignData[thisCampaignID].offers[i];
+        if (!thisOffer.is_archived) {
+            offerObject[thisOffer.id] = thisOffer;
+            delete offerObject[thisOffer.id].billing_models;
+            delete offerObject[thisOffer.id].products;
+            if (thisOffer.prepaid_profile && thisOffer.prepaid_profile.terms && thisOffer.prepaid_profile.terms.length > 0) {
+                for (j = 0; j < thisOffer.prepaid_profile.terms.length; j++) { // site import is merge only
+                    var thisTerm = thisOffer.prepaid_profile.terms[j];
+                    var cycles = Number(parseInt(thisTerm.cycles, 10).toFixed(0));
+                    termsObject[thisOffer.id + '-' + cycles] = { cycles: cycles, value: Number(parseInt(thisTerm.discount_value, 10).toFixed(0)), type: thisTerm.discount_type.name };
                 }
-                if (Object.keys(billingModelObject).length > 0) { thisOffer.billing_models = billingModelObject; } // change the billing_model array in to an object with the id as key
-                offerObject[thisOffer.id] = thisOffer; // now that we've processed the products, change the offer array in to an object with the id as key
             }
         }
-        if (Object.keys(offerObject).length > 0) { thisCampaign.offers = offerObject; }
     }
-    thisCampaignData.campaignProducts = campaignProducts;
-    return thisCampaignData;
+    return { offers: offerObject, terms: termsObject };
 }
 
 /**
@@ -538,9 +478,7 @@ function reshapeCampaignData(campaignData) {
  * @returns {Object} - SFCC Custom Object
 */
 function getCampaignCustomObject() {
-    var stickyioCampaigns = {};
-    stickyioCampaigns = CustomObjectMgr.getCustomObject('stickyioCampaigns', 'campaigns');
-    return stickyioCampaigns;
+    return CustomObjectMgr.getCustomObject('stickyioCampaigns', 'campaigns');
 }
 
 /**
@@ -548,21 +486,21 @@ function getCampaignCustomObject() {
  * @returns {Object} - sticky.io campaign data
 */
 function getCampaignCustomObjectJSON() {
-    return JSON.parse(getCampaignCustomObject().custom.jsonData);
+    var campaignJSON = getCampaignCustomObject();
+    if (campaignJSON) { return JSON.parse(getCampaignCustomObject().custom.jsonData); }
+    return null;
 }
 
 /**
  * Get sticky.io Offer IDs
- * @param {string} pid - SFCC Product ID
- * @param {number} cid - sticky.io Campaign ID
  * @returns {Object} - Array of offer IDs
 */
-function getOfferIDs(pid, cid) {
-    if (!pid || !cid) { return []; }
+function getOfferIDs() {
     var offerIDs = [];
     var stickyioCampaigns = getCampaignCustomObjectJSON();
     try {
-        offerIDs = Object.keys(stickyioCampaigns.campaignProducts[pid].campaigns[cid].offers);
+        offerIDs = Object.keys(stickyioCampaigns.offers);
+        if (offerIDs.updateSFCC) { offerIDs.splice(offerIDs.indexOf('updateSFCC'), 1); }
     } catch (e) {
         return [];
     }
@@ -571,19 +509,68 @@ function getOfferIDs(pid, cid) {
 
 /**
  * Get sticky.io Billing Model IDs
- * @param {string} pid - SFCC Product ID
- * @param {number} cid - sticky.io Campaign ID
- * @param {number} oid - sticky.io Offer ID
  * @returns {Array} - Array of billing model IDs
 */
-function getBillingModelIDs(pid, cid, oid) {
-    if (!pid || !cid || !oid) { return []; }
+function getBillingModelIDs() {
     var billingModelIDs = [];
     var stickyioCampaigns = getCampaignCustomObjectJSON();
     try {
-        billingModelIDs = stickyioCampaigns.campaignProducts[pid].campaigns[cid].offers[oid].billing_models;
+        billingModelIDs = Object.keys(stickyioCampaigns.billingModels);
+        if (billingModelIDs.updateSFCC) { billingModelIDs.splice(billingModelIDs.indexOf('updateSFCC'), 1); }
     } catch (e) {
         return [];
+    }
+    return billingModelIDs;
+}
+
+/**
+ * Get sticky.io synced products
+ * @returns {Array} - Array of SFCC product IDs
+*/
+function getCampaignProducts() {
+    var pids = [];
+    var stickyioCampaigns = getCampaignCustomObjectJSON();
+    try {
+        pids = Object.keys(stickyioCampaigns.products);
+        if (pids.updateSFCC) { pids.splice(pids.indexOf('updateSFCC'), 1); }
+    } catch (e) {
+        return [];
+    }
+    return pids;
+}
+
+/**
+ * Get selected offerIDs for a given SFCC Product
+* @param {dw.catalog.Product} product - SFCC Product
+ * @returns {Array} - Array of stickyio Offer IDs
+ */
+function getSelectedOfferIDs(product) {
+    var offerIDs = [];
+    var i;
+    for (i = 1; i <= 3; i++) { // currently support 3 offers
+        var thisOfferIDObject = 'stickyioOffer' + i;
+        if (product.custom[thisOfferIDObject].value !== null && offerIDs.indexOf(product.custom[thisOfferIDObject].value.toString === -1)) { offerIDs.push(product.custom[thisOfferIDObject].value.toString()); }
+    }
+    return offerIDs;
+}
+
+/**
+ * Get selected billing model IDs for a given SFCC Product
+* @param {dw.catalog.Product} product - SFCC Product
+* @returns {Object} - stickyio Billing Model IDs
+ */
+function getSelectedBillingModelIDs(product) {
+    var billingModelIDs = {};
+    var i;
+    for (i = 1; i <= 3; i++) { // currently support 3 sets of billing models
+        var thisBillingModelObject = 'stickyioBillingModels' + i;
+        if (product.custom[thisBillingModelObject] && product.custom[thisBillingModelObject].length > 0) {
+            var j;
+            for (j = 0; j < product.custom[thisBillingModelObject].length; j++) {
+                var thisBillingModelID = product.custom[thisBillingModelObject][j].value;
+                if (!billingModelIDs[thisBillingModelID]) { billingModelIDs[thisBillingModelID] = {}; }
+            }
+        }
     }
     return billingModelIDs;
 }
@@ -598,50 +585,32 @@ function getBillingModelIDs(pid, cid, oid) {
 */
 function validateProduct(product, allowTransaction) {
     var thisProduct = product;
-    if (thisProduct &&
-        thisProduct.custom.stickyioOfferID !== null && ((
-            thisProduct.custom.stickyioOfferID.value === '0' &&
-            thisProduct.custom.stickyioCustomOfferID !== null
-        ) || thisProduct.custom.stickyioOfferID.value !== '0')
-    ) {
-        var thisCampaignID = thisProduct.custom.stickyioCampaignID;
-        var offerIDType = 'stickyioOfferID';
-        var billingModelType = 'stickyioBillingModels';
-        var thisOfferID;
-        if (thisProduct.custom.stickyioOfferID.value === '0' && thisProduct.custom.stickyioCustomOfferID !== null) {
-            offerIDType = 'stickyioCustomOfferID';
-            billingModelType = 'stickyioCustomBillingModels';
+    var campaignProducts = getCampaignProducts();
+    if ((thisProduct && campaignProducts.length === 0) || (campaignProducts.length > 0 && campaignProducts.indexOf(thisProduct.ID) === -1)) { // SFCC product ID not found in campaign object - it hasn't been synced
+        if (allowTransaction === true) {
+            Transaction.wrap(function () { thisProduct.custom.stickyioReady = false; });
         }
-        if (offerIDType === 'stickyioOfferID') {
-            thisOfferID = thisProduct.custom[offerIDType].value;
-        } else {
-            thisOfferID = thisProduct.custom[offerIDType];
-        }
-        if (thisOfferID === null) { // no offers set for this products, so turn it off
-            if (allowTransaction === true) {
-                Transaction.wrap(function () { thisProduct.custom.stickyioReady = false; });
+        return false;
+    }
+    var selectedOffers = getSelectedOfferIDs(thisProduct);
+    var i;
+    if (thisProduct && selectedOffers.length > 0) {
+        var productOffers = getOfferIDs();
+        for (i = 0; i < selectedOffers.length; i++) {
+            if (productOffers.length === 0 || (productOffers.length > 0 && selectedOffers[i] !== null && productOffers.indexOf(selectedOffers[i].toString()) === -1)) { // selected offer id not found for the master campaign. probably need a resync
+                if (allowTransaction === true) {
+                    Transaction.wrap(function () { thisProduct.custom.stickyioReady = false; });
+                }
+                return false;
             }
-            return false;
         }
-        var productOffers = getOfferIDs(thisProduct.ID, thisCampaignID);
-        if (productOffers === false || productOffers.length === 0 || (productOffers.length > 0 && thisOfferID !== null && productOffers.indexOf(thisOfferID.toString()) === -1)) { // offer id not found for the master campaign
-            if (allowTransaction === true) {
-                Transaction.wrap(function () { thisProduct.custom.stickyioReady = false; });
-            }
-            return false;
-        }
+    }
+    var selectedBillingModels = getSelectedBillingModelIDs(thisProduct);
+    if (thisProduct && Object.keys(selectedBillingModels).length > 0) {
         // offer is good, proceed to check billing models
-        var productBillingModels = getBillingModelIDs(thisProduct.ID, thisCampaignID, thisOfferID);
-        // stickyioBillingModels is an enum of strings, and there may be more than one available to a consumer
-        // stickyioCustomBillingModels is a set of ints, and there may be more than one
-        var i;
-        for (i = 0; i < thisProduct.custom[billingModelType].length; i++) {
-            var thisBillingModelID;
-            if (billingModelType === 'stickyioBillingModels') {
-                thisBillingModelID = parseInt(thisProduct.custom[billingModelType][i].value, 10);
-            } else {
-                thisBillingModelID = thisProduct.custom[billingModelType][i];
-            }
+        var productBillingModels = getBillingModelIDs();
+        for (i = 0; i < Object.keys(selectedBillingModels).length; i++) {
+            var thisBillingModelID = Object.keys(selectedBillingModels)[i];
             if (productBillingModels.length === 0 || (productBillingModels.length > 0 && productBillingModels.indexOf(thisBillingModelID) === -1)) { // billing model id not found for this offer
                 if (allowTransaction === true) {
                     Transaction.wrap(function () { thisProduct.custom.stickyioReady = false; });
@@ -652,6 +621,7 @@ function validateProduct(product, allowTransaction) {
         if (allowTransaction === true) { Transaction.wrap(function () { thisProduct.custom.stickyioReady = true; }); }
         return true;
     }
+    // catch-all
     if (allowTransaction === true) { Transaction.wrap(function () { thisProduct.custom.stickyioReady = false; }); }
     return false;
 }
@@ -672,34 +642,55 @@ function validateAllProducts() {
             validateProduct(product, true);
         }
     }
+    products.close();
 }
 
 /**
- * Remove unused campaign data to keep size of custom object down
- * @param {Object} campaignData - Campaign data from sticky.io
- * @returns {Object} - Return pruned campaignData object
+ * Make sure passed object is of type object and not null
+ * @param {Object} object - Potential object
+ * @returns {boolean} - true or false
  */
-function pruneCampaignData(campaignData) {
-    var keepKeys = ['is_active', 'id', 'is_archived', 'name', 'description', 'offers']; // keys to keep
-    var thisCampaignData = campaignData;
-    Object.keys(thisCampaignData).forEach(function (campaignID) {
-        Object.keys(thisCampaignData[campaignID]).forEach(function (key) {
-            if (keepKeys.indexOf(key) === -1) {
-                delete (thisCampaignData[campaignID][key]);
-            }
-        });
-    });
-    return thisCampaignData;
+function isObject(object) {
+    return object != null && typeof object === 'object';
+}
+
+/**
+ * Deep compare two objects
+ * @param {Object} object1 - Object 1
+ * @param {Object} object2 - Object 2
+ * @returns {boolean} - true or false
+ */
+function deepEqual(object1, object2) {
+    var keys1 = Object.keys(object1);
+    var keys2 = Object.keys(object2);
+    if (keys1.length !== keys2.length) {
+        return false;
+    }
+    var i;
+    for (i = 0; i < keys1.length; i++) {
+        var key = keys1[i];
+        var val1 = object1[key];
+        var val2 = object2[key];
+        var areObjects = isObject(val1) && isObject(val2);
+        if ((areObjects && !deepEqual(val1, val2)) || (!areObjects && val1 !== val2)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
  * Get Campaigns from sticky.io or from the SFCC custom object
- * @param {boolean} isJob - Determine if this method was called in a job context
  * @param {Object} parameters - Parameters from a job context
  * @returns {Object} - Return campaignData object or true
  */
-function getCampaigns(isJob, parameters) {
-    allStickyioProducts = getAllStickyioProducts();
+function getCampaigns(parameters) {
+    allStickyioProducts = getAllStickyioMasterProducts();
+    var existingJSON = getCampaignCustomObjectJSON();
+    if (existingJSON && existingJSON.products && existingJSON.products.updateSFCC) { delete existingJSON.products.updateSFCC; }
+    if (existingJSON && existingJSON.offers && existingJSON.offers.updateSFCC) { delete existingJSON.offers.updateSFCC; }
+    if (existingJSON && existingJSON.terms && existingJSON.terms.updateSFCC) { delete existingJSON.terms.updateSFCC; }
+    if (existingJSON && existingJSON.billingModels && existingJSON.billingModels.updateSFCC) { delete existingJSON.billingModels.updateSFCC; }
     var stickyioCampaigns = {};
     var campaignData = {};
     var campaignJSON = {};
@@ -712,22 +703,33 @@ function getCampaigns(isJob, parameters) {
     campaignData = getCampaignsFromStickyio(1, {});
     if (Object.keys(campaignData).length > 0) {
         campaignJSON.updateTime = new Date();
-        campaignData = reshapeCampaignData(campaignData);
-        campaignJSON.campaignProducts = campaignData.campaignProducts;
-        delete (campaignData.campaignProducts);
-        campaignJSON.campaigns = pruneCampaignData(campaignData);
+        campaignJSON.products = getAllStickyioVariantProducts(allStickyioProducts);
+        if ((existingJSON && existingJSON.products && !deepEqual(existingJSON.products, campaignJSON.products)) || (!existingJSON || !existingJSON.products)) {
+            if (campaignJSON.products) { campaignJSON.products.updateSFCC = true; }
+        }
+        var campaignOfferData = reshapeCampaignData(campaignData);
+        campaignJSON.offers = campaignOfferData.offers;
+        if ((existingJSON && existingJSON.offers && !deepEqual(existingJSON.offers, campaignJSON.offers)) || (!existingJSON || !existingJSON.offers)) {
+            if (campaignJSON.offers) { campaignJSON.offers.updateSFCC = true; }
+        }
+        campaignJSON.terms = campaignOfferData.terms;
+        if ((existingJSON && existingJSON.terms && !deepEqual(existingJSON.terms, campaignJSON.terms)) || (!existingJSON || !existingJSON.terms)) {
+            if (campaignJSON.terms) { campaignJSON.terms.updateSFCC = true; }
+        }
+        campaignJSON.billingModels = getBillingModelsFromStickyio(1, {});
+        if ((existingJSON && existingJSON.billingModels && !deepEqual(existingJSON.billingModels, campaignJSON.billingModels)) || (!existingJSON || !existingJSON.billingModels)) {
+            if (campaignJSON.billingModels) { campaignJSON.billingModels.updateSFCC = true; }
+        }
         Transaction.wrap(function () {
             stickyioCampaigns.custom.jsonData = JSON.stringify(campaignJSON);
         });
     }
     validateAllProducts();
-    if (isJob === true) {
-        if (parameters && parameters['Email Log'] && parameters['Email Address'] !== '') {
-            var content = '';
-            content = 'Raw Campaign Data:\n';
-            content += JSON.stringify(campaignJSON, null, '\t');
-            sendNotificationEmail(parameters['Email Address'].toString(), content, 'Campaign Update Log');
-        }
+    if (parameters && parameters['Email Log'] && parameters['Email Address'] !== '') {
+        var content = '';
+        content = 'Raw Campaign Data:\n';
+        content += JSON.stringify(campaignJSON, null, '\t');
+        sendNotificationEmail(parameters['Email Address'].toString(), content, 'Campaign Update Log');
     }
     return true;
 }
@@ -735,30 +737,16 @@ function getCampaigns(isJob, parameters) {
 /**
  * Update sticky.io Offer with SFCC Products
  * @param {number} offerID - sticky.io Offer ID
- * @param {Object} stickyioProductIDs - Single sticky.io Product ID or an array of sticky.io Product IDs
+ * @param {Object} offerData - offer products and billing models to sync
  * @returns {boolean} - boolean return
 */
-function updateOffer(offerID, stickyioProductIDs) {
-    var theseOfferProducts = [];
-    if (typeof (stickyioProductIDs) !== 'object') { // we were only given a single PID, so we need to pull all the PIDs for this offer
-        var products = ProductMgr.queryAllSiteProducts();
-        while (products.hasNext()) {
-            var product = products.next();
-            if (product && product.custom.stickyioOfferID.value === offerID) {
-                if (theseOfferProducts.indexOf(offerID) === -1) {
-                    theseOfferProducts.push(offerID);
-                }
-            }
-        }
-        if (theseOfferProducts.indexOf(stickyioProductIDs) === -1) {
-            theseOfferProducts.push(stickyioProductIDs); // now add the single PID we were given
-        }
-    } else { theseOfferProducts = stickyioProductIDs; }
-    if (theseOfferProducts.length > 0) {
+function updateOffer(offerID, offerData) {
+    if (offerData.products || offerData.billingModels) {
         var params = {};
         params.id = offerID;
         params.body = {};
-        params.body.products = theseOfferProducts.map(function (id) { return { id: id }; });
+        if (offerData.products && offerData.products.length > 0) { params.body.products = offerData.products.map(function (id) { return { id: id }; }); }
+        if (offerData.billingModels && offerData.billingModels.length > 0) { params.body.billing_models = offerData.billingModels.map(function (id) { return { id: id }; }); }
         var stickyioResponse = stickyioAPI('stickyio.http.put.offers').call(params);
         if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
             return true;
@@ -780,14 +768,21 @@ function resetProduct(product, persistStickyIDs) {
             thisProduct.custom.stickyioProductID = null; // int
             thisProduct.custom.stickyioVariationID = null; // int
         }
-        thisProduct.custom.stickyioLastSync = null; // date + time
-        thisProduct.custom.stickyioCustomOfferID = null; // int
-        thisProduct.custom.stickyioCustomBillingModels = []; // set of int
-        thisProduct.custom.stickyioOfferID = null; // enum of strings
-        thisProduct.custom.stickyioBillingModels = null; // enum of strings
+        var i;
+        for (i = 1; i <= 3; i++) {
+            delete thisProduct.custom['stickyioOffer' + i]; // enum of strings
+            delete thisProduct.custom['stickyioBillingModels' + i]; // enum of strings
+            delete thisProduct.custom['stickyioTerms' + i]; // enum of strings
+            thisProduct.custom['stickyioOffer' + i] = null; // enum of strings
+            thisProduct.custom['stickyioBillingModels' + i] = null; // enum of strings
+            thisProduct.custom['stickyioTerms' + i] = null; // enum of strings
+        }
+        delete thisProduct.custom.stickyioVertical; // enum of strings
         thisProduct.custom.stickyioVertical = null; // enum of strings
         thisProduct.custom.stickyioReady = null; // boolean
         thisProduct.custom.stickyioBillingModelConsumerSelectable = null; // boolean
+        thisProduct.custom.stickyioOneTimePurchase = null; // boolean
+        thisProduct.custom.stickyioLastSync = null; // date + time
     });
 }
 
@@ -801,10 +796,10 @@ function getAttributes(stickyioPID) {
     params.id = stickyioPID;
     params.helper = 'attributes';
     var stickyioResponse = stickyioAPI('stickyio.http.get.products.attributes').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
         return stickyioResponse;
     }
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) === 'undefined') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) === 'undefined') {
         return true; // this product doesn't have any attributes, but it's valid
     }
     return false; // this product failed being retrieved from sticky.io
@@ -821,11 +816,11 @@ function getCustomFields(pageNum, customFields) {
     var i;
     var thisPageNum = pageNum;
     var theseCustomFields = customFields;
-    if (!thisPageNum) { thisPageNum = 1; }
+    if (thisPageNum === 0) { thisPageNum = 1; }
     var params = {};
     params.queryString = 'page=' + thisPageNum;
     var stickyioResponse = stickyioAPI('stickyio.http.get.custom_fields').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
             theseCustomFields.push(stickyioResponse.object.result.data[i]);
         }
@@ -842,7 +837,7 @@ function getCustomFields(pageNum, customFields) {
 */
 function getCustomField(tokenKey) {
     var i;
-    var customFields = getCustomFields(null, []);
+    var customFields = getCustomFields(0, []);
     if (customFields.length > 0) {
         for (i = 0; i < customFields.length; i++) {
             var thisCustomField = customFields[i];
@@ -877,7 +872,7 @@ function createCustomField(customPreferenceID, customFieldName, tokenKey, fieldT
             body.token_key = tokenPrefix + tokenKey;
             params.body = body;
             var stickyioResponse = stickyioAPI('stickyio.http.post.custom_fields').call(params);
-            if (!stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data.id)) {
+            if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data.id)) {
                 try {
                     Transaction.wrap(function () { Site.getCurrent().setCustomPreferenceValue(customPreferenceID, parseInt(stickyioResponse.object.result.data.id, 10)); });
                 } catch (e) {
@@ -899,7 +894,7 @@ function createCustomField(customPreferenceID, customFieldName, tokenKey, fieldT
 /**
  * Delete a variant from sticky.io
  * @param {number} variantID - sticky.io variant ID
- * @param {number} productID - sticky.io product ID
+ * @param {Object} productID - sticky.io product ID
  * @returns {Object} - Result of the API call
  */
 function deleteVariant(variantID, productID) {
@@ -942,7 +937,7 @@ function productSyncLog(productID, data) {
  * @param {dw.catalog.Product} product - SFCC product
  * @param {Object} stickyioData - sticky.io product data
  * @param {Object} productAttributes - SFCC product attributes
- * @param {string} masterProductID - SFCC product ID
+ * @param {Object} masterProductID - SFCC product ID
  * @param {Object} productVariants - SFCC product variants
  * @param {number} iterator - Current position from calling function
  * @returns {void}
@@ -966,7 +961,7 @@ function commitUpdateSFCCVariantAttributes(product, stickyioData, productAttribu
                 try {
                     // update the SFCC variations with the sticky.io IDs, set the stickyioSubscriptionProduct attribute = true
                     Transaction.wrap(function () {
-                        theseProductVariants[i].custom.stickyioLastSync = calendar().time; // set the last sync time to now
+                        theseProductVariants[i].custom.stickyioLastSync = new Calendar().time; // set the last sync time to now
                         theseProductVariants[i].custom.stickyioSubscriptionActive = true;
                         theseProductVariants[i].custom.stickyioProductID = masterProductID;
                         theseProductVariants[i].custom.stickyioVariationID = parseInt(thisStickyioData[variant].id, 10);
@@ -1031,7 +1026,7 @@ function updateSFCCProductAttributes(product, stickyioResponse, productChange, n
                     thisProduct.custom.stickyioCampaignID = 1; // this is a new product, so make sure to set its campaignID to the hard-coded site-wide campaign
                     if (vertical) { thisProduct.custom.stickyioVertical = '5'; } // if this parameter is present, no vertical was selected by the merchant, so we default to Clothing & Accessories
                 }
-                thisProduct.custom.stickyioLastSync = calendar().time; // set the last sync time to now
+                thisProduct.custom.stickyioLastSync = new Calendar().time; // set the last sync time to now
             });
         } catch (e) {
             Logger.error('Error while setting sticky.io custom attributes for PID: ' + thisProduct.ID + ': ' + JSON.stringify(e, null, 2));
@@ -1117,12 +1112,12 @@ function updateProductID(product, productID) {
 
 /**
  * Update the custom lastSync attribute of this product
- * @param {dw.catalog.Product} product - SFCC product
+ * @param {dw.catalog.Product} product - SFCC products
  * @returns {void}
  */
 function updateLastSync(product) {
     var thisProduct = product;
-    Transaction.wrap(function () { thisProduct.custom.stickyioLastSync = calendar().time; });
+    Transaction.wrap(function () { thisProduct.custom.stickyioLastSync = new Date(new Date().getTime() + 60000); }); // pad update with a minute because of SFCC lag
 }
 
 /**
@@ -1134,7 +1129,7 @@ function updateLastSync(product) {
  */
 function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) {
     var newProduct = true;
-    var existantProduct = getCorrespondingPIDandName(product.ID); // check to see if this product exists in sticky.io
+    var existantProduct = getCorrespondingPIDandName(product.ID, 0); // check to see if this product exists in sticky.io
     if (existantProduct) { // it exists
         if (persistStickyIDs && product.custom.stickyioProductID !== existantProduct.stickyioProductID) {
             updateProductID(product, existantProduct.stickyioProductID);
@@ -1144,7 +1139,9 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
     var productChange = false;
     var stickyioData = {};
     if (product.isVariant() && product.masterProduct.custom.stickyioSubscriptionActive === true) { stickyioData.stickyioResponse = 'skip'; } // this is a variant bound to a subscribe-able master, so don't create it as a stand-alone product
-    if (calendar(product.getLastModified()) > product.custom.stickyioLastSync) { productChange = true; }
+    var lastModified = new Calendar(product.getLastModified()).getTime().getTime();
+    var storedLastModified = product.custom.stickyioLastSync ? product.custom.stickyioLastSync.getTime() : 0;
+    if (lastModified > storedLastModified) { productChange = true; }
     var apiCall = 'stickyio.http.post.product_create';
     var params = {};
     var body = {};
@@ -1180,40 +1177,34 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
                 stickyioResponse = addVariantAttributes(product);
                 if (stickyioResponse && stickyioResponse.object.result.status === 'SUCCESS') {
                     stickyioResponse = getVariants(product.custom.stickyioProductID, true);
-                    if (stickyioResponse && stickyioResponse.object.result.status === 'SUCCESS') { updateSFCCVariantAttributes(product, stickyioResponse.object.result.data, resetProductVariants, persistStickyIDs); }
+                    if (stickyioResponse && stickyioResponse.object.result.status === 'SUCCESS') {
+                        updateSFCCVariantAttributes(product, stickyioResponse.object.result.data, resetProductVariants, persistStickyIDs);
+                    }
                 }
             } else if (!compareAttributes(product, stickyioResponse.object.result.data)) { // this is an existing master product, so let's make sure things match
                 stickyioResponse = addVariantAttributes(product); // SFCC variant attributes and sticky.io attributes don't match
             }
             // let's make sure prices and SKUs and such match
             stickyioResponse = getVariants(product.custom.stickyioProductID, true);
-            if (stickyioResponse && stickyioResponse.object.result.status === 'SUCCESS') { updateSFCCVariantAttributes(product, stickyioResponse.object.result.data, resetProductVariants, persistStickyIDs); }
+            if (stickyioResponse && stickyioResponse.object.result.status === 'SUCCESS') {
+                updateSFCCVariantAttributes(product, stickyioResponse.object.result.data, resetProductVariants, persistStickyIDs);
+            }
         }
-        updateLastSync(product); // set the last sync time for the master to now
     }
+    if (productChange) { updateLastSync(product); }
 }
 
-/** Get the active billing models of a SFCC Product
+/** Get the active billing models of a SFCC Product of a given offer
  * @param {dw.catalog.Product} product - SFCC Product
- * @param {boolean} customOffer - boolean flag to indicate if this Product's Offer is custom
+ * @param {number} offer - offer number
  * @returns {Object} - Array of active billing model IDs
  */
-function getActiveBillingModels(product, customOffer) {
+function getActiveBillingModels(product, offer) {
     var stickyioproductAvailableBillingModels = [];
     var i;
     if (product) { // we don't want to check for the bogus straightSale product
-        var stickyioCustom = false;
-        if (customOffer) {
-            stickyioCustom = customOffer;
-        } else if (product.custom.stickyioOfferID.value === '0') { stickyioCustom = true; }
-        if (stickyioCustom) {
-            for (i = 0; i < product.custom.stickyioCustomBillingModels.length; i++) {
-                stickyioproductAvailableBillingModels.push(product.custom.stickyioCustomBillingModels[i]);
-            }
-        } else {
-            for (i = 0; i < product.custom.stickyioBillingModels.length; i++) {
-                stickyioproductAvailableBillingModels.push(parseInt(product.custom.stickyioBillingModels[i].value, 10).toString());
-            }
+        for (i = 0; i < product.custom['stickyioBillingModels' + offer].length; i++) {
+            stickyioproductAvailableBillingModels.push(parseInt(product.custom['stickyioBillingModels' + offer][i].value, 10).toString());
         }
     }
     return stickyioproductAvailableBillingModels;
@@ -1239,55 +1230,87 @@ function setupProductSetProduct(productSet, productSetProduct) {
     var thisProductSetProduct = productSetProduct;
     Transaction.begin();
     if (!thisProductSetProduct.custom.stickyioSubscriptionActive) { thisProductSetProduct.custom.stickyioSubscriptionActive = true; }
-    if (thisProductSetProduct.custom.stickyioBillingModelConsumerSelectable === null && productSet.custom.stickyioBillingModelConsumerSelectable) { thisProductSetProduct.custom.stickyioBillingModelConsumerSelectable = productSet.custom.stickyioBillingModelConsumerSelectable; }
-    if (thisProductSetProduct.custom.stickyioOfferID.value === null && productSet.custom.stickyioOfferID) { thisProductSetProduct.custom.stickyioOfferID = productSet.custom.stickyioOfferID.value; }
-    if (thisProductSetProduct.custom.stickyioBillingModels.length === 0 && productSet.custom.stickyioBillingModels.length > 0) { thisProductSetProduct.custom.stickyioBillingModels = getActiveBillingModels(productSet); }
-    if (!thisProductSetProduct.custom.stickyioCustomOfferID && productSet.custom.stickyioCustomOfferID) { thisProductSetProduct.custom.stickyioCustomOfferID = productSet.custom.stickyioCustomOfferID; }
-    if (!thisProductSetProduct.custom.stickyioCustomBillingModels && productSet.custom.stickyioCustomBillingModels) { thisProductSetProduct.custom.stickyioCustomBillingModels = productSet.custom.stickyioCustomBillingModels; }
+    if (thisProductSetProduct.custom.stickyioBillingModelConsumerSelectable === null && productSet.custom.stickyioBillingModelConsumerSelectable !== null) { thisProductSetProduct.custom.stickyioBillingModelConsumerSelectable = productSet.custom.stickyioBillingModelConsumerSelectable; }
+    if (thisProductSetProduct.custom.stickyioOneTimePurchase === null && productSet.custom.stickyioOneTimePurchase !== null) { thisProductSetProduct.custom.stickyioOneTimePurchase = productSet.custom.stickyioOneTimePurchase; }
+    var i;
+    for (i = 1; i < 3; i++) {
+        if (thisProductSetProduct.custom['stickyioOffer' + i].value === null && productSet.custom['stickyioOffer' + i].value !== null) { thisProductSetProduct.custom['stickyioOffer' + i] = productSet.custom['stickyioOffer' + i].value; }
+        if (thisProductSetProduct.custom['stickyioBillingModels' + i].length === 0 && productSet.custom['stickyioBillingModels' + i].length > 0) { thisProductSetProduct.custom['stickyioBillingModels' + i] = getActiveBillingModels(productSet, i); }
+    }
     Transaction.commit();
 }
 
 /**
  * Build the global offerProducts array
- * @param {dw.catalog.Product} product - SFCC product
+ * @param {Object} localAllStickyioProducts - Lite data of All sticky.io products
  * @returns {Object} - offerProducts
  */
-function buildOfferProducts() {
-    var offerProducts = {};
-    if(allStickyioProducts) {
-        Object.keys(allStickyioProducts).forEach(function (productID) {
-            var product = ProductMgr.getProduct(productID);
-            if (product && product.custom.stickyioProductID !== null && product.custom.stickyioOfferID.value !== null && product.custom.stickyioOfferID.value !== '0') {
-                if (!offerProducts[product.custom.stickyioOfferID.value]) { offerProducts[product.custom.stickyioOfferID.value] = []; }
-                if (offerProducts[product.custom.stickyioOfferID.value].indexOf(product.custom.stickyioProductID) === -1) {
-                    offerProducts[product.custom.stickyioOfferID.value].push(product.custom.stickyioProductID);
+function buildOfferSyncData(localAllStickyioProducts) {
+    var stickyioCampaigns = getCampaignCustomObjectJSON(); // get our latest campaignJSON
+    var offerSyncData = {};
+    var thisOfferID;
+    var i;
+    Object.keys(localAllStickyioProducts).forEach(function (productID) {
+        var product = ProductMgr.getProduct(productID);
+        if (product && product.custom.stickyioProductID !== null) {
+            for (i = 1; i <= 3; i++) {
+                var thisOfferIDSetID = i;
+                var thisOfferSet = 'stickyioOffer' + thisOfferIDSetID;
+                if (product.custom[thisOfferSet].value !== null && product.custom[thisOfferSet].value !== '0') {
+                    thisOfferID = product.custom[thisOfferSet].value;
+                    if (!offerSyncData[thisOfferID]) {
+                        offerSyncData[thisOfferID] = { products: [] };
+                    }
+                    if (offerSyncData[thisOfferID].products.indexOf(product.custom.stickyioProductID) === -1) {
+                        offerSyncData[thisOfferID].products.push(product.custom.stickyioProductID);
+                    }
                 }
             }
-            if (product && product.custom.stickyioProductID !== null && product.custom.stickyioOfferID.value === '0' && product.custom.stickyioCustomOfferID !== null) {
-                if (!offerProducts[product.custom.stickyioCustomOfferID]) { offerProducts[product.custom.stickyioCustomOfferID] = []; }
-                if (offerProducts[product.custom.stickyioCustomOfferID].indexOf(product.custom.stickyioProductID) === -1) {
-                    offerProducts[product.custom.stickyioCustomOfferID].push(product.custom.stickyioProductID);
+        }
+    });
+    if (stickyioCampaigns && stickyioCampaigns.billingModels && Object.keys(stickyioCampaigns.billingModels).length > 0) {
+        for (i = 0; i < Object.keys(offerSyncData).length; i++) {
+            thisOfferID = Object.keys(offerSyncData)[i];
+            if (!offerSyncData[thisOfferID].billingModels) {
+                offerSyncData[thisOfferID].billingModels = Object.keys(stickyioCampaigns.billingModels);
+                if (stickyioCampaigns && stickyioCampaigns.offers && stickyioCampaigns.offers[thisOfferID] && stickyioCampaigns.offers[thisOfferID].is_prepaid) { // check to see if this offer supports straight sale (any offer that's not of type prepaid)
+                    offerSyncData[thisOfferID].billingModels.splice(offerSyncData[thisOfferID].billingModels.indexOf('2'), 1); // remove the straight sale model
                 }
             }
-        });
+        }
     }
-    return offerProducts;
+    if (stickyioCampaigns && stickyioCampaigns.offers && Object.keys(stickyioCampaigns.offers).length > 0) {
+        for (i = 0; i < Object.keys(stickyioCampaigns.offers).length; i++) {
+            thisOfferID = Object.keys(stickyioCampaigns.offers)[i];
+            if (!offerSyncData[thisOfferID]) { // no products were bound to this offer, but lets update its billing models anyway
+                offerSyncData[thisOfferID] = { billingModels: Object.keys(stickyioCampaigns.billingModels) };
+                if (stickyioCampaigns.offers[thisOfferID].is_prepaid) { // check to see if this offer supports straight sale (any offer that's not of type prepaid)
+                    offerSyncData[thisOfferID].billingModels.splice(offerSyncData[thisOfferID].billingModels.indexOf('2'), 1); // remove the straight sale model
+                }
+            }
+        }
+    }
+    return offerSyncData;
 }
 
 /**
- * Make sure all products are bound to their offers and push results to the global offerProductsLog
+ * Make sure all products and billing models are bound to their offers and push results to the global offerProductsLog
+ * @param {Object} localAllStickyioProducts - Lite data of All sticky.io products
  * @returns {void}
  */
-function syncOffers() {
-    var offerProducts = buildOfferProducts();
-    // get all existing offerIDs from sticky.io
-    // if there exists an offerID in sticky.io that does not exist in offerProducts, we need to update that offer in sticky.io with no products
-    var i;
-    for (i = 0; i < Object.keys(offerProducts).length; i++) {
-        if (updateOffer(Object.keys(offerProducts)[i], offerProducts[Object.keys(offerProducts)[i]])) {
-            offerProductsLog.push('Synced Offer ' + Object.keys(offerProducts)[i]);
-        } else {
-            offerProductsLog.push('Error syncing Offer ' + Object.keys(offerProducts)[i]);
+function syncOffers(localAllStickyioProducts) {
+    if (localAllStickyioProducts === null) { // this should never happen
+        allStickyioProducts = getAllStickyioMasterProducts();
+    }
+    if (allStickyioProducts) {
+        var offerSyncData = buildOfferSyncData(allStickyioProducts); // get all existing offerIDs from sticky.io
+        var i;
+        for (i = 0; i < Object.keys(offerSyncData).length; i++) {
+            if (updateOffer(Object.keys(offerSyncData)[i], offerSyncData[Object.keys(offerSyncData)[i]])) {
+                offerProductsLog.push('Synced Offer ' + Object.keys(offerSyncData)[i]);
+            } else {
+                offerProductsLog.push('Error syncing Offer ' + Object.keys(offerSyncData)[i]);
+            }
         }
     }
 }
@@ -1306,8 +1329,8 @@ function syncProduct(product, localAllStickyioProducts, reset, persist, recursed
     var productSetProducts;
     var thisReset = reset;
     var thisPersist = persist;
-    if (localAllStickyioProducts === null) {
-        allStickyioProducts = getAllStickyioProducts();
+    if (localAllStickyioProducts === null) { // this should never happen
+        allStickyioProducts = getAllStickyioMasterProducts();
     } else { allStickyioProducts = localAllStickyioProducts; }
 
     if (thisProduct && thisProduct.online && thisProduct.custom.stickyioSubscriptionActive === true && !subscriptionProductsLog[thisProduct.ID]) {
@@ -1329,41 +1352,6 @@ function syncProduct(product, localAllStickyioProducts, reset, persist, recursed
             }
         }
     }
-}
-
-/**
- * Method to make sure our productLineItem has a valid combination
- * of sticky.io Campaign/Offer/Billing Models
- * @param {dw.order.ProductLineItem} product - Basket/Order product line item
- * @returns {boolean} - boolean result
-*/
-function validateLineItem(product) {
-    var thisCampaignID;
-    var thisOfferID;
-    var productOffers;
-    var thisBillingModelID;
-    var productBillingModels;
-    if (product && product.custom.stickyioOfferID !== null && product.custom.stickyioBillingModelID !== null) {
-        if (product.custom.stickyioOfferID !== null) {
-            thisCampaignID = product.custom.stickyioCampaignID;
-            thisOfferID = product.custom.stickyioOfferID;
-            productOffers = getOfferIDs(product.productID, thisCampaignID);
-            if (productOffers.length === 0 || (productOffers.length > 0 && productOffers.indexOf(thisOfferID.toString()) === -1)) { // offer id not found for this campaign
-                return false;
-            }
-        }
-        if (product.custom.stickyioOfferID !== null && product.custom.stickyioBillingModelID !== null) {
-            thisCampaignID = product.custom.stickyioCampaignID;
-            thisOfferID = product.custom.stickyioOfferID;
-            thisBillingModelID = product.custom.stickyioBillingModelID;
-            productBillingModels = getBillingModelIDs(product.productID, thisCampaignID, thisOfferID);
-            if (productBillingModels === false || productBillingModels.length === 0 || (productBillingModels.length > 0 && productBillingModels.indexOf(thisBillingModelID) === -1)) { // billing model id not found for this offer
-                return false;
-            }
-        }
-        return true;
-    }
-    return false;
 }
 
 /**
@@ -1412,7 +1400,7 @@ function createStraightSaleProduct(reset) {
         body.product_id = existingStraightSaleID;
         params.body = body;
         stickyioResponse = stickyioAPI('stickyio.http.post.product_index').call(params);
-        if (!stickyioResponse.error && (stickyioResponse.object.result.response_code === '100')) {
+        if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.response_code === '100')) {
             if (stickyioResponse.object.result.products[existingStraightSaleID].product_sku !== 'stickyioStraightSale') { // this stickyioProductID we have stored doesn't match the straightSale product
                 thisReset = true; // reset it
             }
@@ -1429,7 +1417,7 @@ function createStraightSaleProduct(reset) {
         body.shippable = false;
         params.body = body;
         stickyioResponse = stickyioAPI('stickyio.http.post.product_create').call(params);
-        if (!stickyioResponse.error && (stickyioResponse.object.result.response_code === '100' && stickyioResponse.object.result.new_product_id)) {
+        if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.response_code === '100' && stickyioResponse.object.result.new_product_id)) {
             try {
                 Transaction.wrap(function () { Site.getCurrent().setCustomPreferenceValue('stickyioStraightSaleProductID', parseInt(stickyioResponse.object.result.new_product_id, 10)); });
             } catch (e) {
@@ -1441,7 +1429,7 @@ function createStraightSaleProduct(reset) {
 }
 
 /**
- * Get billing model details for sticky.io orders and append all available Billing Models to the order object's subscription product(s)
+ * Get billing model details for sticky.io orders and append all available Billing Models to the order object's subscription product(s) based on the purchased offer id
  * @param {Object} orders - Object of sticky.io orders
  * @param {boolean} activeBillingModels - boolean flag to only return active billing models according to the current SFCC product
  * @returns {Object} - Returns sticky.io order object with appended details
@@ -1455,17 +1443,17 @@ function getOrderBillingModels(orders, activeBillingModels) {
         var thisStickyioOrder = theseOrders.data[Object.keys(theseOrders.data)[i]];
         for (j = 0; j < thisStickyioOrder.products.length; j++) {
             var thisStickyioOrderProduct = thisStickyioOrder.products[j];
-            var productActiveBillingModels = getActiveBillingModels(ProductMgr.getProduct(thisStickyioOrderProduct.sku));
+            var productActiveBillingModels = getActiveBillingModels(ProductMgr.getProduct(thisStickyioOrderProduct.sku), thisStickyioOrderProduct.offer.id);
             var billingModels = [];
             var params = {};
             params.id = thisStickyioOrderProduct.subscription_id;
             params.helper = 'billing_models';
             var stickyioResponse = stickyioAPI('stickyio.http.get.subscriptions.billing_models').call(params);
-            if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
+            if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
                 for (k = 0; k < stickyioResponse.object.result.data.length; k++) {
                     var thisBillingModel = stickyioResponse.object.result.data[k];
-                    if (activeBillingModels && productActiveBillingModels.length > 0) { // only allow billing models thare are allowed by the product currently
-                        if (productActiveBillingModels.indexOf(thisBillingModel.id) !== -1 && thisBillingModel.id !== 2) { // always exclude Straight Sale
+                    if (activeBillingModels && productActiveBillingModels.length > 0) { // only allow billing models that are allowed by the product currently
+                        if (productActiveBillingModels.indexOf(thisBillingModel.id.toString()) !== -1 && thisBillingModel.id !== 2) { // always exclude Straight Sale
                             billingModels.push(stickyioResponse.object.result.data[k]);
                         }
                     } else if (thisBillingModel.id !== 2) { // include all billing models, excluding Straight Sale billing model
@@ -1497,7 +1485,7 @@ function getOrders(orderNumbers, includeBillingModels, activeBillingModels) {
     body.order_id = orderNumbers;
     params.body = body;
     var stickyioResponse = stickyioAPI('stickyio.http.post.order_view').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.response_code === '100') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.response_code === '100') {
         if (typeof (stickyioResponse.object.result.data) === 'undefined') { // single order return
             orders.data[stickyioResponse.object.result.order_id] = stickyioResponse.object.result;
         } else { // multi order return
@@ -1546,7 +1534,7 @@ function updateStickyioShipping(stickyioOrderNumber, trackingNumber) {
     body.order_id[stickyioOrderNumber] = orderData;
     params.body = body;
     var stickyioResponse = stickyioAPI('stickyio.http.post.order_update').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.response_code === '100') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.response_code === '100') {
         return true;
     }
     return false;
@@ -1649,7 +1637,7 @@ function appendPLIs(orderModel, stickyioOrderData) {
 /**
  * Commit the transaction to update the PLI details from sticky.io
  * @param {Object} product - sticky.io product data for an order
- * @param {dw.order.Shipment.ProductLineItem} pli - Shipment product line item
+ * @param {dw.order.ProductLineItem} pli - Shipment product line item
  * @returns {void}
  */
 function commitOrderDetails(product, pli) {
@@ -1674,9 +1662,9 @@ function updateStickyioOrderDetails(stickyioOrderNo, shipment) {
     var thisShimpment = shipment;
     var i;
     var j;
-    var stickyioOrderData = getOrders([stickyioOrderNo]);
+    var stickyioOrderData = getOrders([stickyioOrderNo], false, false);
     if (stickyioOrderData) {
-        var thisStickyioOrder = stickyioOrderData.data[[Object.keys(stickyioOrderData.data)[0]]];
+        var thisStickyioOrder = stickyioOrderData.data[Object.keys(stickyioOrderData.data)[0]];
         for (i = 0; i < thisShimpment.productLineItems.length; i++) {
             var thisPLI = thisShimpment.productLineItems[i];
             if (thisPLI.custom.stickyioSubscriptionID) {
@@ -1766,10 +1754,12 @@ function subManUpdateBillingModel(subscriptionID, bmID) {
     params.id = subscriptionID;
     params.helper = 'billing_model';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.billing_model').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.billing_model', 'stickyio', null) };
     }
-    return { error: true, message: JSON.parse(stickyioResponse.errorMessage) };
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
+    return { error: true, message: message };
 }
 
 /**
@@ -1786,10 +1776,12 @@ function subManUpdateRecurringDate(subscriptionID, date) {
     params.id = subscriptionID;
     params.helper = 'recur_at';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.recur_at').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.recur_at', 'stickyio', null) };
     }
-    return { error: true, message: JSON.parse(stickyioResponse.errorMessage) };
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
+    return { error: true, message: message };
 }
 
 /**
@@ -1802,10 +1794,12 @@ function subManPause(subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'pause';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.pause').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.pause', 'stickyio', null) };
     }
-    return { error: true, message: JSON.parse(stickyioResponse.errorMessage) };
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
+    return { error: true, message: message };
 }
 
 /**
@@ -1818,10 +1812,12 @@ function subManStop(subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'stop';
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.stop').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.stop', 'stickyio', null) };
     }
-    return { error: true, message: JSON.parse(stickyioResponse.errorMessage) };
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
+    return { error: true, message: message };
 }
 
 /**
@@ -1834,10 +1830,12 @@ function subManTerminateNext(subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'terminate_next';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.terminate_next').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.terminate_next', 'stickyio', null) };
     }
-    return { error: true, message: JSON.parse(stickyioResponse.errorMessage) };
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
+    return { error: true, message: message };
 }
 
 /**
@@ -1864,7 +1862,7 @@ function subManStart(orderNo, subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'start';
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.start').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         // update the original SFCC order's lineitem sticky.io order ID
         var newOrderID = stickyioResponse.object.result.data.orderId;
         var order = OrderMgr.getOrder(orderNo);
@@ -1880,7 +1878,9 @@ function subManStart(orderNo, subscriptionID) {
             }
         }
     }
-    return { error: true, message: JSON.parse(stickyioResponse.errorMessage) };
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
+    return { error: true, message: message };
 }
 
 /**
@@ -1893,10 +1893,12 @@ function subManReset(subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'reset';
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.reset').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.reset', 'stickyio', null) };
     }
-    return { error: true, message: JSON.parse(stickyioResponse.errorMessage) };
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
+    return { error: true, message: message };
 }
 
 /**
@@ -1912,7 +1914,7 @@ function subManBillNow(orderNo, subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'bill_now';
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.bill_now').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
         // update the original SFCC order's lineitem sticky.io order ID
         var newOrderID = stickyioResponse.object.result.data.orderId;
         var order = OrderMgr.getOrder(orderNo);
@@ -1928,7 +1930,9 @@ function subManBillNow(orderNo, subscriptionID) {
             }
         }
     }
-    return { error: true, message: JSON.parse(stickyioResponse.errorMessage) };
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
+    return { error: true, message: message };
 }
 
 /**
@@ -1960,36 +1964,474 @@ function stickyioSubMan(orderNo, subscriptionID, action, bmID, date) {
 }
 
 /**
- * Generates a unique promo id prexied by a sticky.io varant
- * @returns {string} A unique promo ID
+ * Generate XML import file - full replace for metadata
+ * @param {boolean} blank - create blank archive
+ * @param {Object} offers - offers to update
+ * @param {Object} terms - pre-paid terms to update
+ * @param {Object} billingModels - billingModels to update
+ * @returns {void}
  */
-function generateStickyioPromoID() {
-    var UUIDUtils = require('dw/util/UUIDUtils');
-    return 'stickyio-' + UUIDUtils.createUUID();
+function createSystemObjectXML(blank, offers, terms, billingModels) {
+    var File = require('dw/io/File');
+    var FileWriter = require('dw/io/FileWriter');
+    var XMLStreamWriter = require('dw/io/XMLStreamWriter');
+    var siteContainerFolder = new File('/IMPEX/src/stickyTemp/');
+    if (!siteContainerFolder.exists()) { siteContainerFolder.mkdir(); }
+    var metaFolder = new File('/IMPEX/src/stickyTemp/meta/');
+    if (!metaFolder.exists()) { metaFolder.mkdir(); }
+    var file = new File('/IMPEX/src/stickyTemp/meta/system-objecttype-extensions.xml');
+    if (!file.exists()) { file.createNewFile(); }
+    var fileWriter = new FileWriter(file, 'UTF-8');
+    var xsw = new XMLStreamWriter(fileWriter);
+    /* eslint-disable indent */
+    xsw.writeStartDocument('UTF-8', '1.0');
+    xsw.writeStartElement('metadata');
+        xsw.writeDefaultNamespace('http://www.demandware.com/xml/impex/metadata/2006-10-31');
+        if (!blank) {
+            xsw.writeStartElement('type-extension');
+            xsw.writeAttribute('type-id', 'Product');
+                xsw.writeStartElement('custom-attribute-definitions');
+                    var i;
+                    var j;
+                    if (offers.length > 0) {
+                        for (i = 1; i <= 3; i++) { // three hard-coded offer limit
+                            xsw.writeStartElement('attribute-definition');
+                                xsw.writeAttribute('attribute-id', 'stickyioOffer' + i);
+                                xsw.writeStartElement('display-name');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Offer ' + i);
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('description');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Offer created in sticky.io');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('type');
+                                    xsw.writeCharacters('enum-of-string');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('localizable-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('site-specific-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('mandatory-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('visible-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-managed-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('order-required-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-defined-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('select-multiple-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('value-definitions');
+                                for (j = 0; j < offers.length; j++) {
+                                    xsw.writeStartElement('value-definition');
+                                        xsw.writeStartElement('display');
+                                            xsw.writeCharacters(offers[j].name);
+                                        xsw.writeEndElement();
+                                        xsw.writeStartElement('value');
+                                            xsw.writeCharacters(offers[j].id);
+                                        xsw.writeEndElement();
+                                    xsw.writeEndElement();
+                                }
+                                xsw.writeEndElement();
+                            xsw.writeEndElement();
+                        }
+                    }
+                    if (terms.length > 0) {
+                        for (i = 1; i <= 3; i++) { // three hard-coded term limit
+                            xsw.writeStartElement('attribute-definition');
+                                xsw.writeAttribute('attribute-id', 'stickyioTerms' + i);
+                                xsw.writeStartElement('display-name');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Terms');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('description');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Pre-paid terms created in sticky.io');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('type');
+                                    xsw.writeCharacters('enum-of-string');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('localizable-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('site-specific-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('mandatory-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('visible-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-managed-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('order-required-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-defined-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('select-multiple-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('value-definitions');
+                                for (j = 0; j < terms.length; j++) {
+                                    xsw.writeStartElement('value-definition');
+                                        xsw.writeStartElement('display');
+                                            xsw.writeCharacters(terms[j].cycles + '/' + terms[j].value + '/' + terms[j].type);
+                                        xsw.writeEndElement();
+                                        xsw.writeStartElement('value');
+                                            xsw.writeCharacters(terms[j].id);
+                                        xsw.writeEndElement();
+                                    xsw.writeEndElement();
+                                }
+                                xsw.writeEndElement();
+                            xsw.writeEndElement();
+                        }
+                    }
+                    if (billingModels.length > 0) {
+                        for (i = 1; i <= 3; i++) { // three hard-coded offer limit
+                            xsw.writeStartElement('attribute-definition');
+                                xsw.writeAttribute('attribute-id', 'stickyioBillingModels' + i);
+                                xsw.writeStartElement('display-name');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Billing Models');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('description');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Billing Models created in sticky.io');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('type');
+                                    xsw.writeCharacters('enum-of-string');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('localizable-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('site-specific-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('mandatory-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('visible-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-managed-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('order-required-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-defined-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('select-multiple-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('value-definitions');
+                                for (j = 0; j < billingModels.length; j++) {
+                                    xsw.writeStartElement('value-definition');
+                                        xsw.writeStartElement('display');
+                                            xsw.writeCharacters(billingModels[j].name);
+                                        xsw.writeEndElement();
+                                        xsw.writeStartElement('value');
+                                            xsw.writeCharacters(billingModels[j].id);
+                                        xsw.writeEndElement();
+                                    xsw.writeEndElement();
+                                }
+                                xsw.writeEndElement();
+                            xsw.writeEndElement();
+                        }
+                    }
+                xsw.writeEndElement();
+            xsw.writeEndElement();
+        }
+    xsw.writeEndElement();
+    xsw.writeEndDocument();
+    xsw.close();
+    /* eslint-enable indent */
+    fileWriter.close();
+    var zipFile = new File('/IMPEX/src/instance/stickyTemp.zip');
+    siteContainerFolder.zip(zipFile);
+}
+
+/**
+ * Get SFCC site catalog IDs via OCAPI bridge
+ * @returns {Array} catalogIDs - Array of catalogIDs
+ */
+function getCatalogIDs() {
+    var catalogIDs = [];
+    var params = {};
+    var body = {};
+    body.method = 'get';
+    body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs';
+    body.isClient = 'false';
+    params.body = body;
+    params.helper = 'sfccbridge';
+    var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
+    if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && !stickyioResponse.object.result.data.statusCode)) {
+        var i;
+        for (i = 0; i < stickyioResponse.object.result.data.data.length; i++) {
+            catalogIDs.push(stickyioResponse.object.result.data.data[i].id);
+        }
+    }
+    return catalogIDs;
+}
+
+/**
+ * Bind our shared product options to catalogs
+ * @param {Object} sharedProductOptionsToBind -sharedProductOptions to bind
+ * @returns {boolean} - result
+ */
+function bindSharedProductOptions(sharedProductOptionsToBind) {
+    var i;
+    var j;
+    for (i = 0; i < Object.keys(sharedProductOptionsToBind).length; i++) {
+        var thisCatalogID = Object.keys(sharedProductOptionsToBind)[i];
+        for (j = 0; j < sharedProductOptionsToBind[thisCatalogID].length; j++) {
+            var thisSharedProductOption = sharedProductOptionsToBind[thisCatalogID][j];
+            var params = {};
+            var body = {};
+            body.method = 'put';
+            body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
+            body.isClient = 'false';
+            body.data = JSON.stringify({ id: thisSharedProductOption, sorting_mode: 'byexplicitorder' });
+            params.body = body;
+            params.helper = 'sfccbridge';
+            var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
+            if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/**
+ * Make sure our shared product options are bound to all site catalogs
+ * @param {Array} catalogIDs - Array of catalogIDs
+ * @returns {boolean} - result
+ */
+function checkSharedProductOptions(catalogIDs) {
+    var result = false;
+    var sharedProductOptionsToBind = {};
+    var sharedProductOptions = ['stickyioOfferOptions', 'stickyioBillingModelOptions', 'stickyioTermOptions'];
+    var i;
+    var j;
+    for (i = 0; i < catalogIDs.length; i++) {
+        var thisCatalogID = catalogIDs[i];
+        for (j = 0; j < sharedProductOptions.length; j++) {
+            var thisSharedProductOption = sharedProductOptions[j];
+            var params = {};
+            var body = {};
+            body.method = 'get';
+            body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
+            body.isClient = 'false';
+            params.body = body;
+            params.helper = 'sfccbridge';
+            var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
+            if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode === 404)) { // sharedProductOption is not bound to this catalog
+                if (!sharedProductOptionsToBind[thisCatalogID]) { sharedProductOptionsToBind[thisCatalogID] = []; }
+                sharedProductOptionsToBind[thisCatalogID].push(thisSharedProductOption);
+            }
+        }
+    }
+    if (Object.keys(sharedProductOptionsToBind).length > 0) { // we have sharedProductOptions that need to be bound
+        result = bindSharedProductOptions(sharedProductOptionsToBind);
+    } else {
+        result = true;
+    }
+    return result;
+}
+
+/**
+ * Generate stickyio SFCC system objects with the latest data from stickyio via XML import - merge only - and OCAPI bridge
+ * @param {Array} catalogIDs - Array of catalogIDs
+ * @param {Object} sharedOptionValueObject - object of offers, terms, and billingModels
+ * @returns {boolean} - result
+ */
+function addSharedProductOptionValues(catalogIDs, sharedOptionValueObject) {
+    var thisSharedOptionValueObject = sharedOptionValueObject;
+    thisSharedOptionValueObject.stickyioBillingModelOptions.push({ id: 2, name: 'Straight Sale' }); // we inject this here for promotion targetting
+    thisSharedOptionValueObject.stickyioBillingModelOptions.push({ id: 0 }); // we inject this here for promotion targetting
+    thisSharedOptionValueObject.stickyioOfferOptions.push({ id: 0 }); // we inject this here for promotion targetting
+    thisSharedOptionValueObject.stickyioTermOptions.push({ id: 0 }); // we inject this here for promotion targetting
+    var i;
+    var j;
+    var k;
+    for (i = 0; i < catalogIDs.length; i++) {
+        var thisCatalogID = catalogIDs[i];
+        for (j = 0; j < Object.keys(thisSharedOptionValueObject).length; j++) {
+            var thisSharedProductOptionID = Object.keys(thisSharedOptionValueObject)[j];
+            var thisSharedProductOptionValues = thisSharedOptionValueObject[thisSharedProductOptionID];
+            for (k = 0; k < thisSharedProductOptionValues.length; k++) {
+                var thisSharedProductOptionValue = thisSharedProductOptionValues[k];
+                var params = {};
+                var body = {};
+                body.method = 'put';
+                body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOptionID + '/values/' + thisSharedProductOptionValue.id;
+                body.isClient = 'false';
+                var value = {};
+                if (thisSharedProductOptionValue.name) {
+                    value.value = { default: thisSharedProductOptionValue.name };
+                }
+                if (thisSharedProductOptionValue.id === 0) {
+                    value.default_product_option_value = true;
+                }
+                value.option_prices = [{ currency_mnemonic: 'USD', value: 0 }];
+                body.data = JSON.stringify(value);
+                params.body = body;
+                params.helper = 'sfccbridge';
+                var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
+                if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode)) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+/**
+ * Adds shared product options to a subscription product
+ * @param {Object} products - subscription products
+ * @returns {void}
+ */
+function updateProductOptions(products) {
+    var sharedProductOptions = ['stickyioOfferOptions', 'stickyioBillingModelOptions', 'stickyioTermOptions'];
+    var i;
+    var j;
+    for (i = 0; i < Object.keys(products).length; i++) {
+        var thisProductID = Object.keys(products)[i];
+        if (thisProductID !== 'updateSFCC') {
+            for (j = 0; j < sharedProductOptions.length; j++) {
+                var thisSharedProductOption = sharedProductOptions[j];
+                var params = {};
+                var body = {};
+                body.method = 'put';
+                body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/products/' + thisProductID + '/product_options/' + thisSharedProductOption;
+                body.isClient = 'false';
+                body.data = JSON.stringify({ id: thisSharedProductOption, shared: true });
+                params.body = body;
+                params.helper = 'sfccbridge';
+                stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
+            }
+        }
+    }
+}
+
+/**
+ * Generate stickyio SFCC system objects with the latest data from stickyio via XML import - merge only - and OCAPI bridge
+ * @param {Object} products - subscription products
+ * @param {Object} offers - offers
+ * @param {Object} terms - pre-paid terms
+ * @param {Object} billingModels - billingModels
+ * @returns {void}
+ */
+function generateProductOptions(products, offers, terms, billingModels) {
+    var catalogIDs = getCatalogIDs();
+    var checkSharedProductOptionsResult;
+    var addSharedProductOptionValuesResult;
+    if (catalogIDs.length > 0) { checkSharedProductOptionsResult = checkSharedProductOptions(catalogIDs); }
+    if (checkSharedProductOptionsResult) { addSharedProductOptionValuesResult = addSharedProductOptionValues(catalogIDs, { stickyioOfferOptions: offers, stickyioTermOptions: terms, stickyioBillingModelOptions: billingModels }); }
+    if (addSharedProductOptionValuesResult) { updateProductOptions(products); }
+}
+
+/**
+ * Generate stickyio SFCC system objects with the latest data from stickyio via XML import - merge only - and OCAPI bridge
+ * @returns {void}
+ */
+function generateObjects() {
+    var updateOffers = [];
+    var updateTerms = [];
+    var updateBillingModels = [];
+    var stickyioCampaigns = getCampaignCustomObjectJSON(); // get our latest campaignJSON
+    var i;
+    if (stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
+        for (i = 0; i < Object.keys(stickyioCampaigns.offers).length; i++) {
+            var thisOfferID = Object.keys(stickyioCampaigns.offers)[i];
+            if (thisOfferID !== 'updateSFCC') {
+                var thisOffer = stickyioCampaigns.offers[thisOfferID];
+                updateOffers.push({ id: thisOfferID, name: thisOffer.name });
+            }
+        }
+    }
+    if (stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
+        for (i = 0; i < Object.keys(stickyioCampaigns.terms).length; i++) {
+            var thisTermID = Object.keys(stickyioCampaigns.terms)[i];
+            if (thisTermID !== 'updateSFCC') {
+                var thisTerm = stickyioCampaigns.terms[thisTermID];
+                var discount = thisTerm.type === 'Amount' ? '$' + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
+                var name = thisTerm.cycles + ' cycles at ' + discount + ' off';
+                updateTerms.push({ id: thisTermID, cycles: thisTerm.cycles, value: thisTerm.value, type: thisTerm.type, name: name });
+            }
+        }
+    }
+    if (stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
+        for (i = 0; i < Object.keys(stickyioCampaigns.billingModels).length; i++) {
+            var thisBMID = Object.keys(stickyioCampaigns.billingModels)[i];
+            if (thisBMID !== 'updateSFCC') {
+                var thisBM = stickyioCampaigns.billingModels[thisBMID];
+                if (thisBMID !== '2') { updateBillingModels.push({ id: thisBMID, name: thisBM.name }); } // exclude straight sale billing model
+            }
+        }
+    }
+    if (updateOffers.length > 0 || updateBillingModels.length > 0 || updateTerms.length > 0) {
+        createSystemObjectXML(false, updateOffers, updateTerms, updateBillingModels);
+        generateProductOptions(stickyioCampaigns.products, updateOffers, updateTerms, updateBillingModels);
+    } else {
+        createSystemObjectXML(true, null, null, null);
+    }
+}
+
+/**
+ * Remove temporary file objects
+ * @returns {void}
+ */
+function cleanupFiles() {
+    var File = require('dw/io/File');
+    var file = new File('/IMPEX/src/stickyTemp/meta/system-objecttype-extensions.xml');
+    if (file.exists()) { file.remove(); }
+    var metaFolder = new File('/IMPEX/src/stickyTemp/meta/');
+    if (metaFolder.exists()) { metaFolder.remove(); }
+    var siteContainerFolder = new File('/IMPEX/src/stickyTemp/');
+    if (siteContainerFolder.exists()) { siteContainerFolder.remove(); }
+    var zipFile = new File('/IMPEX/src/instance/stickyTemp.zip');
+    if (zipFile.exists()) { zipFile.remove(); }
 }
 
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
     updateShippingMethods: updateShippingMethods,
-    getProduct: getProduct,
     getCampaigns: getCampaigns,
     getCampaignCustomObjectJSON: getCampaignCustomObjectJSON,
     getVariants: getVariants,
     hasSubscriptionProducts: hasSubscriptionProducts,
     validateAllProducts: validateAllProducts,
     validateProduct: validateProduct,
-    validateLineItem: validateLineItem,
     getProductType: getProductType,
     createStraightSaleProduct: createStraightSaleProduct,
     createCustomField: createCustomField,
+    getAllStickyioMasterProducts: getAllStickyioMasterProducts,
+    syncOffers: syncOffers,
     syncProduct: syncProduct,
     sendNotificationEmail: sendNotificationEmail,
     subscriptionProductsLog: subscriptionProductsLog,
     offerProductsLog: offerProductsLog,
-    syncOffers: syncOffers,
     getOrders: getOrders,
-    getActiveBillingModels: getActiveBillingModels,
     updateSFCCShipping: updateSFCCShipping,
     updateStickyioShipping: updateStickyioShipping,
     orderShippingUpdate: orderShippingUpdate,
@@ -1997,5 +2439,7 @@ module.exports = {
     updateOrderView: updateOrderView,
     appendPLIs: appendPLIs,
     updateStickyioOrderDetails: updateStickyioOrderDetails,
-    stickyioSubMan: stickyioSubMan
+    stickyioSubMan: stickyioSubMan,
+    generateObjects: generateObjects,
+    cleanupFiles: cleanupFiles
 };

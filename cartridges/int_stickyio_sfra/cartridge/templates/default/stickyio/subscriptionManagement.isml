@@ -3,7 +3,7 @@
         <isif condition="${!customer.isAuthenticated()}">
             <p class="line-item-attributes">${Resource.msg('label.subscription', 'stickyio', null)}: ${lineItem.stickyioBillingModelDetails}</p>
             <p class="line-item-attributes">${Resource.msg('msg.guest.checkoutthis', 'stickyio', null)}</p>
-        <iselseif condition="${customer.isAuthenticated() && typeof(confirmationPage) != 'undefined'}" />
+        <iselseif condition="${customer.isAuthenticated() && typeof (confirmationPage) !== 'undefined'}" />
             <p class="line-item-attributes">${Resource.msg('label.subscription', 'stickyio', null)}: ${lineItem.stickyioBillingModelDetails}</p>
             <isif condition="${lineItem.stickyioBillingModelID != 2}">
                 <p class="line-item-attributes">${Resource.msg('msg.visitaccount', 'stickyio', null)}</p>
@@ -12,10 +12,10 @@
             <div class="subscriptionmanagement" data-subscriptionid="${lineItem.stickyioSubscriptionID}">
                 <p class="line-item-attributes">
                     ${Resource.msg('label.subscription', 'stickyio', null)}: 
-                    <isif condition="${lineItem.billingModels && lineItem.billingModels.length>1 && pdict.stickyioAllowUpdateBillingModel === true}">
+                    <isif condition="${lineItem.billingModels && lineItem.billingModels.length > 1 && pdict.stickyioAllowUpdateBillingModel === true}">
                         <select class="updatebillingmodel quickview" data-initialvalue="${lineItem.stickyioBillingModelID}">
-                            <isloop items="${lineItem.billingModels}" var="billingModel">
-                                <option value="${billingModel.id}" data-href="${URLUtils.url('Stickyio-ManageSubscription','action','billing_model','sid',lineItem.stickyioSubscriptionID,'bmid',billingModel.id,'ID',pdict.order.orderNumber,'token',pdict.order.orderToken)}" ${billingModel.id==lineItem.stickyioBillingModelID?'selected':''}>${billingModel.name}</option>
+                            <isloop items="${lineItem.billingModels}" var="billingmodel">
+                                <option value="${billingmodel.id}" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'billing_model', 'sid', lineItem.stickyioSubscriptionID, 'bmid', billingmodel.id, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${billingmodel.id == lineItem.stickyioBillingModelID ? 'selected' : ''}>${Resource.msg('productdetail.label.billingmodel_' + billingmodel.id, 'stickyio', billingmodel.name)}</option>
                             </isloop>
                         </select>
                     <iselse/>
@@ -23,12 +23,12 @@
                     </isif>
                 </p>
                 <isif condition="${lineItem.stickyioBillingModelID != 2}">
-                    <isif condition="${typeof(lineItem.recurring_date) != 'undefined'}">
+                    <isif condition="${typeof (lineItem.recurring_date) !== 'undefined'}">
                         <p class="line-item-attributes">
                             ${Resource.msg('label.subscriptionmanagement.recur_at', 'stickyio', null)}: 
                             <isif condition="${!lineItem.on_hold}">
                                 <isif condition="${pdict.stickyioAllowRecurring === true}">
-                                    <input type="text" size="11" class="datepicker" placeholder="${lineItem.recurring_date}" data-initialvalue="${lineItem.recurring_date}" data-href="${URLUtils.url('Stickyio-ManageSubscription','action','recur_at','sid',lineItem.stickyioSubscriptionID,'ID',pdict.order.orderNumber,'token',pdict.order.orderToken)}" value="${lineItem.recurring_date}"/>
+                                    <input type="text" size="11" class="datepicker" placeholder="${lineItem.recurring_date}" data-initialvalue="${lineItem.recurring_date}" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'recur_at', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" value="${lineItem.recurring_date}"/>
                                 <iselse/>
                                     ${lineItem.recurring_date}
                                 </isif>
@@ -43,18 +43,18 @@
                             <option value="0">${Resource.msg('label.subscriptionmanagement.title', 'stickyio', null)}</option>
                             <isif condition="${pdict.stickyioAllowSubManStopOptions}">
                                 <optgroup label="${Resource.msg('label.subscriptionmanagement.stoplabel', 'stickyio', null)}">
-                                    <isif condition="${pdict.stickyioAllowPause}"><option value="pause" data-href="${URLUtils.url('Stickyio-ManageSubscription','action','pause','sid',lineItem.stickyioSubscriptionID,'ID',pdict.order.orderNumber,'token',pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.pause', 'stickyio', null)}</option></isif>
-                                    <isif condition="${pdict.stickyioAllowStop}"><option value="stop" data-href="${URLUtils.url('Stickyio-ManageSubscription','action','stop','sid',lineItem.stickyioSubscriptionID,'ID',pdict.order.orderNumber,'token',pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.stop', 'stickyio', null)}</option></isif>
-                                    <isif condition="${pdict.stickyioAllowTerminateNext}"><option value="terminate_next" data-href="${URLUtils.url('Stickyio-ManageSubscription','action','terminate_next','sid',lineItem.stickyioSubscriptionID,'ID',pdict.order.orderNumber,'token',pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.terminate_next', 'stickyio', null)}</option></isif>
+                                    <isif condition="${pdict.stickyioAllowPause}"><option value="pause" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'pause', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.pause', 'stickyio', null)}</option></isif>
+                                    <isif condition="${pdict.stickyioAllowStop}"><option value="stop" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'stop', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.stop', 'stickyio', null)}</option></isif>
+                                    <isif condition="${pdict.stickyioAllowTerminateNext}"><option value="terminate_next" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'terminate_next', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.terminate_next', 'stickyio', null)}</option></isif>
                                 </optgroup>
                             </isif>
                             <isif condition="${pdict.stickyioAllowSubManStartOptions}">
                                 <optgroup label="${Resource.msg('label.subscriptionmanagement.resumelabel', 'stickyio', null)}">
-                                    <isif condition="${pdict.stickyioAllowResume}"><option value="start" data-href="${URLUtils.url('Stickyio-ManageSubscription','action','start','sid',lineItem.stickyioSubscriptionID,'ID',pdict.order.orderNumber,'token',pdict.order.orderToken)}" ${!lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.start', 'stickyio', null)}</option></isif>
-                                    <isif condition="${pdict.stickyioAllowReset}"><option value="reset" data-href="${URLUtils.url('Stickyio-ManageSubscription','action','reset','sid',lineItem.stickyioSubscriptionID,'ID',pdict.order.orderNumber,'token',pdict.order.orderToken)}" ${!lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.reset', 'stickyio', null)}</option></isif>
+                                    <isif condition="${pdict.stickyioAllowResume}"><option value="start" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'start', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${!lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.start', 'stickyio', null)}</option></isif>
+                                    <isif condition="${pdict.stickyioAllowReset}"><option value="reset" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'reset', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${!lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.reset', 'stickyio', null)}</option></isif>
                                 </optgroup>
                             </isif>
-                            <isif condition="${pdict.stickyioAllowBillNow}"><option value="bill_now" data-href="${URLUtils.url('Stickyio-ManageSubscription','action','bill_now','sid',lineItem.stickyioSubscriptionID,'ID',pdict.order.orderNumber,'token',pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.bill_now', 'stickyio', null)}</option></isif>
+                            <isif condition="${pdict.stickyioAllowBillNow}"><option value="bill_now" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'bill_now', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.bill_now', 'stickyio', null)}</option></isif>
                         </select>
                     </isif>
                     <p class="line-item-attributes stickyiosubscriptionresponse">${pdict.CurrentRequest.httpParameterMap.get('stickyiomsg').value?pdict.CurrentRequest.httpParameterMap.get('stickyiomsg').value:''}</p>

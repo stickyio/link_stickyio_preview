@@ -27,6 +27,7 @@ if (stickyioEnabled) {
         var stickyioVariationID = req.form.stickyioVariationID;
         var stickyioCampaignID = req.form.stickyioCampaignID;
         var stickyioOfferID = req.form.stickyioOfferID;
+        var stickyioTermsID = req.form.stickyioTermsID;
         var stickyioBillingModelID = req.form.stickyioBillingModelID;
         var stickyioBillingModelDetails = req.form.stickyioBillingModelDetails;
         var childProducts = Object.hasOwnProperty.call(req.form, 'childProducts')
@@ -51,6 +52,7 @@ if (stickyioEnabled) {
                         stickyioVariationID,
                         stickyioCampaignID,
                         stickyioOfferID,
+                        stickyioTermsID,
                         stickyioBillingModelID,
                         stickyioBillingModelDetails
                     );
@@ -75,6 +77,7 @@ if (stickyioEnabled) {
                             PIDObj.stickyioVariationID,
                             PIDObj.stickyioCampaignID,
                             PIDObj.stickyioOfferID,
+                            PIDObj.stickyioTermsID,
                             PIDObj.stickyioBillingModelID,
                             PIDObj.stickyioBillingModelDetails
                         );
@@ -135,6 +138,7 @@ if (stickyioEnabled) {
             stickyioVariationID: stickyioVariationID,
             stickyioCampaignID: stickyioCampaignID,
             stickyioOfferID: stickyioOfferID,
+            stickyioTermsID: stickyioTermsID,
             stickyioBillingModelID: stickyioBillingModelID,
             stickyioBillingModelDetails: stickyioBillingModelDetails
         });
@@ -142,25 +146,88 @@ if (stickyioEnabled) {
         this.emit('route:Complete', req, res);
     });
 
-    server.append('GetProduct', function (req, res, next) { // get the custom stickyio PLI attributes
+    server.replace('GetProduct', function (req, res, next) { // get the custom stickyio PLI attributes
+        /*
+        It's very sad we have to replace this entire route, but SFRA is not built to handle multiple selectable product options, and the original route will call validation checks on a mismatched amount of product options before we have a chance to intervene, blowing up the flow
+        */
         var BasketMgr = require('dw/order/BasketMgr');
+        var Resource = require('dw/web/Resource');
         var URLUtils = require('dw/web/URLUtils');
+        var collections = require('*/cartridge/scripts/util/collections');
+        var ProductFactory = require('*/cartridge/scripts/factories/product');
+        var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
 
-        var viewData = res.getViewData();
         var requestUuid = req.querystring.uuid;
 
-        var basket = BasketMgr.getCurrentOrNewBasket();
-        var plis = basket.getAllProductLineItems();
+        var requestPLI = collections.find(BasketMgr.getCurrentBasket().allProductLineItems, function (item) {
+            return item.UUID === requestUuid;
+        });
+
+        var requestQuantity = requestPLI.quantityValue.toString();
+
+        // If the product has options... or if it has multiple options
+        var optionProductLineItems = requestPLI.getOptionProductLineItems();
+        var selectedOptions = null;
+        var selectedOptionValueId = null;
+        var optionProductLineItem;
         var i;
-        for (i = 0; i < plis.length; i++) {
-            if (plis[i].UUID === requestUuid) {
-                viewData.product.stickyio.stickyioBMID = plis[i].custom.stickyioBillingModelID;
-                viewData.product.stickyio.stickyioBaseURL = URLUtils.url('Product-Variation', 'pid', plis[i].productID, 'quantity', plis[i].quantity);
+        if (optionProductLineItems) {
+            if (optionProductLineItems.length > 1) {
+                selectedOptions = [];
+                for (i = 0; i < optionProductLineItems.length; i++) {
+                    optionProductLineItem = optionProductLineItems[i];
+                    selectedOptionValueId = optionProductLineItem.optionValueID;
+                    selectedOptions.push({ optionId: optionProductLineItem.optionID, selectedValueId: optionProductLineItem.optionValueID, productId: requestPLI.productID });
+                }
+            } else if (optionProductLineItems && optionProductLineItems.length) {
+                optionProductLineItem = optionProductLineItems.iterator().next();
+                selectedOptionValueId = optionProductLineItem.optionValueID;
+                selectedOptions = [{ optionId: optionProductLineItem.optionID, selectedValueId: optionProductLineItem.optionValueID, productId: requestPLI.productID }];
             }
         }
 
-        res.setViewData(viewData);
-        return next();
+        var pliProduct = {
+            pid: requestPLI.productID,
+            quantity: requestQuantity,
+            options: selectedOptions
+        };
+
+        var product = ProductFactory.get(pliProduct);
+
+        var basket = BasketMgr.getCurrentOrNewBasket();
+        var plis = basket.getAllProductLineItems();
+
+        for (i = 0; i < plis.length; i++) {
+            if (plis[i].UUID === requestUuid) {
+                product.stickyio.stickyioOID = plis[i].custom.stickyioOfferID;
+                product.stickyio.stickyioBMID = plis[i].custom.stickyioBillingModelID;
+                product.stickyio.stickyioTermsID = plis[i].custom.stickyioTermsID;
+                product.stickyio.stickyioBaseURL = URLUtils.url('Product-Variation', 'pid', plis[i].productID, 'quantity', plis[i].quantity);
+            }
+        }
+
+        var context = {
+            product: product,
+            selectedQuantity: requestQuantity,
+            selectedOptionValueId: selectedOptionValueId,
+            uuid: requestUuid,
+            updateCartUrl: URLUtils.url('Cart-EditProductLineItem'),
+            closeButtonText: Resource.msg('link.editProduct.close', 'cart', null),
+            enterDialogMessage: Resource.msg('msg.enter.edit.product', 'cart', null),
+            template: 'product/quickView.isml'
+        };
+
+        res.setViewData(context);
+
+        this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
+            var viewData = res.getViewData();
+
+            res.json({
+                renderedTemplate: renderTemplateHelper.getRenderedHtml(viewData, viewData.template)
+            });
+        });
+
+        next();
     });
 
     server.prepend('EditProductLineItem', function (req, res, next) {
@@ -194,6 +261,7 @@ if (stickyioEnabled) {
         var stickyioVariationID = req.form.stickyioVariationID;
         var stickyioCampaignID = req.form.stickyioCampaignID;
         var stickyioOfferID = req.form.stickyioOfferID;
+        var stickyioTermsID = req.form.stickyioTermsID;
         var stickyioBillingModelID = req.form.stickyioBillingModelID;
         var stickyioBillingModelDetails = req.form.stickyioBillingModelDetails;
 
@@ -205,7 +273,7 @@ if (stickyioEnabled) {
         var uuidToBeDeleted = null;
         var pliToBeDeleted;
         var newPidAlreadyExist = collections.find(productLineItems, function (item) {
-            if (item.productID === productId && item.UUID !== uuid && item.custom.stickyioCampaignID !== stickyioCampaignID && item.custom.stickyioOfferID !== stickyioOfferID && item.custom.stickyioBillingModelID !== stickyioBillingModelID) {
+            if (item.productID === productId && item.UUID !== uuid && item.custom.stickyioCampaignID.toString() !== stickyioCampaignID.toString() && item.custom.stickyioOfferID.toString() !== stickyioOfferID.toString() && item.custom.stickyioTermsID.toString() !== stickyioTermsID.toString() && item.custom.stickyioBillingModelID.toString() !== stickyioBillingModelID.toString()) {
                 uuidToBeDeleted = item.UUID;
                 pliToBeDeleted = item;
                 updateQuantity += parseInt(item.quantity, 10);
@@ -285,6 +353,7 @@ if (stickyioEnabled) {
                     requestLineItem.custom.stickyioVariationID = Number(stickyioVariationID);
                     requestLineItem.custom.stickyioCampaignID = Number(stickyioCampaignID);
                     requestLineItem.custom.stickyioOfferID = Number(stickyioOfferID);
+                    requestLineItem.custom.stickyioTermsID = stickyioTermsID;
                     requestLineItem.custom.stickyioBillingModelID = Number(stickyioBillingModelID);
                     requestLineItem.custom.stickyioBillingModelDetails = stickyioBillingModelDetails;
 

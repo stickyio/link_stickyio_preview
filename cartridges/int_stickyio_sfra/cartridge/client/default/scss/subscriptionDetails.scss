@@ -1,0 +1,31 @@
+.stickyiosubscription label {
+    display: inline-block !important;
+    top: initial;
+    transform: initial;
+    height: initial;
+}
+
+.stickyiosubscription ul,
+.stickyiosubscription ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.stickyiosubscription li,
+.stickyiosubscription li {
+    margin-bottom: 0.5rem;
+}
+
+.stickyiosubscription li label,
+.stickyiosubscription li label {
+    margin-bottom: initial;
+}
+
+.stickyiosubscription .select-hiddenselect {
+    display: none;
+}
+
+.stickyiosubscription .nomargin {
+    margin: 0;
+}

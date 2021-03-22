@@ -21,6 +21,7 @@ module.exports = {
     stickyioVariationID: require('~/cartridge/models/productLineItem/decorators/stickyioVariationID'),
     stickyioCampaignID: require('~/cartridge/models/productLineItem/decorators/stickyioCampaignID'),
     stickyioOfferID: require('~/cartridge/models/productLineItem/decorators/stickyioOfferID'),
+    stickyioTermsID: require('~/cartridge/models/productLineItem/decorators/stickyioTermsID'),
     stickyioBillingModelID: require('~/cartridge/models/productLineItem/decorators/stickyioBillingModelID'),
     stickyioBillingModelDetails: require('~/cartridge/models/productLineItem/decorators/stickyioBillingModelDetails'),
     stickyioSubscriptionID: require('~/cartridge/models/productLineItem/decorators/stickyioSubscriptionID')

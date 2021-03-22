@@ -21,32 +21,62 @@
                 "write_attributes": "(**)"
             },
             {
-                "resource_id": "/products/*/product_options/stickyioBillingModelOptions",
+                "resource_id": "/catalogs",
+                "methods": ["get"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/catalogs/*/shared_product_options/stickyioOfferOptions",
                 "methods": ["get", "put"],
                 "read_attributes": "(**)",
                 "write_attributes": "(**)"
             },
             {
-                "resource_id": "/products/*/product_options/stickyioBillingModelOptions/values/*",
+                "resource_id": "/catalogs/*/shared_product_options/stickyioBillingModelOptions",
+                "methods": ["get", "put"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/catalogs/*/shared_product_options/stickyioTermOptions",
+                "methods": ["get", "put"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/catalogs/*/shared_product_options/stickyioOfferOptions/values/*",
+                "methods": ["get", "put", "patch", "delete"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/catalogs/*/shared_product_options/stickyioBillingModelOptions/values/*",
+                "methods": ["get", "put", "patch", "delete"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/catalogs/*/shared_product_options/stickyioTermOptions/values/*",
+                "methods": ["get", "put", "patch", "delete"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
+            },
+            {
+                "resource_id": "/products/*/product_options/stickyioOfferOptions",
                 "methods": ["put"],
                 "read_attributes": "(**)",
                 "write_attributes": "(**)"
             },
             {
-                "resource_id": "/system_object_definitions/*",
-                "methods": ["get"],
+                "resource_id": "/products/*/product_options/stickyioBillingModelOptions",
+                "methods": ["put"],
                 "read_attributes": "(**)",
                 "write_attributes": "(**)"
             },
             {
-                "resource_id": "/system_object_definitions/*/attribute_definitions",
-                "methods": ["get"],
-                "read_attributes": "(**)",
-                "write_attributes": "(**)"
-            },
-            {
-                "resource_id": "/system_object_definitions/*/attribute_definitions/*",
-                "methods": ["get", "put", "patch", "delete"],
+                "resource_id": "/products/*/product_options/stickyioTermOptions",
+                "methods": ["put"],
                 "read_attributes": "(**)",
                 "write_attributes": "(**)"
             }

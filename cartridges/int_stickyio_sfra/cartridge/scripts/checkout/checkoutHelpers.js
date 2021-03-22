@@ -14,6 +14,7 @@ var Status = require('dw/system/Status');
 var Resource = require('dw/web/Resource');
 var Site = require('dw/system/Site');
 var Transaction = require('dw/system/Transaction');
+var Logger = require('dw/system/Logger');
 
 var AddressModel = require('*/cartridge/models/address');
 var formErrors = require('*/cartridge/scripts/formErrors');
@@ -592,7 +593,6 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
         return next();
     }
     */
-    
     var serverErrors = [];
     var error = false;
     var sendCSREmail = false;
@@ -611,10 +611,12 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
         var stickyioCustomFieldSiteID = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldSiteID');
         var stickyioCustomFieldShipmentID = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldShipmentID');
         var stickyioCustomFieldOrderNo = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldOrderNo');
+        var stickyioCustomFieldOrderToken = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldOrderToken');
         var stickyioCustomFieldCustomerID = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldCustomerID');
         var siteIDObject = { id: stickyioCustomFieldSiteID, value: Site.getCurrent().ID };
         var shipmentIDObject = { id: stickyioCustomFieldShipmentID, value: shipment.ID };
         var orderNoObject = { id: stickyioCustomFieldOrderNo, value: order.orderNo };
+        var orderTokenObject = { id: stickyioCustomFieldOrderToken, value: order.orderToken };
         var customerIDObject = { id: stickyioCustomFieldCustomerID, value: customer.ID }; // eslint-disable-line no-undef
 
         var params = {};
@@ -638,17 +640,20 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
         params.body.phone = billingAddress.phone;
         params.body.email = order.getCustomerEmail();
         params.body.temp_customer_id = paymentInstrument.custom.stickyioTempCustomerID;
-        params.body.forceGatewayId = stickyioGatewayID?stickyioGatewayID:1;
+        params.body.forceGatewayId = stickyioGatewayID;
         params.body.preserve_force_gateway = 1;
-        params.body.sessionId = paymentInstrument.custom.stickyioKountSessionID;
         params.body.tranType = 'Sale';
         params.body.ipAddress = order.remoteHost;
-        params.body.custom_fields = [siteIDObject, shipmentIDObject, orderNoObject, customerIDObject];
+        params.body.custom_fields = [siteIDObject, shipmentIDObject, orderNoObject, orderTokenObject, customerIDObject];
         params.body.shippingId = shippingMethodID;
         params.body.campaignId = stickyioSampleData.stickyioCID;
         params.body.is_precalculated_price = true;
-        params.body.dynamic_shipping_charge = shipment.shippingTotalPrice.value;
+        params.body.dynamic_shipping_charge = shipment.shippingTotalPrice.value.toString();
         params.body.tax_rate = 0;
+
+        if (paymentInstrument.custom.stickyioKountSessionID) {
+            params.body.sessionId = paymentInstrument.custom.stickyioKountSessionID;
+        }
 
         if (shipment.gift) {
             params.body.gift = {};
@@ -664,21 +669,24 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
 
         for (i = 0; i < plis.length; i++) {
             var thisOffer = {};
+            var priceType = 'price';
             if (plis[i].custom.stickyioOfferID) { // subscription product
                 thisOffer.offer_id = plis[i].custom.stickyioOfferID;
                 thisOffer.product_id = plis[i].custom.stickyioProductID;
                 thisOffer.quantity = plis[i].quantityValue;
-                thisOffer.price = plis[i].adjustedNetPrice.value; // price before tax
-                // thisOffer.tax_rate = (plis[i].getTaxRate().value * 100).toFixed(2);
-                // thisOffer.tax_amount = plis[i].adjustedTax.value;
                 thisOffer.billing_model_id = plis[i].custom.stickyioBillingModelID;
+                if (plis[i].custom.stickyioTermsID) {
+                    thisOffer.prepaid_cycles = plis[i].custom.stickyioTermsID.split('-')[1];
+                    priceType = 'prepaid_price';
+                }
+                thisOffer[priceType] = plis[i].adjustedNetPrice.value.toString(); // price before tax
                 thisProduct = plis[i].getProduct();
                 if (thisProduct && thisProduct.isVariant() && plis[i].custom.stickyioVariationID) { thisOffer.variant = { variant_id: plis[i].custom.stickyioVariationID }; }
                 offers.push(thisOffer);
             } else { // this is a non-subscription product
-                nonSubscriptionProduct.price += plis[i].adjustedNetPrice.value;
+                nonSubscriptionProduct.price += plis[i].adjustedNetPrice.value.toString();
             }
-            if (plis[i].getTaxRate() > 0) { params.body.tax_rate = (plis[i].getTaxRate() * 100).toFixed(2); } // overall order tax rate, but there's a chance an item has 0% tax
+            if (plis[i].getTaxRate() > 0) { params.body.tax_rate = (plis[i].getTaxRate() * 100).toFixed(2).toString(); } // overall order tax rate, but there's a chance an item has 0% tax
         }
         if (nonSubscriptionProduct.price > 0) {
             nonSubscriptionProduct.offer_id = stickyioSampleData.stickyioOID; // use any stickyioOID
@@ -740,7 +748,7 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
                     }
                 });
             } catch (e) {
-                dw.system.Logger.error('sticky.io error: ' + e);
+                Logger.error('sticky.io error: ' + e);
                 // Allow the order to be successfully created in both SFCC and sticky.io, but notify the merchant something went wrong and they may need to fix.
                 // shipment.custom.stickyioOrderNo and pli.custom.stickyioSubscriptionID are merchant-editable in Business Manager so they can manually updated.
                 // These custom attributes can all be found in the SFCC order object under the Shipment and Shipment Line Items respectively.
@@ -755,8 +763,8 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
                 paymentInstrument.custom.stickyioTempCustomerID = null;
                 paymentInstrument.custom.stickyioTokenExpiration = null;
             });
-            if(stickyioResponse.object.result.response_code && stickyioResponse.object.result.error_message) {
-                dw.system.Logger.error(stickyioResponse.object.result.response_code + ': ' + stickyioResponse.object.result.error_message);
+            if (stickyioResponse.object.result.response_code && stickyioResponse.object.result.error_message) {
+                Logger.error(stickyioResponse.object.result.response_code + ': ' + stickyioResponse.object.result.error_message);
                 serverErrors.push(stickyioResponse.object.result.response_code + ': ' + stickyioResponse.object.result.error_message);
             } else {
                 serverErrors.push(Resource.msg('error.technical', 'checkout', null));
@@ -774,7 +782,6 @@ function placeOrderStickyio(order, fraudDetectionStatus) {
         error = true;
         Transaction.wrap(function () { OrderMgr.failOrder(order, true); });
         serverErrors.push(Resource.msg('error.technical', 'checkout', null));
-        serverErrors.push(e); // the actual error message
     }
 
     if (!error) {

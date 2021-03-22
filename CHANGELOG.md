@@ -1,6 +1,30 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.0] - 2021-03-22
+### Removed
+- SSO cache-busting header
+- Straight Sale custom preference
+- Out of the box Billing Models
+- "Custom" Billing Model/Offer configuration and underlying processes/code
+
+### Changed
+- SSO route endpoint
+- sticky.io subscription products are now driven by Shared Product Options
+- Up to three Offers can be configured for a Product
+- Template and Javascript efficencies
+- Rewritten documentation
+- Job steps aligned with new system and custom object manipulation processes
+
+### Added
+- Support for any Billing Model
+- Localization of Offers, Billing Models, and Terms
+- Full Campaign & Promotion engine compatibility (Subscribe & Save, Prepaid, etc.)
+- Ability to allow consumer to select Prepaid Terms
+- XML and OCAPI system manipulation of sticky.io-related objects
+- Baseline template CSS
+- SFRA support for Products with multiple _selectable_ Product Options (core SFRA bug fix)
+
 ## [20.1.4] - 2021-03-10
 [https://github.com/stickyio/link_stickyio_preview/commit/4e597fc29ef53dc225fffdaf111be0174bafbee8](https://github.com/stickyio/link_stickyio_preview/commit/4e597fc29ef53dc225fffdaf111be0174bafbee8)
 ### Removed

@@ -4,13 +4,13 @@
 		<p>
 			<button class="stickyioconfirmbutton"
 				data-href="${URLUtils.url("Stickyio-ManageSubscription",
-					'action',pdict.action,
-					'ID',pdict.ID,
-					'token',pdict.token,
-					'sid',pdict.sid,
-					pdict.bmid?'bmid':'',pdict.bmid?pdict.bmid:'',
-					pdict.date?'date':'',pdict.date?pdict.date:'',
-					'confirm',1
+					'action', pdict.action,
+					'ID', pdict.ID,
+					'token', pdict.token,
+					'sid', pdict.sid,
+					pdict.bmid ? 'bmid' : '', pdict.bmid ? pdict.bmid : '', 
+					pdict.date ? 'date' : '', pdict.date ? pdict.date : '', 
+					'confirm', 1
 				)}"
 			>
 			${Resource.msg('button.subscriptionmanagement.confirm', 'stickyio', null)}

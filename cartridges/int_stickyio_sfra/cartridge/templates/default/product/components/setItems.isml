@@ -60,8 +60,21 @@
                                     </div>
                                 </isloop>
                             </isif>
-
-                            <isif condition="${(product.options && !product.options.length && !product.variationAttributes)}">
+                            <isif condition="${(product.options && (
+                                    product.options.length === 3 && (
+                                        product.options[0].id === 'stickyioOfferOptions' ||
+                                        product.options[0].id === 'stickyioBillingModelOptions' ||
+                                        product.options[0].id === 'stickyioTermOptions'
+                                        ) && (
+                                            product.options[1].id === 'stickyioOfferOptions' ||
+                                            product.options[1].id === 'stickyioBillingModelOptions' ||
+                                            product.options[1].id === 'stickyioTermOptions'
+                                        ) && (
+                                            product.options[2].id === 'stickyioOfferOptions' ||
+                                            product.options[2].id === 'stickyioBillingModelOptions' ||
+                                            product.options[2].id === 'stickyioTermOptions'
+                                        )
+                                    ) || (!product.options.length && !product.variationAttributes))}">
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="simple-quantity">
