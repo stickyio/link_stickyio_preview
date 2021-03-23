@@ -16,7 +16,6 @@ function setBaseURLAndBMID(pid, querystring, productViewData) {
     var thisOID;
     var thisBMID;
     var thisTID;
-    var thisCycles;
     var selectedQuantity = 1;
     if (querystring.quantity) {
         selectedQuantity = querystring.quantity;
@@ -66,7 +65,6 @@ function setBaseURLAndBMID(pid, querystring, productViewData) {
                 thisQueryString = thisQueryString.toString().replace(/^(dwopt(.+?)stickyioTermOptions=[0-9-]+)+&/, '');
             } else { thisQueryString = thisQueryString.toString().replace(/&(dwopt(.+?)stickyioTermOptions=[0-9-]+)+/, ''); }
             thisTID = stickyioTermOptions;
-            thisCycles = stickyioTermOptions.split('-')[1];
         }
 
         if (thisProductViewData.stickyio && !thisProductViewData.stickyio.stickyioOID && typeof (thisOID) !== 'undefined') { thisProductViewData.stickyio.stickyioOID = thisOID; }

@@ -34,8 +34,9 @@
 			<isif condition="${stickyio.stickyioOneTimePurchase}">
 				<form>
 				<li data-oid="1">
-					<input class="subscriptionselect" type="radio" name="subscriptionSelect" id="subscriptionSelectRadio${stickyio.stickyioPID}_1" value="Straight Sale" ${!stickyio.stickyioOID || stickyio.stickyioOID === '1' && stickyio.stickyioBMID === '2' ? 'checked' : ''} />
-					<label class="stickyioproductbillingmodeldetails" for="subscriptionSelectRadio${stickyio.stickyioPID}_1">${Resource.msg('productdetail.label.straightsalebillingmodel', 'stickyio', null)}</label>
+					<isset name="radioID" value="${dw.util.UUIDUtils.createUUID()}" scope="page" />
+					<input class="subscriptionselect" type="radio" name="subscriptionSelect" id="${radioID}_1" value="Straight Sale" ${!stickyio.stickyioOID || stickyio.stickyioOID === '1' && stickyio.stickyioBMID === '2' ? 'checked' : ''} />
+					<label class="stickyioproductbillingmodeldetails" for="${radioID}_1">${Resource.msg('productdetail.label.straightsalebillingmodel', 'stickyio', null)}</label>
 					<select class="select-hiddenselect">
 						<option value="" selected>1</option>
 						<option value="${stickyio.stickyioBaseURL + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioOfferOptions=1&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioBillingModelOptions=2&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioTermOptions=0'}">2</option>
@@ -53,8 +54,8 @@
 					<isif condition="${!stickyio.stickyioBillingModelConsumerSelectable || stickyio.offers[offer].billingModels.length === 1}">
 						<isset name="noSelectBMID" value="${stickyio.offers[offer].billingModels[0].id}" scope="page" />
 					</isif>
-					<input class="subscriptionselect" type="radio" name="subscriptionSelect" id="subscriptionSelectRadio${stickyio.stickyioPID}_${(parseInt(offer) + 1).toFixed(0)}" value="${stickyio.offers[offer].name}" ${typeof (offerSelected) === 'undefined' && stickyio.stickyioOID && (parseInt(stickyio.stickyioOID, 10) + 1).toFixed(0) === (parseInt(offer, 10) + 1).toFixed(0) ? 'checked' : ''} />
-					<label for="subscriptionSelectRadio${stickyio.stickyioPID}_${(parseInt(offer, 10) + 1).toFixed(0)}">${Resource.msg('productdetail.label.offer_' + offer, 'stickyio', stickyio.offers[offer].name)}</label>
+					<input class="subscriptionselect" type="radio" name="subscriptionSelect" id="${radioID}_${(parseInt(offer) + 1).toFixed(0)}" value="${stickyio.offers[offer].name}" ${typeof (offerSelected) === 'undefined' && stickyio.stickyioOID && (parseInt(stickyio.stickyioOID, 10) + 1).toFixed(0) === (parseInt(offer, 10) + 1).toFixed(0) ? 'checked' : ''} />
+					<label for="${radioID}_${(parseInt(offer, 10) + 1).toFixed(0)}">${Resource.msg('productdetail.label.offer_' + offer, 'stickyio', stickyio.offers[offer].name)}</label>
 					<select class="select-hiddenselect">
 						<option value="" selected>1</option>
 						<option value="${stickyio.stickyioBaseURL + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioOfferOptions=' + offer + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioBillingModelOptions='}${typeof (noSelectBMID) !== 'undefined' ? noSelectBMID : '0'}${'&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioTermOptions=0'}${prepaid === 'true' ? '&offerType=prepaid' : ''}">2</option>

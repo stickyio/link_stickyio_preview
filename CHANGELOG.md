@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.1] - 2021-03-22
+
+### Removed
+- Unused variable in helper
+
+### Changed
+- Front-end Javascript multi-modal targetting bug fixes for SFRA stupidity
+
 ## [21.1.0] - 2021-03-22
 [https://github.com/stickyio/link_stickyio_preview/commit/68b2ca5de17c9c92979e44a426d033316978e398](https://github.com/stickyio/link_stickyio_preview/commit/68b2ca5de17c9c92979e44a426d033316978e398)
 [https://github.com/stickyio/link_stickyio_preview/commit/8305073013a4c5150a143831caf9000c258040a2](https://github.com/stickyio/link_stickyio_preview/commit/8305073013a4c5150a143831caf9000c258040a2)

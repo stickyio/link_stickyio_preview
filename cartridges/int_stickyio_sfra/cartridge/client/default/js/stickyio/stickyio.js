@@ -61,12 +61,14 @@ var stickyio = {
         stickyioProductData.stickyioBillingModelConsumerSelectable = stickyioProductWrapper.data('stickyiobillingmodelconsumerselectable');
         var offerType = stickyioProductData.offerType && stickyioProductData.offerType !== 'null' ? ' (' + stickyioProductData.offerType + ')' : '';
         var selectedBillingModelDetails = [];
+        var activeSelect = $('[data-wrapperpid="' + pid + '"] [data-oid="' + stickyioProductData.stickyioOID + '"] .subscriptionselect:checked');
+        activeSelect = activeSelect[activeSelect.length - 1];
         if ($(':not(".select-hiddenselect") option:checked', $('[data-wrapperpid="' + pid + '"] [data-oid="' + stickyioProductData.stickyioOID + '"] .subscriptionselect:checked').parent()).length > 0) {
-            $(':not(".select-hiddenselect") option:checked', $('[data-wrapperpid="' + pid + '"] [data-oid="' + stickyioProductData.stickyioOID + '"] .subscriptionselect:checked').parent()).each(function (index, obj) {
+            $(':not(".select-hiddenselect") option:checked', $(activeSelect).parent()).each(function (index, obj) {
                 selectedBillingModelDetails.push($(obj).text().trim());
             });
         } else {
-            $('.stickyioproductbillingmodeldetails', $('[data-wrapperpid="' + pid + '"] [data-oid="' + stickyioProductData.stickyioOID + '"] .subscriptionselect:checked').parent()).each(function (index, obj) {
+            $('.stickyioproductbillingmodeldetails', $(activeSelect).parent()).each(function (index, obj) {
                 selectedBillingModelDetails.push($(obj).text().trim());
             });
         }
@@ -112,7 +114,6 @@ var stickyio = {
                 closestWrapperPID = $('[data-sfccpid="' + thisResponse.data.product.id + '"]', $(thisResponse.container)).attr('data-wrapperpid');
             }
             stickyio.getProductData(closestWrapperPID, function (thisStickyioProductData) {
-                // console.log(closestWrapperPID, thisStickyioProductData, thisResponse);
                 if (thisStickyioProductData.stickyioSubscriptionActive === true) {
                     if (
                         (thisStickyioProductData.stickyioCID !== 'null' &&
@@ -182,10 +183,7 @@ $('body').on('updateAddToCartFormData', function (e, data) {
     if ($('.stickyiosubscription').length > 0) {
         if (typeof (thisData.pidsObj) === 'undefined') { // single product
             closestWrapper = stickyio.getClosestWrapper($(e.target));
-            closestWrapperPID = $('.stickyiosubscription', closestWrapper).attr('data-sfccpid');
-            if ($('.stickyiosubscription').attr('data-producttype') === 'variant') {
-                closestWrapperPID = $('.stickyiosubscription', closestWrapper).attr('data-wrapperpid');
-            }
+            closestWrapperPID = $('.stickyiosubscription', closestWrapper).attr('data-wrapperpid');
             stickyioProductData = stickyio.getProductData(closestWrapperPID);
             if (stickyioProductData.stickyioPID) {
                 thisData.offerType = stickyioProductData.offerType;
