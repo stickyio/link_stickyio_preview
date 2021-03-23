@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.1] - 2021-03-22
-
+[https://github.com/stickyio/link_stickyio_preview/commit/17433aaa634591024ab50297a9263a43686456d8](https://github.com/stickyio/link_stickyio_preview/commit/17433aaa634591024ab50297a9263a43686456d8)
 ### Removed
 - Unused variable in helper
 
