@@ -4,7 +4,7 @@
 <isset name="isQuickView" value="${true}" scope="page"/>
 <isset name="isProductSet" value="${false}" scope="page" />
 <isset name="loopState" value="{count: 1}" scope="page" />
-<div class="product-quickview product-${product.productType} col product-wrapper product-detail" data-pid="${product.id}">   
+<div class="product-quickview product-${product.productType} col product-wrapper product-detail" data-pid="${product.id}">
     <div class="row">
         <!-- Product Images Carousel -->
         <isinclude template="product/components/imageCarousel" />
