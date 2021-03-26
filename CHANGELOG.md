@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.2] - 2021-03-26
+[https://github.com/stickyio/link_stickyio_preview/commit/287634e4dfc5d3b7f3a5b92616721b9aded12252](https://github.com/stickyio/link_stickyio_preview/commit/287634e4dfc5d3b7f3a5b92616721b9aded12252)
+[https://github.com/stickyio/link_stickyio_preview/commit/a28049800c1aa5c1212df2618e94aa4b526136ce](https://github.com/stickyio/link_stickyio_preview/commit/a28049800c1aa5c1212df2618e94aa4b526136ce)
+[https://github.com/stickyio/link_stickyio_preview/commit/d7fcb781c5655a84de1eb2c3bf76033631934dff](https://github.com/stickyio/link_stickyio_preview/commit/d7fcb781c5655a84de1eb2c3bf76033631934dff)
+[https://github.com/stickyio/link_stickyio_preview/commit/e962ab7872bc2c58f9b826d03f3c100b163bd2fe](https://github.com/stickyio/link_stickyio_preview/commit/e962ab7872bc2c58f9b826d03f3c100b163bd2fe)
+### Changed
+- Documentation includes Subscribe & Save example
+- Various sanity checks and whitespace cleanup for easier diff-ing
+
 ## [21.1.1] - 2021-03-22
 [https://github.com/stickyio/link_stickyio_preview/commit/17433aaa634591024ab50297a9263a43686456d8](https://github.com/stickyio/link_stickyio_preview/commit/17433aaa634591024ab50297a9263a43686456d8)
 ### Removed
