@@ -156,7 +156,6 @@ if (stickyioEnabled) {
         var collections = require('*/cartridge/scripts/util/collections');
         var ProductFactory = require('*/cartridge/scripts/factories/product');
         var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
-        var stickyioHelper = require('~/cartridge/scripts/helpers/stickyioHelpers');
 
         var requestUuid = req.querystring.uuid;
 
@@ -254,7 +253,6 @@ if (stickyioEnabled) {
             this.emit('route:Complete', req, res);
             return next();
         }
-        var formData = req.form;
         var uuid = req.form.uuid;
         var productId = req.form.pid;
         var selectedOptionValueId = req.form.selectedOptionValueId;
