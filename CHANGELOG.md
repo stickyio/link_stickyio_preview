@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [21.1.3] - 2021-03-29
 [https://github.com/stickyio/link_stickyio_preview/commit/423c31bb646357a61db616d2e535b9cead9c8bb3](https://github.com/stickyio/link_stickyio_preview/commit/423c31bb646357a61db616d2e535b9cead9c8bb3)
+[https://github.com/stickyio/link_stickyio_preview/commit/9bcc0041c7789ac0df7904bd906377efa9210bc8](https://github.com/stickyio/link_stickyio_preview/commit/9bcc0041c7789ac0df7904bd906377efa9210bc8)
 ### Removed
 - Unused variables in route
 
