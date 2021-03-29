@@ -41,7 +41,7 @@ if (stickyioEnabled) {
         if (currentBasket) {
             Transaction.wrap(function () {
                 if (!req.form.pidsObj) {
-                    quantity = parseInt(req.form.quantity, 10);
+                    quantity = req.form.quantity ? parseInt(req.form.quantity, 10) : 1;
                     result = cartHelper.addProductToCart(
                         currentBasket,
                         productId,
@@ -65,7 +65,7 @@ if (stickyioEnabled) {
                     };
 
                     pidsObj.forEach(function (PIDObj) {
-                        quantity = parseInt(PIDObj.qty, 10);
+                        quantity = PIDObj.qty ? parseInt(PIDObj.qty, 10) : 1;
                         var pidOptions = PIDObj.options ? JSON.parse(PIDObj.options) : {};
                         var PIDObjResult = cartHelper.addProductToCart(
                             currentBasket,
