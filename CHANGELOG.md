@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
+## [21.1.3] - 2021-03-29
+[https://github.com/stickyio/link_stickyio_preview/commit/423c31bb646357a61db616d2e535b9cead9c8bb3](https://github.com/stickyio/link_stickyio_preview/commit/423c31bb646357a61db616d2e535b9cead9c8bb3)
+### Changed
+- Cart-EditProductLineItem modified to handle multiple product options
+- Cart-AddProduct modified to default to quantity of 1 if quantity is not included
+
 ## [21.1.2] - 2021-03-26
 [https://github.com/stickyio/link_stickyio_preview/commit/287634e4dfc5d3b7f3a5b92616721b9aded12252](https://github.com/stickyio/link_stickyio_preview/commit/287634e4dfc5d3b7f3a5b92616721b9aded12252)
 [https://github.com/stickyio/link_stickyio_preview/commit/a28049800c1aa5c1212df2618e94aa4b526136ce](https://github.com/stickyio/link_stickyio_preview/commit/a28049800c1aa5c1212df2618e94aa4b526136ce)
