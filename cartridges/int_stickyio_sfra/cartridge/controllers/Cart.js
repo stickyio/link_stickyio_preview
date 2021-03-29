@@ -156,6 +156,7 @@ if (stickyioEnabled) {
         var collections = require('*/cartridge/scripts/util/collections');
         var ProductFactory = require('*/cartridge/scripts/factories/product');
         var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
+        var stickyioHelper = require('~/cartridge/scripts/helpers/stickyioHelpers');
 
         var requestUuid = req.querystring.uuid;
 
@@ -201,7 +202,8 @@ if (stickyioEnabled) {
             if (plis[i].UUID === requestUuid) {
                 product.stickyio.stickyioOID = plis[i].custom.stickyioOfferID;
                 product.stickyio.stickyioBMID = plis[i].custom.stickyioBillingModelID;
-                product.stickyio.stickyioTermsID = plis[i].custom.stickyioTermsID;
+                product.stickyio.stickyioTID = plis[i].custom.stickyioTermsID;
+                if (plis[i].custom.stickyioTermsID) { product.stickyio.offerType = 'prepaid'; }
                 product.stickyio.stickyioBaseURL = URLUtils.url('Product-Variation', 'pid', plis[i].productID, 'quantity', plis[i].quantity);
             }
         }
@@ -252,7 +254,7 @@ if (stickyioEnabled) {
             this.emit('route:Complete', req, res);
             return next();
         }
-
+        var formData = req.form;
         var uuid = req.form.uuid;
         var productId = req.form.pid;
         var selectedOptionValueId = req.form.selectedOptionValueId;
@@ -342,13 +344,42 @@ if (stickyioEnabled) {
 
                     // If the product has options
                     var optionModel = product.getOptionModel();
-                    if (optionModel && optionModel.options && optionModel.options.length) {
-                        var productOption = optionModel.options.iterator().next();
-                        var productOptionValue = optionModel.getOptionValue(productOption, selectedOptionValueId);
-                        var optionProductLineItems = requestLineItem.getOptionProductLineItems();
-                        var optionProductLineItem = optionProductLineItems.iterator().next();
-                        optionProductLineItem.updateOptionValue(productOptionValue);
+                    if (optionModel && optionModel.options) {
+                        var optionProductLineItems;
+                        var optionProductLineItem;
+                        var productOptionValue;
+                        if (optionModel.options.length > 1) {
+                            var i;
+                            var j;
+                            for (i = 0; i < optionModel.options.length; i++) {
+                                optionProductLineItem = optionModel.options[i];
+                                if ((optionProductLineItem.ID === 'stickyioOfferOptions' ||
+                                    optionProductLineItem.ID === 'stickyioBillingModelOptions' ||
+                                    optionProductLineItem.ID === 'stickyioTermOptions'
+                                    ) && (stickyioOfferID || stickyioBillingModelID || stickyioTermsID)
+                                ) {
+                                    optionProductLineItems = requestLineItem.getOptionProductLineItems();
+                                    for (j = 0; j < optionProductLineItems.length; j++) {
+                                        var optionValue;
+                                        if (optionProductLineItems[j].optionID === 'stickyioOfferOptions') { optionValue = stickyioOfferID; }
+                                        if (optionProductLineItems[j].optionID === 'stickyioBillingModelOptions') { optionValue = stickyioBillingModelID; }
+                                        if (optionProductLineItems[j].optionID === 'stickyioTermOptions') { optionValue = stickyioTermsID; }
+                                        if (optionValue) {
+                                            productOptionValue = optionModel.getOptionValue(optionModel.options[i], optionValue);
+                                            if (productOptionValue) { optionProductLineItems[j].updateOptionValue(productOptionValue); }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            var productOption = optionModel.options.iterator().next();
+                            productOptionValue = optionModel.getOptionValue(productOption, selectedOptionValueId);
+                            optionProductLineItems = requestLineItem.getOptionProductLineItems();
+                            optionProductLineItem = optionProductLineItems.iterator().next();
+                            optionProductLineItem.updateOptionValue(productOptionValue);
+                        }
                     }
+
                     if (requestLineItem.custom.stickyioProductID) { requestLineItem.custom.stickyioProductID = Number(stickyioProductID); }
                     if (requestLineItem.custom.stickyioVariationID) { requestLineItem.custom.stickyioVariationID = Number(stickyioVariationID); }
                     if (requestLineItem.custom.stickyioCampaignID) { requestLineItem.custom.stickyioCampaignID = Number(stickyioCampaignID); }
