@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.4] - 2021-03-31
+### Changed
+- When dealing with $0 or 0% off prepaid terms, make the default label only show number of cycles and not discount amount
 
 ## [21.1.3] - 2021-03-29
 [https://github.com/stickyio/link_stickyio_preview/commit/423c31bb646357a61db616d2e535b9cead9c8bb3](https://github.com/stickyio/link_stickyio_preview/commit/423c31bb646357a61db616d2e535b9cead9c8bb3)

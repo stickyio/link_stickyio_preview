@@ -2373,8 +2373,12 @@ function generateObjects() {
             var thisTermID = Object.keys(stickyioCampaigns.terms)[i];
             if (thisTermID !== 'updateSFCC') {
                 var thisTerm = stickyioCampaigns.terms[thisTermID];
-                var discount = thisTerm.type === 'Amount' ? '$' + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
-                var name = thisTerm.cycles + ' cycles at ' + discount + ' off';
+                var discount = '';
+                if (thisTerm.value && thisTerm.value.toString() !== '0' && thisTerm.value.toString() !== '0.00') {
+                    discount = thisTerm.type === 'Amount' ? '$' + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
+                    discount = ' at ' + discount + ' off';
+                }
+                var name = thisTerm.cycles + ' cycles' + discount;
                 updateTerms.push({ id: thisTermID, cycles: thisTerm.cycles, value: thisTerm.value, type: thisTerm.type, name: name });
             }
         }

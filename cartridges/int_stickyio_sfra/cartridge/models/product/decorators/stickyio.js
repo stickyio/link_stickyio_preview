@@ -31,20 +31,26 @@ function getAttributes(product) {
                     var thisTermCycles;
                     var thisTermID;
                     var thisTerm;
-                    var discount;
+                    var discount = ' ' + Resource.msg('productdetail.cycles', 'stickyio', null);
                     if (attributes.stickyioTermsConsumerSelectable !== true) {
                         thisTermCycles = stickyioCampaigns.offers[thisProduct.custom['stickyioOffer' + i].value].prepaid_profile.terms[0].cycles;
                         thisTermID = offerID + '-' + thisTermCycles;
                         thisTerm = stickyioCampaigns.terms[thisTermID];
-                        discount = thisTerm.type === 'Amount' ? Resource.msg('productdetail.currencysymbol.' + Site.getCurrent().getDefaultCurrency(), 'stickyio', '$') + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
-                        attributes.offers[offerID].terms.push({ id: thisTermID, cycles: thisTerm.cycles, description: thisTerm.cycles + ' ' + Resource.msg('productdetail.cycles', 'stickyio', null) + ' ' + Resource.msg('productdetail.cycles.at', 'stickyio', null) + ' ' + discount + ' ' + Resource.msg('productdetail.cycles.off', 'stickyio', null) });
+                        if (thisTerm.value && thisTerm.value.toString() !== '0' && thisTerm.value.toString() !== '0.00') {
+                            discount = thisTerm.type === 'Amount' ? Resource.msg('productdetail.currencysymbol.' + Site.getCurrent().getDefaultCurrency(), 'stickyio', '$') + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
+                            discount = ' ' + Resource.msg('productdetail.cycles', 'stickyio', null) + ' ' + Resource.msg('productdetail.cycles.at', 'stickyio', null) + ' ' + discount + ' ' + Resource.msg('productdetail.cycles.off', 'stickyio', null);
+                        }
+                        attributes.offers[offerID].terms.push({ id: thisTermID, cycles: thisTerm.cycles, description: thisTerm.cycles + discount });
                     } else {
                         for (j = 0; j < stickyioCampaigns.offers[thisProduct.custom['stickyioOffer' + i].value].prepaid_profile.terms.length; j++) {
                             thisTermCycles = stickyioCampaigns.offers[thisProduct.custom['stickyioOffer' + i].value].prepaid_profile.terms[j].cycles;
                             thisTermID = offerID + '-' + thisTermCycles;
                             thisTerm = stickyioCampaigns.terms[thisTermID];
-                            discount = thisTerm.type === 'Amount' ? Resource.msg('productdetail.currencysymbol.' + Site.getCurrent().getDefaultCurrency(), 'stickyio', '$') + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
-                            attributes.offers[offerID].terms.push({ id: thisTermID, cycles: thisTerm.cycles, description: thisTerm.cycles + ' ' + Resource.msg('productdetail.cycles', 'stickyio', null) + ' ' + Resource.msg('productdetail.cycles.at', 'stickyio', null) + ' ' + discount + ' ' + Resource.msg('productdetail.cycles.off', 'stickyio', null) });
+                            if (thisTerm.value && thisTerm.value.toString() !== '0' && thisTerm.value.toString() !== '0.00') {
+                                discount = thisTerm.type === 'Amount' ? Resource.msg('productdetail.currencysymbol.' + Site.getCurrent().getDefaultCurrency(), 'stickyio', '$') + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
+                                discount = ' ' + Resource.msg('productdetail.cycles', 'stickyio', null) + ' ' + Resource.msg('productdetail.cycles.at', 'stickyio', null) + ' ' + discount + ' ' + Resource.msg('productdetail.cycles.off', 'stickyio', null);
+                            }
+                            attributes.offers[offerID].terms.push({ id: thisTermID, cycles: thisTerm.cycles, description: thisTerm.cycles + discount });
                         }
                     }
                 }
