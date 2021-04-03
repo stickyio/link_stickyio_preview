@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [21.1.5] - 2021-04-02
 [https://github.com/stickyio/link_stickyio_preview/commit/8521db282901c3f090fbcdc9f06257da0ba8fa81](https://github.com/stickyio/link_stickyio_preview/commit/8521db282901c3f090fbcdc9f06257da0ba8fa81)
+[https://github.com/stickyio/link_stickyio_preview/commit/cae39d8c37ac83e531bda817901e80495d4713bc](https://github.com/stickyio/link_stickyio_preview/commit/cae39d8c37ac83e531bda817901e80495d4713bc)
 ### Changed
 - Sanity check for product options in Cart-EditProductLineItem route
 - Reduced complexity of models, decorators, and helpers by using superModule
