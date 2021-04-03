@@ -369,7 +369,7 @@ if (stickyioEnabled) {
                                     }
                                 }
                             }
-                        } else {
+                        } else if (optionModel.options.length === 1) {
                             var productOption = optionModel.options.iterator().next();
                             productOptionValue = optionModel.getOptionValue(productOption, selectedOptionValueId);
                             optionProductLineItems = requestLineItem.getOptionProductLineItems();
@@ -390,6 +390,8 @@ if (stickyioEnabled) {
                     basketCalculationHelpers.calculateTotals(currentBasket);
                 });
             } catch (e) {
+                var x = e;
+                var y = x;
                 error = true;
             }
         }

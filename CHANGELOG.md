@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.5] - 2021-04-02
+### Changed
+- Sanity check for product options in Cart-EditProductLineItem route
+- Reduced complexity of models and decorators by using superModule
+- Accompanying unit test modifications to handle model superModule changes
+
 ## [21.1.4] - 2021-03-31
 [https://github.com/stickyio/link_stickyio_preview/commit/01b15d194e0d5acd8b9bd7db3f51e388fbba0772](https://github.com/stickyio/link_stickyio_preview/commit/01b15d194e0d5acd8b9bd7db3f51e388fbba0772)
 ### Changed

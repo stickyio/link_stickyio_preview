@@ -1,6 +1,6 @@
 'use strict';
 
-var productDecorators = require('*/cartridge/models/product/decorators/index');
+var base = module.superModule;
 var productLineItemDecorators = require('~/cartridge/models/productLineItem/decorators/index');
 
 /**
@@ -17,29 +17,8 @@ var productLineItemDecorators = require('~/cartridge/models/productLineItem/deco
  *
  * @returns {Object} - Decorated product model
  */
-module.exports = function productLineItem(product, apiProduct, options) {
-    productDecorators.base(product, apiProduct, options.productType);
-    productDecorators.price(product, apiProduct, options.promotions, false, options.currentOptionModel);
-    productDecorators.images(product, apiProduct, { types: ['large', 'small'], quantity: 'all' });
-    productDecorators.variationAttributes(product, options.variationModel, {
-        attributes: 'selected'
-    });
-    productDecorators.availability(product, options.quantity, apiProduct.minOrderQuantity.value, apiProduct.availabilityModel);
-
-    productLineItemDecorators.quantity(product, options.quantity);
-    productLineItemDecorators.gift(product, options.lineItem);
-    productLineItemDecorators.appliedPromotions(product, options.lineItem);
-    productLineItemDecorators.renderedPromotions(product); // must get applied promotions first
-    productLineItemDecorators.uuid(product, options.lineItem);
-    productLineItemDecorators.orderable(product, apiProduct, options.quantity);
-    productLineItemDecorators.shipment(product, options.lineItem);
-    productLineItemDecorators.bonusProductLineItem(product, options.lineItem);
-    productLineItemDecorators.priceTotal(product, options.lineItem);
-    productLineItemDecorators.quantityOptions(product, options.lineItem, options.quantity);
-    productLineItemDecorators.options(product, options.lineItemOptions);
-    productLineItemDecorators.bonusProductLineItemUUID(product, options.lineItem);
-    productLineItemDecorators.preOrderUUID(product, options.lineItem);
-    productLineItemDecorators.discountBonusLineItems(product, options.lineItem.UUID);
+module.exports = function fullProduct(product, apiProduct, options) {
+    base.call(this, product, apiProduct, options);
     productLineItemDecorators.stickyioProductID(product, options.lineItem);
     productLineItemDecorators.stickyioVariationID(product, options.lineItem);
     productLineItemDecorators.stickyioCampaignID(product, options.lineItem);
@@ -47,6 +26,5 @@ module.exports = function productLineItem(product, apiProduct, options) {
     productLineItemDecorators.stickyioTermsID(product, options.lineItem);
     productLineItemDecorators.stickyioBillingModelID(product, options.lineItem);
     productLineItemDecorators.stickyioBillingModelDetails(product, options.lineItem);
-
     return product;
 };

@@ -1,6 +1,6 @@
 'use strict';
 
-var productDecorators = require('*/cartridge/models/product/decorators/index');
+var base = module.superModule;
 var productLineItemDecorators = require('~/cartridge/models/productLineItem/decorators/index');
 
 /**
@@ -18,22 +18,7 @@ var productLineItemDecorators = require('~/cartridge/models/productLineItem/deco
  * @returns {Object} - Decorated product model
  */
 module.exports = function orderLineItem(product, apiProduct, options) {
-    productDecorators.base(product, apiProduct, options.productType);
-    productDecorators.images(product, apiProduct, { types: ['small'], quantity: 'single' });
-    productDecorators.variationAttributes(product, options.variationModel, {
-        attributes: 'selected'
-    });
-    productLineItemDecorators.quantity(product, options.quantity);
-    productLineItemDecorators.gift(product, options.lineItem);
-    productLineItemDecorators.appliedPromotions(product, options.lineItem);
-    productLineItemDecorators.renderedPromotions(product); // must get applied promotions first
-    productLineItemDecorators.uuid(product, options.lineItem);
-    productLineItemDecorators.shipment(product, options.lineItem);
-    productLineItemDecorators.bonusProductLineItem(product, options.lineItem);
-    productLineItemDecorators.priceTotal(product, options.lineItem);
-    productLineItemDecorators.options(product, options.lineItemOptions);
-    productLineItemDecorators.bonusProductLineItemUUID(product, options.lineItem);
-    productLineItemDecorators.preOrderUUID(product, options.lineItem);
+    base.call(this, product, apiProduct, options);
     productLineItemDecorators.stickyioOfferID(product, options.lineItem);
     productLineItemDecorators.stickyioTermsID(product, options.lineItem);
     productLineItemDecorators.stickyioBillingModelID(product, options.lineItem);
