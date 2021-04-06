@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.6] - 2021-04-06
+[https://github.com/stickyio/link_stickyio_preview/commit/e9ac0128f93cb7d33dec076686516b1072e4d16a](https://github.com/stickyio/link_stickyio_preview/commit/e9ac0128f93cb7d33dec076686516b1072e4d16a)
+[https://github.com/stickyio/link_stickyio_preview/commit/f4345e3dffff22c0cf2a71df48029fa7fa7bb905](https://github.com/stickyio/link_stickyio_preview/commit/f4345e3dffff22c0cf2a71df48029fa7fa7bb905)
+### Removed
+- Localization "examples" for offers, billing models, and prepaid terms
+
+### Changed
+- Sanity check for stickyio response return object
+- Documentation to include localization examples for offers, billing models, and prepaid terms
+
 ## [21.1.5] - 2021-04-02
 [https://github.com/stickyio/link_stickyio_preview/commit/8521db282901c3f090fbcdc9f06257da0ba8fa81](https://github.com/stickyio/link_stickyio_preview/commit/8521db282901c3f090fbcdc9f06257da0ba8fa81)
 [https://github.com/stickyio/link_stickyio_preview/commit/cae39d8c37ac83e531bda817901e80495d4713bc](https://github.com/stickyio/link_stickyio_preview/commit/cae39d8c37ac83e531bda817901e80495d4713bc)
