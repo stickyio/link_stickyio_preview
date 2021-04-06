@@ -131,7 +131,7 @@ function sso(redirect, user) {
     params.body.fullname = 'Customer Service';
     params.body.department_id = 'demandware';
     var stickyioResponse = stickyioAPI('stickyio.http.post.sso.basic_auth').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return stickyioResponse.object.result.data.url + '?redirect=' + redirect;
     }
     return false;
@@ -171,7 +171,7 @@ function getShippingMethods(pageNum, shippingMethods) {
     if (!thisPageNum) { thisPageNum = 1; }
     params.queryString = 'page=' + thisPageNum;
     var stickyioResponse = stickyioAPI('stickyio.http.get.shipping').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
             var thisShippingMethod = stickyioResponse.object.result.data[i];
             theseShippingMethods[thisShippingMethod.id] = thisShippingMethod;
@@ -201,7 +201,7 @@ function createShippingMethod(shippingMethod) {
     params.body.amount_trial = 1;
     params.body.amount_recurring = 1;
     var stickyioResponse = stickyioAPI('stickyio.http.post.shipping').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         Transaction.wrap(function () { thisShippingMethod.custom.stickyioShippingID = stickyioResponse.object.result.data.id; });
         return stickyioResponse.object.result.data.id;
     }
@@ -221,7 +221,7 @@ function updateShippingMethod(shippingMethod, stickyioShippingMethodID) {
     params.body.name = shippingMethod.displayName;
     params.body.description = shippingMethod.description;
     var stickyioResponse = stickyioAPI('stickyio.http.put.shipping').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return stickyioResponse.object.result.data.id;
     }
     return false;
@@ -289,7 +289,7 @@ function getVariants(stickyioPID, raw) {
     params.helper = 'variants';
     var stickyioResponse = stickyioAPI('stickyio.http.get.products.variants').call(params);
     if (raw) { return stickyioResponse; }
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
         for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
             var thisVariant = stickyioResponse.object.result.data[i];
             var thisVariantProperties = '';
@@ -314,7 +314,7 @@ function getAllStickyioMasterProducts() {
     params.body = {};
     params.body.product_id = 'all';
     var stickyioResponse = stickyioAPI('stickyio.http.post.product_index').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.response_code === '100' && parseInt(stickyioResponse.object.result.total_products, 10) > 0) {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100' && parseInt(stickyioResponse.object.result.total_products, 10) > 0) {
         var thisProduct;
         Object.keys(stickyioResponse.object.result.products).forEach(function (thisProductID) {
             thisProduct = stickyioResponse.object.result.products[thisProductID];
@@ -403,7 +403,7 @@ function getBillingModelsFromStickyio(pageNum, billingModels) {
     if (!thisPageNum) { thisPageNum = 1; }
     params.queryString = 'page=' + thisPageNum;
     var stickyioResponse = stickyioAPI('stickyio.http.get.billing_models').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
             var thisBillingModel = stickyioResponse.object.result.data[i];
             if (!thisBillingModel.is_archived) {
@@ -429,7 +429,7 @@ function getCampaignsFromStickyio(pageNum, campaignData) {
     if (!thisPageNum) { thisPageNum = 1; }
     params.queryString = 'page=' + thisPageNum;
     var stickyioResponse = stickyioAPI('stickyio.http.get.campaigns').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
             var thisCampaign = stickyioResponse.object.result.data[i];
             if (thisCampaign.is_active) {
@@ -796,10 +796,10 @@ function getAttributes(stickyioPID) {
     params.id = stickyioPID;
     params.helper = 'attributes';
     var stickyioResponse = stickyioAPI('stickyio.http.get.products.attributes').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
         return stickyioResponse;
     }
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) === 'undefined') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) === 'undefined') {
         return true; // this product doesn't have any attributes, but it's valid
     }
     return false; // this product failed being retrieved from sticky.io
@@ -820,7 +820,7 @@ function getCustomFields(pageNum, customFields) {
     var params = {};
     params.queryString = 'page=' + thisPageNum;
     var stickyioResponse = stickyioAPI('stickyio.http.get.custom_fields').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
             theseCustomFields.push(stickyioResponse.object.result.data[i]);
         }
@@ -1449,7 +1449,7 @@ function getOrderBillingModels(orders, activeBillingModels) {
             params.id = thisStickyioOrderProduct.subscription_id;
             params.helper = 'billing_models';
             var stickyioResponse = stickyioAPI('stickyio.http.get.subscriptions.billing_models').call(params);
-            if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
+            if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && typeof (stickyioResponse.object.result.data) !== 'undefined') {
                 for (k = 0; k < stickyioResponse.object.result.data.length; k++) {
                     var thisBillingModel = stickyioResponse.object.result.data[k];
                     if (activeBillingModels && productActiveBillingModels.length > 0) { // only allow billing models that are allowed by the product currently
@@ -1485,7 +1485,7 @@ function getOrders(orderNumbers, includeBillingModels, activeBillingModels) {
     body.order_id = orderNumbers;
     params.body = body;
     var stickyioResponse = stickyioAPI('stickyio.http.post.order_view').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.response_code === '100') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
         if (typeof (stickyioResponse.object.result.data) === 'undefined') { // single order return
             orders.data[stickyioResponse.object.result.order_id] = stickyioResponse.object.result;
         } else { // multi order return
@@ -1534,7 +1534,7 @@ function updateStickyioShipping(stickyioOrderNumber, trackingNumber) {
     body.order_id[stickyioOrderNumber] = orderData;
     params.body = body;
     var stickyioResponse = stickyioAPI('stickyio.http.post.order_update').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.response_code === '100') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
         return true;
     }
     return false;
@@ -1754,7 +1754,7 @@ function subManUpdateBillingModel(subscriptionID, bmID) {
     params.id = subscriptionID;
     params.helper = 'billing_model';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.billing_model').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.billing_model', 'stickyio', null) };
     }
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
@@ -1776,7 +1776,7 @@ function subManUpdateRecurringDate(subscriptionID, date) {
     params.id = subscriptionID;
     params.helper = 'recur_at';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.recur_at').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.recur_at', 'stickyio', null) };
     }
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
@@ -1794,7 +1794,7 @@ function subManPause(subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'pause';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.pause').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.pause', 'stickyio', null) };
     }
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
@@ -1812,7 +1812,7 @@ function subManStop(subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'stop';
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.stop').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.stop', 'stickyio', null) };
     }
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
@@ -1830,7 +1830,7 @@ function subManTerminateNext(subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'terminate_next';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.terminate_next').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.terminate_next', 'stickyio', null) };
     }
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
@@ -1862,7 +1862,7 @@ function subManStart(orderNo, subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'start';
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.start').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         // update the original SFCC order's lineitem sticky.io order ID
         var newOrderID = stickyioResponse.object.result.data.orderId;
         var order = OrderMgr.getOrder(orderNo);
@@ -1893,7 +1893,7 @@ function subManReset(subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'reset';
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.reset').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.reset', 'stickyio', null) };
     }
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
@@ -1914,7 +1914,7 @@ function subManBillNow(orderNo, subscriptionID) {
     params.id = subscriptionID;
     params.helper = 'bill_now';
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.bill_now').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         // update the original SFCC order's lineitem sticky.io order ID
         var newOrderID = stickyioResponse.object.result.data.orderId;
         var order = OrderMgr.getOrder(orderNo);
