@@ -680,6 +680,70 @@ function deepEqual(object1, object2) {
 }
 
 /**
+ * Make sure the stored campaignJSON data is reflected in the custom system object attributes and shared product options
+ * @param {string} objectName - custom sticky.io system object name
+ * @param {string} productID - SFCC productID - any SFCC PID that we can use to pull system object definitions
+ * @param {Object} campaignJSON - custom object campaignJSON
+ * @returns {boolean} - true or false
+ */
+function validateStickySystemObjects(objectName, productID, campaignJSON) {
+    if (productID) {
+        var systemObjectName;
+        var sharedProductOptionName;
+        if (objectName === 'offers') {
+            systemObjectName = 'stickyioOffer1';
+            sharedProductOptionName = 'stickyioOfferOptions';
+        } else if (objectName === 'billingModels') {
+            systemObjectName = 'stickyioBillingModels1';
+            sharedProductOptionName = 'stickyioBillingModelOptions';
+        } else {
+            systemObjectName = 'stickyioTerms1';
+            sharedProductOptionName = 'stickyioTermOptions';
+        }
+        var product = ProductMgr.getProduct(productID);
+        if (product) {
+            // check system object custom attributes
+            var typeDef = product.describe();
+            var attrDef = typeDef.getCustomAttributeDefinition(systemObjectName); // pull all attribute definitions from system object (should be identical across all three)
+            var valueDefs = attrDef.getValues();
+            var valid = false;
+            var i;
+            var j;
+            for (i = 0; i < valueDefs.length; i++) {
+                var thisSystemID = valueDefs[i].value;
+                for (j = 0; j < Object.keys(campaignJSON).length; j++) {
+                    if (thisSystemID.toString() === Object.keys(campaignJSON)[j].toString()) { // this system custom object ID exists
+                        valid = true;
+                        break;
+                    }
+                }
+                if (!valid) {
+                    return false; // something doesn't exist, so rebuild the whole object
+                }
+            }
+            // now check shared product options to make sure they match as well
+            var productOption = product.optionModel.getOption(sharedProductOptionName);
+            if (!productOption) { return false; }
+            var productOptionValues = productOption.optionValues;
+            if (!productOptionValues || productOptionValues.length === 0) { return false; }
+            for (i = 0; i < productOptionValues.length; i++) {
+                var thisProductOptionID = productOptionValues[i].ID;
+                for (j = 0; j < Object.keys(campaignJSON).length; j++) {
+                    if (thisProductOptionID.toString() === Object.keys(campaignJSON)[j].toString()) { // this shared product option ID exists
+                        valid = true;
+                        break;
+                    }
+                }
+                if (!valid) {
+                    return false; // something doesn't exist, so rebuild the whole object
+                }
+            }
+        }
+    }
+    return true;
+}
+
+/**
  * Get Campaigns from sticky.io or from the SFCC custom object
  * @param {Object} parameters - Parameters from a job context
  * @returns {Object} - Return campaignData object or true
@@ -702,22 +766,27 @@ function getCampaigns(parameters) {
     }
     campaignData = getCampaignsFromStickyio(1, {});
     if (Object.keys(campaignData).length > 0) {
+        var sampleProductID;
         campaignJSON.updateTime = new Date();
         campaignJSON.products = getAllStickyioVariantProducts(allStickyioProducts);
         if ((existingJSON && existingJSON.products && !deepEqual(existingJSON.products, campaignJSON.products)) || (!existingJSON || !existingJSON.products)) {
             if (campaignJSON.products) { campaignJSON.products.updateSFCC = true; }
         }
+        if (Object.keys(campaignJSON.products).length > 0) {
+            sampleProductID = Object.keys(campaignJSON.products)[0];
+        }
         var campaignOfferData = reshapeCampaignData(campaignData);
+        // add additional condition/method to check that json object matches all product options data. if not, set updateSFCC to true
         campaignJSON.offers = campaignOfferData.offers;
-        if ((existingJSON && existingJSON.offers && !deepEqual(existingJSON.offers, campaignJSON.offers)) || (!existingJSON || !existingJSON.offers)) {
+        if ((existingJSON && existingJSON.offers && (!deepEqual(existingJSON.offers, campaignJSON.offers) || !validateStickySystemObjects('offers', sampleProductID, existingJSON.offers))) || (!existingJSON || !existingJSON.offers)) {
             if (campaignJSON.offers) { campaignJSON.offers.updateSFCC = true; }
         }
         campaignJSON.terms = campaignOfferData.terms;
-        if ((existingJSON && existingJSON.terms && !deepEqual(existingJSON.terms, campaignJSON.terms)) || (!existingJSON || !existingJSON.terms)) {
+        if ((existingJSON && existingJSON.terms && (!deepEqual(existingJSON.terms, campaignJSON.terms) || !validateStickySystemObjects('terms', sampleProductID, existingJSON.terms))) || (!existingJSON || !existingJSON.terms)) {
             if (campaignJSON.terms) { campaignJSON.terms.updateSFCC = true; }
         }
         campaignJSON.billingModels = getBillingModelsFromStickyio(1, {});
-        if ((existingJSON && existingJSON.billingModels && !deepEqual(existingJSON.billingModels, campaignJSON.billingModels)) || (!existingJSON || !existingJSON.billingModels)) {
+        if ((existingJSON && existingJSON.billingModels && (!deepEqual(existingJSON.billingModels, campaignJSON.billingModels) || !validateStickySystemObjects('billingModels', sampleProductID, existingJSON.billingModels))) || (!existingJSON || !existingJSON.billingModels)) {
             if (campaignJSON.billingModels) { campaignJSON.billingModels.updateSFCC = true; }
         }
         Transaction.wrap(function () {
