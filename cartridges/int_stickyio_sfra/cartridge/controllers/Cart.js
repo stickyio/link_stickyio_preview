@@ -390,8 +390,6 @@ if (stickyioEnabled) {
                     basketCalculationHelpers.calculateTotals(currentBasket);
                 });
             } catch (e) {
-                var x = e;
-                var y = x;
                 error = true;
             }
         }

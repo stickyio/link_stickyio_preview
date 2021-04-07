@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.7] - 2021-04-07
+### Changed
+- Removed unused debug variables and fixed linting complaints
+
 ## [21.1.6] - 2021-04-06
 [https://github.com/stickyio/link_stickyio_preview/commit/e9ac0128f93cb7d33dec076686516b1072e4d16a](https://github.com/stickyio/link_stickyio_preview/commit/e9ac0128f93cb7d33dec076686516b1072e4d16a)
 [https://github.com/stickyio/link_stickyio_preview/commit/f4345e3dffff22c0cf2a71df48029fa7fa7bb905](https://github.com/stickyio/link_stickyio_preview/commit/f4345e3dffff22c0cf2a71df48029fa7fa7bb905)

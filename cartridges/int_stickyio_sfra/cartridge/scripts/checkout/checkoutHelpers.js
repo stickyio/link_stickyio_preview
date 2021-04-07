@@ -20,7 +20,7 @@ var Logger = require('dw/system/Logger');
  * @param {string} orderNumber - The order number for the order
  * @returns {Object} an error object
  */
-base.handlePayments = function(thisOrder, orderNumber) {
+base.handlePayments = function (thisOrder, orderNumber) {
     var order = thisOrder;
     if (stickyio.hasSubscriptionProducts(order)) { Transaction.wrap(function () { order.custom.stickyioOrder = true; }); }
     var result = {};
@@ -92,7 +92,7 @@ base.handlePayments = function(thisOrder, orderNumber) {
  * @param {Object} fraudDetectionStatus - an Object returned by the fraud detection hook
  * @returns {Object} an error object
  */
-base.placeOrderStickyio = function(order, fraudDetectionStatus) {
+base.placeOrderStickyio = function (order, fraudDetectionStatus) {
     // call new_order API with results from earlier AuthorizeStickyio call
     // this method can return a variety of useful errors to the consumer, however, the method that calls it (CheckoutServices - PlaceOrder) overrides all returned errors with its own "generic" error
     // because overriding this functionality would mean replacing the entire route, we leave it to the merchant to decide whether or not to check for returned errors and display that information to
@@ -344,7 +344,7 @@ base.placeOrderStickyio = function(order, fraudDetectionStatus) {
  * @param {Object} fraudDetectionStatus - an Object returned by the fraud detection hook
  * @returns {Object} an error object
  */
-base.placeOrder = function(order, fraudDetectionStatus) {
+base.placeOrder = function (order, fraudDetectionStatus) {
     var result;
     if (order.custom.stickyioOrder) {
         result = base.placeOrderStickyio(order, fraudDetectionStatus);

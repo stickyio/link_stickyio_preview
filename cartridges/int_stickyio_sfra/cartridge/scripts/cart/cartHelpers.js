@@ -26,7 +26,7 @@ var productHelper = require('*/cartridge/scripts/helpers/productHelpers');
  * @param {SelectedOption[]} selectedOptions - Product options just selected
  * @return {boolean} - Whether a product's current options are the same as those just selected
  */
-base.hasSameOptions = function(existingOptions, selectedOptions) {
+base.hasSameOptions = function (existingOptions, selectedOptions) {
     var newOptions = [];
     var i;
     var j;
@@ -39,13 +39,13 @@ base.hasSameOptions = function(existingOptions, selectedOptions) {
     for (i = 0, j = newOptions.length; i < j; i++) {
         selected[newOptions[i].optionId] = newOptions[i].selectedValueId;
     }
-    return collections.every(existingOptions, function(option) {
+    return collections.every(existingOptions, function (option) {
         if (option.optionID === 'stickyioBillingModelOptions' || option.optionID === 'stickyioOfferOptions' || option.optionID === 'stickyioTermOptions') {
             return true;
         }
         return option.optionValueID === selected[option.optionID];
     });
-}
+};
 
 /**
  * Determines whether a product's current sticky.io Billing Model are the same as those just selected
@@ -54,12 +54,12 @@ base.hasSameOptions = function(existingOptions, selectedOptions) {
  * @param {number} stickyioBillingModelIDSelected - sticky.io Billing Model ID just selected
  * @return {boolean} - Whether a product's current sticky.io Billing Model ID is the same as those just selected
  */
-base.hasSameStickyioBillingModel = function(stickyioBillingModelIDExisting, stickyioBillingModelIDSelected) {
+base.hasSameStickyioBillingModel = function (stickyioBillingModelIDExisting, stickyioBillingModelIDSelected) {
     if (stickyioBillingModelIDExisting) {
         return stickyioBillingModelIDExisting.toString() === stickyioBillingModelIDSelected.toString();
     }
     return false;
-}
+};
 
 /**
  * Determines whether a product's current sticky.io prepaid terms are the same as those just selected
@@ -68,12 +68,12 @@ base.hasSameStickyioBillingModel = function(stickyioBillingModelIDExisting, stic
  * @param {string} stickyioTermsIDSelected - sticky.io term ID just selected
  * @return {boolean} - Whether a product's current sticky.io Term ID is the same as those just selected
  */
-base.hasSameStickyioTerms = function(stickyioTermsIDExisting, stickyioTermsIDSelected) {
+base.hasSameStickyioTerms = function (stickyioTermsIDExisting, stickyioTermsIDSelected) {
     if (stickyioTermsIDExisting) {
         return stickyioTermsIDExisting === stickyioTermsIDSelected;
     }
     return false;
-}
+};
 
 /**
  * Adds a line item for this product to the Cart
@@ -93,7 +93,7 @@ base.hasSameStickyioTerms = function(stickyioTermsIDExisting, stickyioTermsIDSel
  * @param {string[]} stickyioBillingModelDetails - sticky.io Offer details
  * @return {dw.order.ProductLineItem} - The added product line item
  */
-base.addLineItem = function(
+base.addLineItem = function (
     currentBasket,
     product,
     quantity,
@@ -171,7 +171,7 @@ base.addLineItem = function(
     }
 
     return productLineItem;
-}
+};
 
 /**
  * Filter all the product line items matching productId and
@@ -187,10 +187,10 @@ base.addLineItem = function(
  * @return {dw.order.ProductLineItem[]} - Filtered all the product line item matching productId and
  *     has the same bundled items or options
  */
-base.getExistingProductLineItemsInCart = function(product, productId, productLineItems, childProducts, options, stickyioBillingModelID, stickyioTermsID) {
+base.getExistingProductLineItemsInCart = function (product, productId, productLineItems, childProducts, options, stickyioBillingModelID, stickyioTermsID) {
     var matchingProductsObj = base.getMatchingProducts(productId, productLineItems);
     var matchingProducts = matchingProductsObj.matchingProducts;
-    var productLineItemsInCart = matchingProducts.filter(function(matchingProduct) {
+    var productLineItemsInCart = matchingProducts.filter(function (matchingProduct) {
         if (product.bundle) {
             return base.allBundleItemsSame(matchingProduct.bundledProductLineItems, childProducts);
         }
@@ -204,7 +204,7 @@ base.getExistingProductLineItemsInCart = function(product, productId, productLin
     });
 
     return productLineItemsInCart;
-}
+};
 
 /**
  * Filter the product line item matching productId and
@@ -220,9 +220,9 @@ base.getExistingProductLineItemsInCart = function(product, productId, productLin
  * @return {dw.order.ProductLineItem} - get the first product line item matching productId and
  *     has the same bundled items or options
  */
-base.getExistingProductLineItemInCart = function(product, productId, productLineItems, childProducts, options, stickyioBillingModelID, stickyioTermsID) {
+base.getExistingProductLineItemInCart = function (product, productId, productLineItems, childProducts, options, stickyioBillingModelID, stickyioTermsID) {
     return base.getExistingProductLineItemsInCart(product, productId, productLineItems, childProducts, options, stickyioBillingModelID, stickyioTermsID)[0];
-}
+};
 
 /**
  * Adds a product to the cart. If the product is already in the cart it increases the quantity of
@@ -241,7 +241,7 @@ base.getExistingProductLineItemInCart = function(product, productId, productLine
  * @param {string[]} stickyioBillingModelDetails - sticky.io Offer details
  *  @return {Object} returns an error object
  */
-base.addProductToCart = function(currentBasket, productId, quantity, childProducts, options, stickyioProductID, stickyioVariationID, stickyioCampaignID, stickyioOfferID, stickyioTermsID, stickyioBillingModelID, stickyioBillingModelDetails) {
+base.addProductToCart = function (currentBasket, productId, quantity, childProducts, options, stickyioProductID, stickyioVariationID, stickyioCampaignID, stickyioOfferID, stickyioTermsID, stickyioBillingModelID, stickyioBillingModelDetails) {
     var availableToSell;
     var defaultShipment = currentBasket.defaultShipment;
     var perpetual;
@@ -358,6 +358,6 @@ base.addProductToCart = function(currentBasket, productId, quantity, childProduc
     }
 
     return result;
-}
+};
 
 module.exports = base;
