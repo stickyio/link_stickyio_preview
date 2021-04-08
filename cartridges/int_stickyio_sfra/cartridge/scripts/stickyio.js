@@ -1,7 +1,7 @@
 /**
  * The main sticky.io library providing API connectivity,
- * object parsing, storage and retrieval, validation and helper functions.
- * Functions are selectively exported at the end for precise control.
+ * object parsing, storage and retrieval, validation and helperfunctions.
+ *Functions are selectively exported at the end for precise control.
 */
 
 'use strict';
@@ -575,12 +575,466 @@ function getSelectedBillingModelIDs(product) {
     return billingModelIDs;
 }
 
+
+/**
+ * Generate XML import file - full replace for metadata
+ * @param {boolean} blank - create blank archive
+ * @param {Object} offers - offers to update
+ * @param {Object} terms - pre-paid terms to update
+ * @param {Object} billingModels - billingModels to update
+ * @returns {void}
+ */
+function createSystemObjectXML(blank, offers, terms, billingModels) {
+    var File = require('dw/io/File');
+    var FileWriter = require('dw/io/FileWriter');
+    var XMLStreamWriter = require('dw/io/XMLStreamWriter');
+    var siteContainerFolder = new File('/IMPEX/src/stickyTemp/');
+    if (!siteContainerFolder.exists()) { siteContainerFolder.mkdir(); }
+    var metaFolder = new File('/IMPEX/src/stickyTemp/meta/');
+    if (!metaFolder.exists()) { metaFolder.mkdir(); }
+    var file = new File('/IMPEX/src/stickyTemp/meta/system-objecttype-extensions.xml');
+    if (!file.exists()) { file.createNewFile(); }
+    var fileWriter = new FileWriter(file, 'UTF-8');
+    var xsw = new XMLStreamWriter(fileWriter);
+    /* eslint-disable indent */
+    xsw.writeStartDocument('UTF-8', '1.0');
+    xsw.writeStartElement('metadata');
+        xsw.writeDefaultNamespace('http://www.demandware.com/xml/impex/metadata/2006-10-31');
+        if (!blank) {
+            xsw.writeStartElement('type-extension');
+            xsw.writeAttribute('type-id', 'Product');
+                xsw.writeStartElement('custom-attribute-definitions');
+                    var i;
+                    var j;
+                    if (offers.length > 0) {
+                        for (i = 1; i <= 3; i++) { // three hard-coded offer limit
+                            xsw.writeStartElement('attribute-definition');
+                                xsw.writeAttribute('attribute-id', 'stickyioOffer' + i);
+                                xsw.writeStartElement('display-name');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Offer ' + i);
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('description');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Offer created in sticky.io');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('type');
+                                    xsw.writeCharacters('enum-of-string');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('localizable-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('site-specific-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('mandatory-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('visible-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-managed-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('order-required-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-defined-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('select-multiple-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('value-definitions');
+                                for (j = 0; j < offers.length; j++) {
+                                    xsw.writeStartElement('value-definition');
+                                        xsw.writeStartElement('display');
+                                            xsw.writeCharacters(offers[j].name);
+                                        xsw.writeEndElement();
+                                        xsw.writeStartElement('value');
+                                            xsw.writeCharacters(offers[j].id);
+                                        xsw.writeEndElement();
+                                    xsw.writeEndElement();
+                                }
+                                xsw.writeEndElement();
+                            xsw.writeEndElement();
+                        }
+                    }
+                    if (terms.length > 0) {
+                        for (i = 1; i <= 3; i++) { // three hard-coded term limit
+                            xsw.writeStartElement('attribute-definition');
+                                xsw.writeAttribute('attribute-id', 'stickyioTerms' + i);
+                                xsw.writeStartElement('display-name');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Terms');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('description');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Pre-paid terms created in sticky.io');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('type');
+                                    xsw.writeCharacters('enum-of-string');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('localizable-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('site-specific-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('mandatory-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('visible-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-managed-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('order-required-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-defined-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('select-multiple-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('value-definitions');
+                                for (j = 0; j < terms.length; j++) {
+                                    xsw.writeStartElement('value-definition');
+                                        xsw.writeStartElement('display');
+                                            xsw.writeCharacters(terms[j].cycles + '/' + terms[j].value + '/' + terms[j].type);
+                                        xsw.writeEndElement();
+                                        xsw.writeStartElement('value');
+                                            xsw.writeCharacters(terms[j].id);
+                                        xsw.writeEndElement();
+                                    xsw.writeEndElement();
+                                }
+                                xsw.writeEndElement();
+                            xsw.writeEndElement();
+                        }
+                    }
+                    if (billingModels.length > 0) {
+                        for (i = 1; i <= 3; i++) { // three hard-coded offer limit
+                            xsw.writeStartElement('attribute-definition');
+                                xsw.writeAttribute('attribute-id', 'stickyioBillingModels' + i);
+                                xsw.writeStartElement('display-name');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Billing Models');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('description');
+                                xsw.writeAttribute('xml:lang', 'x-default');
+                                    xsw.writeCharacters('Billing Models created in sticky.io');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('type');
+                                    xsw.writeCharacters('enum-of-string');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('localizable-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('site-specific-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('mandatory-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('visible-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-managed-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('order-required-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('externally-defined-flag');
+                                    xsw.writeCharacters('false');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('select-multiple-flag');
+                                    xsw.writeCharacters('true');
+                                xsw.writeEndElement();
+                                xsw.writeStartElement('value-definitions');
+                                for (j = 0; j < billingModels.length; j++) {
+                                    xsw.writeStartElement('value-definition');
+                                        xsw.writeStartElement('display');
+                                            xsw.writeCharacters(billingModels[j].name);
+                                        xsw.writeEndElement();
+                                        xsw.writeStartElement('value');
+                                            xsw.writeCharacters(billingModels[j].id);
+                                        xsw.writeEndElement();
+                                    xsw.writeEndElement();
+                                }
+                                xsw.writeEndElement();
+                            xsw.writeEndElement();
+                        }
+                    }
+                xsw.writeEndElement();
+            xsw.writeEndElement();
+        }
+    xsw.writeEndElement();
+    xsw.writeEndDocument();
+    xsw.close();
+    /* eslint-enable indent */
+    fileWriter.close();
+    var zipFile = new File('/IMPEX/src/instance/stickyTemp.zip');
+    siteContainerFolder.zip(zipFile);
+}
+
+/**
+ * Get SFCC site catalog IDs via OCAPI bridge
+ * @returns {Array} catalogIDs - Array of catalogIDs
+ */
+function getCatalogIDs() {
+    var catalogIDs = [];
+    var params = {};
+    var body = {};
+    body.method = 'get';
+    body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs';
+    body.isClient = 'false';
+    params.body = body;
+    params.helper = 'sfccbridge';
+    var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
+    if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && !stickyioResponse.object.result.data.statusCode)) {
+        var i;
+        for (i = 0; i < stickyioResponse.object.result.data.data.length; i++) {
+            catalogIDs.push(stickyioResponse.object.result.data.data[i].id);
+        }
+    }
+    return catalogIDs;
+}
+
+/**
+ * Bind our shared product options to catalogs
+ * @param {Object} sharedProductOptionsToBind -sharedProductOptions to bind
+ * @returns {boolean} - result
+ */
+function bindSharedProductOptions(sharedProductOptionsToBind) {
+    var i;
+    var j;
+    for (i = 0; i < Object.keys(sharedProductOptionsToBind).length; i++) {
+        var thisCatalogID = Object.keys(sharedProductOptionsToBind)[i];
+        for (j = 0; j < sharedProductOptionsToBind[thisCatalogID].length; j++) {
+            var thisSharedProductOption = sharedProductOptionsToBind[thisCatalogID][j];
+            var params = {};
+            var body = {};
+            body.method = 'put';
+            body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
+            body.isClient = 'false';
+            body.data = JSON.stringify({ id: thisSharedProductOption, sorting_mode: 'byexplicitorder' });
+            params.body = body;
+            params.helper = 'sfccbridge';
+            var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
+            if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/**
+ * Make sure our shared product options are bound to all site catalogs
+ * @param {Array} catalogIDs - Array of catalogIDs
+ * @returns {boolean} - result
+ */
+function checkSharedProductOptions(catalogIDs) {
+    var result = false;
+    var sharedProductOptionsToBind = {};
+    var sharedProductOptions = ['stickyioOfferOptions', 'stickyioBillingModelOptions', 'stickyioTermOptions'];
+    var i;
+    var j;
+    for (i = 0; i < catalogIDs.length; i++) {
+        var thisCatalogID = catalogIDs[i];
+        for (j = 0; j < sharedProductOptions.length; j++) {
+            var thisSharedProductOption = sharedProductOptions[j];
+            var params = {};
+            var body = {};
+            body.method = 'get';
+            body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
+            body.isClient = 'false';
+            params.body = body;
+            params.helper = 'sfccbridge';
+            var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
+            if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode === 404)) { // sharedProductOption is not bound to this catalog
+                if (!sharedProductOptionsToBind[thisCatalogID]) { sharedProductOptionsToBind[thisCatalogID] = []; }
+                sharedProductOptionsToBind[thisCatalogID].push(thisSharedProductOption);
+            }
+        }
+    }
+    if (Object.keys(sharedProductOptionsToBind).length > 0) { // we have sharedProductOptions that need to be bound
+        result = bindSharedProductOptions(sharedProductOptionsToBind);
+    } else {
+        result = true;
+    }
+    return result;
+}
+
+/**
+ * Generate stickyio SFCC system objects with the latest data from stickyio via XML import - merge only - and OCAPI bridge
+ * @param {Array} catalogIDs - Array of catalogIDs
+ * @param {Object} sharedOptionValueObject - object of offers, terms, and billingModels
+ * @returns {boolean} - result
+ */
+function addSharedProductOptionValues(catalogIDs, sharedOptionValueObject) {
+    var thisSharedOptionValueObject = sharedOptionValueObject;
+    thisSharedOptionValueObject.stickyioBillingModelOptions.push({ id: 2, name: 'Straight Sale' }); // we inject this here for promotion targetting
+    thisSharedOptionValueObject.stickyioBillingModelOptions.push({ id: 0 }); // we inject this here for promotion targetting
+    thisSharedOptionValueObject.stickyioOfferOptions.push({ id: 0 }); // we inject this here for promotion targetting
+    thisSharedOptionValueObject.stickyioTermOptions.push({ id: 0 }); // we inject this here for promotion targetting
+    var i;
+    var j;
+    var k;
+    for (i = 0; i < catalogIDs.length; i++) {
+        var thisCatalogID = catalogIDs[i];
+        for (j = 0; j < Object.keys(thisSharedOptionValueObject).length; j++) {
+            var thisSharedProductOptionID = Object.keys(thisSharedOptionValueObject)[j];
+            var thisSharedProductOptionValues = thisSharedOptionValueObject[thisSharedProductOptionID];
+            for (k = 0; k < thisSharedProductOptionValues.length; k++) {
+                var thisSharedProductOptionValue = thisSharedProductOptionValues[k];
+                var params = {};
+                var body = {};
+                body.method = 'put';
+                body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOptionID + '/values/' + thisSharedProductOptionValue.id;
+                body.isClient = 'false';
+                var value = {};
+                if (thisSharedProductOptionValue.name) {
+                    value.value = { default: thisSharedProductOptionValue.name };
+                }
+                if (thisSharedProductOptionValue.id === 0) {
+                    value.default_product_option_value = true;
+                }
+                value.option_prices = [{ currency_mnemonic: 'USD', value: 0 }];
+                body.data = JSON.stringify(value);
+                params.body = body;
+                params.helper = 'sfccbridge';
+                var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
+                if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode)) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+/**
+ * Adds shared product options to a subscription product
+ * @param {Object} products - subscription products
+ * @returns {void}
+ */
+function updateProductOptions(products) {
+    var sharedProductOptions = ['stickyioOfferOptions', 'stickyioBillingModelOptions', 'stickyioTermOptions'];
+    var i;
+    var j;
+    for (i = 0; i < Object.keys(products).length; i++) {
+        var thisProductID = Object.keys(products)[i];
+        if (thisProductID !== 'updateSFCC' && ProductMgr.getProduct(thisProductID)) {
+            for (j = 0; j < sharedProductOptions.length; j++) {
+                var thisSharedProductOption = sharedProductOptions[j];
+                var params = {};
+                var body = {};
+                body.method = 'put';
+                body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/products/' + thisProductID + '/product_options/' + thisSharedProductOption;
+                body.isClient = 'false';
+                body.data = JSON.stringify({ id: thisSharedProductOption, shared: true });
+                params.body = body;
+                params.helper = 'sfccbridge';
+                stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
+            }
+        }
+    }
+}
+
+/**
+ * Generate stickyio SFCC system objects with the latest data from stickyio via XML import - merge only - and OCAPI bridge
+ * @param {Object} products - subscription products
+ * @param {Object} offers - offers
+ * @param {Object} terms - pre-paid terms
+ * @param {Object} billingModels - billingModels
+ * @returns {void}
+ */
+function generateProductOptions(products, offers, terms, billingModels) {
+    var catalogIDs = getCatalogIDs();
+    var checkSharedProductOptionsResult;
+    var addSharedProductOptionValuesResult;
+    if (catalogIDs.length > 0) { checkSharedProductOptionsResult = checkSharedProductOptions(catalogIDs); }
+    if (checkSharedProductOptionsResult) { addSharedProductOptionValuesResult = addSharedProductOptionValues(catalogIDs, { stickyioOfferOptions: offers, stickyioTermOptions: terms, stickyioBillingModelOptions: billingModels }); }
+    if (addSharedProductOptionValuesResult) { updateProductOptions(products); }
+}
+
+/**
+ * Generate stickyio SFCC system objects with the latest data from stickyio via XML import - merge only - and OCAPI bridge
+ * @returns {void}
+ */
+function generateObjects() {
+    var updateOffers = [];
+    var updateTerms = [];
+    var updateBillingModels = [];
+    var stickyioCampaigns = getCampaignCustomObjectJSON(); // get our latest campaignJSON
+    var i;
+    if (stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
+        for (i = 0; i < Object.keys(stickyioCampaigns.offers).length; i++) {
+            var thisOfferID = Object.keys(stickyioCampaigns.offers)[i];
+            if (thisOfferID !== 'updateSFCC') {
+                var thisOffer = stickyioCampaigns.offers[thisOfferID];
+                updateOffers.push({ id: thisOfferID, name: thisOffer.name });
+            }
+        }
+    }
+    if (stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
+        for (i = 0; i < Object.keys(stickyioCampaigns.terms).length; i++) {
+            var thisTermID = Object.keys(stickyioCampaigns.terms)[i];
+            if (thisTermID !== 'updateSFCC') {
+                var thisTerm = stickyioCampaigns.terms[thisTermID];
+                var discount = '';
+                if (thisTerm.value && thisTerm.value.toString() !== '0' && thisTerm.value.toString() !== '0.00') {
+                    discount = thisTerm.type === 'Amount' ? '$' + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
+                    discount = ' at ' + discount + ' off';
+                }
+                var name = thisTerm.cycles + ' cycles' + discount;
+                updateTerms.push({ id: thisTermID, cycles: thisTerm.cycles, value: thisTerm.value, type: thisTerm.type, name: name });
+            }
+        }
+    }
+    if (stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
+        for (i = 0; i < Object.keys(stickyioCampaigns.billingModels).length; i++) {
+            var thisBMID = Object.keys(stickyioCampaigns.billingModels)[i];
+            if (thisBMID !== 'updateSFCC') {
+                var thisBM = stickyioCampaigns.billingModels[thisBMID];
+                if (thisBMID !== '2') { updateBillingModels.push({ id: thisBMID, name: thisBM.name }); } // exclude straight sale billing model
+            }
+        }
+    }
+    if (updateOffers.length > 0 || updateBillingModels.length > 0 || updateTerms.length > 0) {
+        createSystemObjectXML(false, updateOffers, updateTerms, updateBillingModels);
+        generateProductOptions(stickyioCampaigns.products, updateOffers, updateTerms, updateBillingModels);
+    } else {
+        createSystemObjectXML(true, null, null, null);
+    }
+}
+
+/**
+ * Remove temporary file objects
+ * @returns {void}
+ */
+function cleanupFiles() {
+    var File = require('dw/io/File');
+    var file = new File('/IMPEX/src/stickyTemp/meta/system-objecttype-extensions.xml');
+    if (file.exists()) { file.remove(); }
+    var metaFolder = new File('/IMPEX/src/stickyTemp/meta/');
+    if (metaFolder.exists()) { metaFolder.remove(); }
+    var siteContainerFolder = new File('/IMPEX/src/stickyTemp/');
+    if (siteContainerFolder.exists()) { siteContainerFolder.remove(); }
+    var zipFile = new File('/IMPEX/src/instance/stickyTemp.zip');
+    if (zipFile.exists()) { zipFile.remove(); }
+}
+
 /**
  * Method to make sure selected billing models and offer actually exist in our custom object campaign data
  * of sticky.io Campaign/Offer/Billing Models
  * @param {dw.catalog.Product} product - Product
  * @param {boolean} allowTransaction - Allow a transaction to update the custom sticky.io property
- * (only true when function is not in a storefront context)
+ * (only true whenfunction is not in a storefront context)
  * @returns {boolean} - boolean result
 */
 function validateProduct(product, allowTransaction) {
@@ -1019,7 +1473,7 @@ function productSyncLog(productID, data) {
  * @param {Object} productAttributes - SFCC product attributes
  * @param {Object} masterProductID - SFCC product ID
  * @param {Object} productVariants - SFCC product variants
- * @param {number} iterator - Current position from calling function
+ * @param {number} iterator - Current position from callingfunction
  * @returns {void}
  */
 function commitUpdateSFCCVariantAttributes(product, stickyioData, productAttributes, masterProductID, productVariants, iterator) {
@@ -2047,459 +2501,6 @@ function stickyioSubMan(orderNo, subscriptionID, action, bmID, date) {
     if (action === 'reset') { return subManReset(subscriptionID); }
     if (action === 'bill_now') { return subManBillNow(orderNo, subscriptionID); }
     return false;
-}
-
-/**
- * Generate XML import file - full replace for metadata
- * @param {boolean} blank - create blank archive
- * @param {Object} offers - offers to update
- * @param {Object} terms - pre-paid terms to update
- * @param {Object} billingModels - billingModels to update
- * @returns {void}
- */
-function createSystemObjectXML(blank, offers, terms, billingModels) {
-    var File = require('dw/io/File');
-    var FileWriter = require('dw/io/FileWriter');
-    var XMLStreamWriter = require('dw/io/XMLStreamWriter');
-    var siteContainerFolder = new File('/IMPEX/src/stickyTemp/');
-    if (!siteContainerFolder.exists()) { siteContainerFolder.mkdir(); }
-    var metaFolder = new File('/IMPEX/src/stickyTemp/meta/');
-    if (!metaFolder.exists()) { metaFolder.mkdir(); }
-    var file = new File('/IMPEX/src/stickyTemp/meta/system-objecttype-extensions.xml');
-    if (!file.exists()) { file.createNewFile(); }
-    var fileWriter = new FileWriter(file, 'UTF-8');
-    var xsw = new XMLStreamWriter(fileWriter);
-    /* eslint-disable indent */
-    xsw.writeStartDocument('UTF-8', '1.0');
-    xsw.writeStartElement('metadata');
-        xsw.writeDefaultNamespace('http://www.demandware.com/xml/impex/metadata/2006-10-31');
-        if (!blank) {
-            xsw.writeStartElement('type-extension');
-            xsw.writeAttribute('type-id', 'Product');
-                xsw.writeStartElement('custom-attribute-definitions');
-                    var i;
-                    var j;
-                    if (offers.length > 0) {
-                        for (i = 1; i <= 3; i++) { // three hard-coded offer limit
-                            xsw.writeStartElement('attribute-definition');
-                                xsw.writeAttribute('attribute-id', 'stickyioOffer' + i);
-                                xsw.writeStartElement('display-name');
-                                xsw.writeAttribute('xml:lang', 'x-default');
-                                    xsw.writeCharacters('Offer ' + i);
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('description');
-                                xsw.writeAttribute('xml:lang', 'x-default');
-                                    xsw.writeCharacters('Offer created in sticky.io');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('type');
-                                    xsw.writeCharacters('enum-of-string');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('localizable-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('site-specific-flag');
-                                    xsw.writeCharacters('true');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('mandatory-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('visible-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('externally-managed-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('order-required-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('externally-defined-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('select-multiple-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('value-definitions');
-                                for (j = 0; j < offers.length; j++) {
-                                    xsw.writeStartElement('value-definition');
-                                        xsw.writeStartElement('display');
-                                            xsw.writeCharacters(offers[j].name);
-                                        xsw.writeEndElement();
-                                        xsw.writeStartElement('value');
-                                            xsw.writeCharacters(offers[j].id);
-                                        xsw.writeEndElement();
-                                    xsw.writeEndElement();
-                                }
-                                xsw.writeEndElement();
-                            xsw.writeEndElement();
-                        }
-                    }
-                    if (terms.length > 0) {
-                        for (i = 1; i <= 3; i++) { // three hard-coded term limit
-                            xsw.writeStartElement('attribute-definition');
-                                xsw.writeAttribute('attribute-id', 'stickyioTerms' + i);
-                                xsw.writeStartElement('display-name');
-                                xsw.writeAttribute('xml:lang', 'x-default');
-                                    xsw.writeCharacters('Terms');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('description');
-                                xsw.writeAttribute('xml:lang', 'x-default');
-                                    xsw.writeCharacters('Pre-paid terms created in sticky.io');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('type');
-                                    xsw.writeCharacters('enum-of-string');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('localizable-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('site-specific-flag');
-                                    xsw.writeCharacters('true');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('mandatory-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('visible-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('externally-managed-flag');
-                                    xsw.writeCharacters('true');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('order-required-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('externally-defined-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('select-multiple-flag');
-                                    xsw.writeCharacters('true');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('value-definitions');
-                                for (j = 0; j < terms.length; j++) {
-                                    xsw.writeStartElement('value-definition');
-                                        xsw.writeStartElement('display');
-                                            xsw.writeCharacters(terms[j].cycles + '/' + terms[j].value + '/' + terms[j].type);
-                                        xsw.writeEndElement();
-                                        xsw.writeStartElement('value');
-                                            xsw.writeCharacters(terms[j].id);
-                                        xsw.writeEndElement();
-                                    xsw.writeEndElement();
-                                }
-                                xsw.writeEndElement();
-                            xsw.writeEndElement();
-                        }
-                    }
-                    if (billingModels.length > 0) {
-                        for (i = 1; i <= 3; i++) { // three hard-coded offer limit
-                            xsw.writeStartElement('attribute-definition');
-                                xsw.writeAttribute('attribute-id', 'stickyioBillingModels' + i);
-                                xsw.writeStartElement('display-name');
-                                xsw.writeAttribute('xml:lang', 'x-default');
-                                    xsw.writeCharacters('Billing Models');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('description');
-                                xsw.writeAttribute('xml:lang', 'x-default');
-                                    xsw.writeCharacters('Billing Models created in sticky.io');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('type');
-                                    xsw.writeCharacters('enum-of-string');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('localizable-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('site-specific-flag');
-                                    xsw.writeCharacters('true');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('mandatory-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('visible-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('externally-managed-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('order-required-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('externally-defined-flag');
-                                    xsw.writeCharacters('false');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('select-multiple-flag');
-                                    xsw.writeCharacters('true');
-                                xsw.writeEndElement();
-                                xsw.writeStartElement('value-definitions');
-                                for (j = 0; j < billingModels.length; j++) {
-                                    xsw.writeStartElement('value-definition');
-                                        xsw.writeStartElement('display');
-                                            xsw.writeCharacters(billingModels[j].name);
-                                        xsw.writeEndElement();
-                                        xsw.writeStartElement('value');
-                                            xsw.writeCharacters(billingModels[j].id);
-                                        xsw.writeEndElement();
-                                    xsw.writeEndElement();
-                                }
-                                xsw.writeEndElement();
-                            xsw.writeEndElement();
-                        }
-                    }
-                xsw.writeEndElement();
-            xsw.writeEndElement();
-        }
-    xsw.writeEndElement();
-    xsw.writeEndDocument();
-    xsw.close();
-    /* eslint-enable indent */
-    fileWriter.close();
-    var zipFile = new File('/IMPEX/src/instance/stickyTemp.zip');
-    siteContainerFolder.zip(zipFile);
-}
-
-/**
- * Get SFCC site catalog IDs via OCAPI bridge
- * @returns {Array} catalogIDs - Array of catalogIDs
- */
-function getCatalogIDs() {
-    var catalogIDs = [];
-    var params = {};
-    var body = {};
-    body.method = 'get';
-    body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs';
-    body.isClient = 'false';
-    params.body = body;
-    params.helper = 'sfccbridge';
-    var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
-    if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && !stickyioResponse.object.result.data.statusCode)) {
-        var i;
-        for (i = 0; i < stickyioResponse.object.result.data.data.length; i++) {
-            catalogIDs.push(stickyioResponse.object.result.data.data[i].id);
-        }
-    }
-    return catalogIDs;
-}
-
-/**
- * Bind our shared product options to catalogs
- * @param {Object} sharedProductOptionsToBind -sharedProductOptions to bind
- * @returns {boolean} - result
- */
-function bindSharedProductOptions(sharedProductOptionsToBind) {
-    var i;
-    var j;
-    for (i = 0; i < Object.keys(sharedProductOptionsToBind).length; i++) {
-        var thisCatalogID = Object.keys(sharedProductOptionsToBind)[i];
-        for (j = 0; j < sharedProductOptionsToBind[thisCatalogID].length; j++) {
-            var thisSharedProductOption = sharedProductOptionsToBind[thisCatalogID][j];
-            var params = {};
-            var body = {};
-            body.method = 'put';
-            body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
-            body.isClient = 'false';
-            body.data = JSON.stringify({ id: thisSharedProductOption, sorting_mode: 'byexplicitorder' });
-            params.body = body;
-            params.helper = 'sfccbridge';
-            var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
-            if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode)) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-/**
- * Make sure our shared product options are bound to all site catalogs
- * @param {Array} catalogIDs - Array of catalogIDs
- * @returns {boolean} - result
- */
-function checkSharedProductOptions(catalogIDs) {
-    var result = false;
-    var sharedProductOptionsToBind = {};
-    var sharedProductOptions = ['stickyioOfferOptions', 'stickyioBillingModelOptions', 'stickyioTermOptions'];
-    var i;
-    var j;
-    for (i = 0; i < catalogIDs.length; i++) {
-        var thisCatalogID = catalogIDs[i];
-        for (j = 0; j < sharedProductOptions.length; j++) {
-            var thisSharedProductOption = sharedProductOptions[j];
-            var params = {};
-            var body = {};
-            body.method = 'get';
-            body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
-            body.isClient = 'false';
-            params.body = body;
-            params.helper = 'sfccbridge';
-            var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
-            if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode === 404)) { // sharedProductOption is not bound to this catalog
-                if (!sharedProductOptionsToBind[thisCatalogID]) { sharedProductOptionsToBind[thisCatalogID] = []; }
-                sharedProductOptionsToBind[thisCatalogID].push(thisSharedProductOption);
-            }
-        }
-    }
-    if (Object.keys(sharedProductOptionsToBind).length > 0) { // we have sharedProductOptions that need to be bound
-        result = bindSharedProductOptions(sharedProductOptionsToBind);
-    } else {
-        result = true;
-    }
-    return result;
-}
-
-/**
- * Generate stickyio SFCC system objects with the latest data from stickyio via XML import - merge only - and OCAPI bridge
- * @param {Array} catalogIDs - Array of catalogIDs
- * @param {Object} sharedOptionValueObject - object of offers, terms, and billingModels
- * @returns {boolean} - result
- */
-function addSharedProductOptionValues(catalogIDs, sharedOptionValueObject) {
-    var thisSharedOptionValueObject = sharedOptionValueObject;
-    thisSharedOptionValueObject.stickyioBillingModelOptions.push({ id: 2, name: 'Straight Sale' }); // we inject this here for promotion targetting
-    thisSharedOptionValueObject.stickyioBillingModelOptions.push({ id: 0 }); // we inject this here for promotion targetting
-    thisSharedOptionValueObject.stickyioOfferOptions.push({ id: 0 }); // we inject this here for promotion targetting
-    thisSharedOptionValueObject.stickyioTermOptions.push({ id: 0 }); // we inject this here for promotion targetting
-    var i;
-    var j;
-    var k;
-    for (i = 0; i < catalogIDs.length; i++) {
-        var thisCatalogID = catalogIDs[i];
-        for (j = 0; j < Object.keys(thisSharedOptionValueObject).length; j++) {
-            var thisSharedProductOptionID = Object.keys(thisSharedOptionValueObject)[j];
-            var thisSharedProductOptionValues = thisSharedOptionValueObject[thisSharedProductOptionID];
-            for (k = 0; k < thisSharedProductOptionValues.length; k++) {
-                var thisSharedProductOptionValue = thisSharedProductOptionValues[k];
-                var params = {};
-                var body = {};
-                body.method = 'put';
-                body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOptionID + '/values/' + thisSharedProductOptionValue.id;
-                body.isClient = 'false';
-                var value = {};
-                if (thisSharedProductOptionValue.name) {
-                    value.value = { default: thisSharedProductOptionValue.name };
-                }
-                if (thisSharedProductOptionValue.id === 0) {
-                    value.default_product_option_value = true;
-                }
-                value.option_prices = [{ currency_mnemonic: 'USD', value: 0 }];
-                body.data = JSON.stringify(value);
-                params.body = body;
-                params.helper = 'sfccbridge';
-                var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
-                if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode)) {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
-
-/**
- * Adds shared product options to a subscription product
- * @param {Object} products - subscription products
- * @returns {void}
- */
-function updateProductOptions(products) {
-    var sharedProductOptions = ['stickyioOfferOptions', 'stickyioBillingModelOptions', 'stickyioTermOptions'];
-    var i;
-    var j;
-    for (i = 0; i < Object.keys(products).length; i++) {
-        var thisProductID = Object.keys(products)[i];
-        if (thisProductID !== 'updateSFCC' && ProductMgr.getProduct(thisProductID)) {
-            for (j = 0; j < sharedProductOptions.length; j++) {
-                var thisSharedProductOption = sharedProductOptions[j];
-                var params = {};
-                var body = {};
-                body.method = 'put';
-                body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/products/' + thisProductID + '/product_options/' + thisSharedProductOption;
-                body.isClient = 'false';
-                body.data = JSON.stringify({ id: thisSharedProductOption, shared: true });
-                params.body = body;
-                params.helper = 'sfccbridge';
-                stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
-            }
-        }
-    }
-}
-
-/**
- * Generate stickyio SFCC system objects with the latest data from stickyio via XML import - merge only - and OCAPI bridge
- * @param {Object} products - subscription products
- * @param {Object} offers - offers
- * @param {Object} terms - pre-paid terms
- * @param {Object} billingModels - billingModels
- * @returns {void}
- */
-function generateProductOptions(products, offers, terms, billingModels) {
-    var catalogIDs = getCatalogIDs();
-    var checkSharedProductOptionsResult;
-    var addSharedProductOptionValuesResult;
-    if (catalogIDs.length > 0) { checkSharedProductOptionsResult = checkSharedProductOptions(catalogIDs); }
-    if (checkSharedProductOptionsResult) { addSharedProductOptionValuesResult = addSharedProductOptionValues(catalogIDs, { stickyioOfferOptions: offers, stickyioTermOptions: terms, stickyioBillingModelOptions: billingModels }); }
-    if (addSharedProductOptionValuesResult) { updateProductOptions(products); }
-}
-
-/**
- * Generate stickyio SFCC system objects with the latest data from stickyio via XML import - merge only - and OCAPI bridge
- * @returns {void}
- */
-function generateObjects() {
-    var updateOffers = [];
-    var updateTerms = [];
-    var updateBillingModels = [];
-    var stickyioCampaigns = getCampaignCustomObjectJSON(); // get our latest campaignJSON
-    var i;
-    if (stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
-        for (i = 0; i < Object.keys(stickyioCampaigns.offers).length; i++) {
-            var thisOfferID = Object.keys(stickyioCampaigns.offers)[i];
-            if (thisOfferID !== 'updateSFCC') {
-                var thisOffer = stickyioCampaigns.offers[thisOfferID];
-                updateOffers.push({ id: thisOfferID, name: thisOffer.name });
-            }
-        }
-    }
-    if (stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
-        for (i = 0; i < Object.keys(stickyioCampaigns.terms).length; i++) {
-            var thisTermID = Object.keys(stickyioCampaigns.terms)[i];
-            if (thisTermID !== 'updateSFCC') {
-                var thisTerm = stickyioCampaigns.terms[thisTermID];
-                var discount = '';
-                if (thisTerm.value && thisTerm.value.toString() !== '0' && thisTerm.value.toString() !== '0.00') {
-                    discount = thisTerm.type === 'Amount' ? '$' + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
-                    discount = ' at ' + discount + ' off';
-                }
-                var name = thisTerm.cycles + ' cycles' + discount;
-                updateTerms.push({ id: thisTermID, cycles: thisTerm.cycles, value: thisTerm.value, type: thisTerm.type, name: name });
-            }
-        }
-    }
-    if (stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
-        for (i = 0; i < Object.keys(stickyioCampaigns.billingModels).length; i++) {
-            var thisBMID = Object.keys(stickyioCampaigns.billingModels)[i];
-            if (thisBMID !== 'updateSFCC') {
-                var thisBM = stickyioCampaigns.billingModels[thisBMID];
-                if (thisBMID !== '2') { updateBillingModels.push({ id: thisBMID, name: thisBM.name }); } // exclude straight sale billing model
-            }
-        }
-    }
-    if (updateOffers.length > 0 || updateBillingModels.length > 0 || updateTerms.length > 0) {
-        createSystemObjectXML(false, updateOffers, updateTerms, updateBillingModels);
-        generateProductOptions(stickyioCampaigns.products, updateOffers, updateTerms, updateBillingModels);
-    } else {
-        createSystemObjectXML(true, null, null, null);
-    }
-}
-
-/**
- * Remove temporary file objects
- * @returns {void}
- */
-function cleanupFiles() {
-    var File = require('dw/io/File');
-    var file = new File('/IMPEX/src/stickyTemp/meta/system-objecttype-extensions.xml');
-    if (file.exists()) { file.remove(); }
-    var metaFolder = new File('/IMPEX/src/stickyTemp/meta/');
-    if (metaFolder.exists()) { metaFolder.remove(); }
-    var siteContainerFolder = new File('/IMPEX/src/stickyTemp/');
-    if (siteContainerFolder.exists()) { siteContainerFolder.remove(); }
-    var zipFile = new File('/IMPEX/src/instance/stickyTemp.zip');
-    if (zipFile.exists()) { zipFile.remove(); }
 }
 
 module.exports = {
