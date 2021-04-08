@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [21.1.7] - 2021-04-07
 [https://github.com/stickyio/link_stickyio_preview/commit/90f666d03cc8b18d227553c8ccbfa65570e97349](https://github.com/stickyio/link_stickyio_preview/commit/90f666d03cc8b18d227553c8ccbfa65570e97349)
 [https://github.com/stickyio/link_stickyio_preview/commit/b962dce3365c296a86d61f1f21a53086516ffea1](https://github.com/stickyio/link_stickyio_preview/commit/b962dce3365c296a86d61f1f21a53086516ffea1)
+[https://github.com/stickyio/link_stickyio_preview/commit/b9a731bae46e126905f881c662dc2c4c9fe61f56](https://github.com/stickyio/link_stickyio_preview/commit/b9a731bae46e126905f881c662dc2c4c9fe61f56)
 ### Changed
 - Removed unused debug variables and fixed linting complaints
 - Fixed major bug in `getActiveBillingModels()` where it was not looping through available offer objects
