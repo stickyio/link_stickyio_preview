@@ -1271,9 +1271,15 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
 function getActiveBillingModels(product, offer) {
     var stickyioproductAvailableBillingModels = [];
     var i;
+    var j;
     if (product) { // we don't want to check for the bogus straightSale product
-        for (i = 0; i < product.custom['stickyioBillingModels' + offer].length; i++) {
-            stickyioproductAvailableBillingModels.push(parseInt(product.custom['stickyioBillingModels' + offer][i].value, 10).toString());
+        // check all three of our possible offer slots to determine which one is selected as the given offer, then pull all billing models for that offer
+        for (i = 1; i < 3; i++) {
+            if (product.custom['stickyioOffer' + i].value !== null && product.custom['stickyioOffer' + i].value.toString() === offer.toString()) {
+                for (j = 0; j < product.custom['stickyioBillingModels' + i].length; j++) {
+                    stickyioproductAvailableBillingModels.push(parseInt(product.custom['stickyioBillingModels' + i][j].value, 10).toString());
+                }
+            }
         }
     }
     return stickyioproductAvailableBillingModels;

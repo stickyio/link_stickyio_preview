@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 [https://github.com/stickyio/link_stickyio_preview/commit/b962dce3365c296a86d61f1f21a53086516ffea1](https://github.com/stickyio/link_stickyio_preview/commit/b962dce3365c296a86d61f1f21a53086516ffea1)
 ### Changed
 - Removed unused debug variables and fixed linting complaints
+- Fixed major bug in `getActiveBillingModels()` where it was not looping through available offer objects
 
 ### Added
 - Integrity checks for system custom attributes and shared product options
