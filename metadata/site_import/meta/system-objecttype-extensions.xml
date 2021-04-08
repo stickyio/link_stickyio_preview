@@ -612,7 +612,7 @@
                 <externally-managed-flag>true</externally-managed-flag>
             </attribute-definition>
             <attribute-definition attribute-id="stickyioCustomFieldHostname">
-                <display-name xml:lang="x-default">hostname</display-name>
+                <display-name xml:lang="x-default">Hostname</display-name>
                 <description xml:lang="x-default">Custom field ID for sticky.io to store the SFCC hostname</description>
                 <type>int</type>
                 <mandatory-flag>false</mandatory-flag>
