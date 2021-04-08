@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Integrity checks for system custom attributes and shared product options
+- New hostname custom preference and field created in sticky.io to store order's origin hostname - includes new system object custom preference metadata definition
 
 ## [21.1.6] - 2021-04-06
 [https://github.com/stickyio/link_stickyio_preview/commit/e9ac0128f93cb7d33dec076686516b1072e4d16a](https://github.com/stickyio/link_stickyio_preview/commit/e9ac0128f93cb7d33dec076686516b1072e4d16a)

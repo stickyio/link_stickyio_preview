@@ -611,6 +611,13 @@
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>true</externally-managed-flag>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioCustomFieldHostname">
+                <display-name xml:lang="x-default">hostname</display-name>
+                <description xml:lang="x-default">Custom field ID for sticky.io to store the SFCC hostname</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioEnabled">
                 <display-name xml:lang="x-default">Enable sticky.io</display-name>
                 <type>boolean</type>
