@@ -584,7 +584,19 @@ function getSelectedBillingModelIDs(product) {
  * @returns {boolean} - boolean result
 */
 function validateProduct(product, allowTransaction) {
+    var i;
     var thisProduct = product;
+    if (thisProduct && allowTransaction) { // check to make sure this product has all shared product options that it should, and if not, add them via OCAPI
+        var sharedProductOptions = ['stickyioOfferOptions', 'stickyioBillingModelOptions', 'stickyioTermOptions'];
+        for (i = 0; i < sharedProductOptions.length; i++) {
+            if (!thisProduct.optionModel.getOption(sharedProductOptions[i])) {
+                var productToUpdate = {};
+                productToUpdate[thisProduct.ID] = true;
+                updateProductOptions(productToUpdate);
+                break;
+            }
+        }
+    }
     var campaignProducts = getCampaignProducts();
     if ((thisProduct && campaignProducts.length === 0) || (campaignProducts.length > 0 && campaignProducts.indexOf(thisProduct.ID) === -1)) { // SFCC product ID not found in campaign object - it hasn't been synced
         if (allowTransaction === true) {
@@ -593,7 +605,6 @@ function validateProduct(product, allowTransaction) {
         return false;
     }
     var selectedOffers = getSelectedOfferIDs(thisProduct);
-    var i;
     if (thisProduct && selectedOffers.length > 0) {
         var productOffers = getOfferIDs();
         for (i = 0; i < selectedOffers.length; i++) {
@@ -2390,7 +2401,7 @@ function updateProductOptions(products) {
     var j;
     for (i = 0; i < Object.keys(products).length; i++) {
         var thisProductID = Object.keys(products)[i];
-        if (thisProductID !== 'updateSFCC') {
+        if (thisProductID !== 'updateSFCC' && ProductMgr.getProduct(thisProductID)) {
             for (j = 0; j < sharedProductOptions.length; j++) {
                 var thisSharedProductOption = sharedProductOptions[j];
                 var params = {};
