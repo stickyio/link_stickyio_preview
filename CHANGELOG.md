@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.8] - 2021-04-09
+[https://github.com/stickyio/link_stickyio_preview/commit/39bb9bacacf963dd22e40b33574aaf490ea1df44](https://github.com/stickyio/link_stickyio_preview/commit/39bb9bacacf963dd22e40b33574aaf490ea1df44)
 ### Changed
 - Fixed SFCC storage of sticky subscription_id in new_order return
 - Added prepaid terms display in customer subscription management
