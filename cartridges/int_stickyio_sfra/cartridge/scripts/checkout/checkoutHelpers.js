@@ -214,7 +214,6 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         params.body.offers = offers;
 
         var thisPLIStickyID;
-        var failedOrderProduct = {};
 
         var stickyioResponse = stickyio.stickyioAPI('stickyio.http.post.new_order').call(params);
         if (!stickyioResponse.error && stickyioResponse.object.result.response_code === '100' && stickyioResponse.object.result.error_found === '0') {
@@ -227,18 +226,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                     if (plis[i].getProduct().isVariant()) {
                         thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;
                     }
-                    for (j = 0; j < stickyioResponse.object.result.line_items.length; j++) {
-                        thisProduct = stickyioResponse.object.result.line_items[j];
-                        failedOrderProduct = {};
-                        if (plis[i].custom.stickyioProductID === thisProduct.product_id) {
-                            failedOrderProduct.id = plis[i].productID;
-                            if (thisPLIStickyID.toString() === thisProduct.product_id.toString()) {
-                                failedOrderProduct.subscriptionID = thisProduct.subscription_id;
-                                failedOrderData.products.push(failedOrderProduct);
-                                break;
-                            }
-                        }
-                    }
+                    failedOrderData.products.push({ id: plis[i].productID, subscriptionID: stickyioResponse.object.result.subscription_id[thisPLIStickyID] });
                 }
             }
             try {
@@ -253,13 +241,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                             if (plis[i].getProduct().isVariant()) {
                                 thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;
                             }
-                            for (j = 0; j < stickyioResponse.object.result.line_items.length; j++) {
-                                thisProduct = stickyioResponse.object.result.line_items[j];
-                                if (thisPLIStickyID.toString() === thisProduct.product_id.toString()) {
-                                    plis[i].custom.stickyioSubscriptionID = thisProduct.subscription_id;
-                                    break;
-                                }
-                            }
+                            plis[i].custom.stickyioSubscriptionID = stickyioResponse.object.result.subscription_id[thisPLIStickyID];
                         }
                     }
                 });
@@ -375,5 +357,46 @@ base.placeOrder = function (order, fraudDetectionStatus) {
     }
     return result;
 };
+
+/**
+ * saves payment instrument to customers wallet
+ * @param {Object} billingData - billing information entered by the user
+ * @param {dw.order.Basket} currentBasket - The current basket
+ * @param {dw.customer.Customer} customer - The current customer
+ * @returns {dw.customer.CustomerPaymentInstrument} newly stored payment Instrument
+ */
+base.savePaymentInstrumentToWallet= function (billingData, currentBasket, customer) {
+    var wallet = customer.getProfile().getWallet();
+
+    return Transaction.wrap(function () {
+        var storedPaymentInstrument = wallet.createPaymentInstrument(PaymentInstrument.METHOD_CREDIT_CARD);
+
+        storedPaymentInstrument.setCreditCardHolder(
+            currentBasket.billingAddress.fullName
+        );
+        storedPaymentInstrument.setCreditCardNumber(
+            billingData.paymentInformation.cardNumber.value
+        );
+        storedPaymentInstrument.setCreditCardType(
+            billingData.paymentInformation.cardType.value
+        );
+        storedPaymentInstrument.setCreditCardExpirationMonth(
+            billingData.paymentInformation.expirationMonth.value
+        );
+        storedPaymentInstrument.setCreditCardExpirationYear(
+            billingData.paymentInformation.expirationYear.value
+        );
+
+        var processor = PaymentMgr.getPaymentMethod(PaymentInstrument.METHOD_CREDIT_CARD).getPaymentProcessor();
+        var token = HookMgr.callHook(
+            'app.payment.processor.' + processor.ID.toLowerCase(),
+            'createMockToken'
+        );
+
+        storedPaymentInstrument.setCreditCardToken(token); // use a permanent token returned from sticky
+
+        return storedPaymentInstrument;
+    });
+}
 
 module.exports = base;

@@ -24,6 +24,15 @@
                 </p>
                 <isif condition="${lineItem.stickyioBillingModelID != 2}">
                     <isif condition="${typeof (lineItem.recurring_date) !== 'undefined'}">
+                        <isif condition="${lineItem.options && lineItem.options.length > 1}">
+                            <isloop items="${lineItem.options}" var="lineItemOption">
+                                <isif condition="${lineItemOption.optionId === 'stickyioTermOptions' && lineItemOption.selectedValueId !== '0'}">
+                                    <p class="line-item-attributes">
+                                        ${Resource.msg('label.subscriptionmanagement.terms', 'stickyio', null)}: ${Resource.msg('productdetail.label.terms_' + lineItemOption.selectedValueId, 'stickyio', lineItemOption.displayName.replace('Prepaid Term: ',''))}
+                                    </p>
+                                </isif>
+                            </isloop>
+                        </isif>
                         <p class="line-item-attributes">
                             ${Resource.msg('label.subscriptionmanagement.recur_at', 'stickyio', null)}: 
                             <isif condition="${!lineItem.on_hold}">
