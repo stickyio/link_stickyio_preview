@@ -2,16 +2,16 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.8] - 2021-04-09
-[https://github.com/stickyio/link_stickyio_preview/commit/39bb9bacacf963dd22e40b33574aaf490ea1df44](https://github.com/stickyio/link_stickyio_preview/commit/39bb9bacacf963dd22e40b33574aaf490ea1df44)
+[39bb9bacacf963dd22e40b33574aaf490ea1df44](https://github.com/stickyio/link_stickyio_preview/commit/39bb9bacacf963dd22e40b33574aaf490ea1df44)
 ### Changed
 - Fixed SFCC storage of sticky subscription_id in new_order return
 - Added prepaid terms display in customer subscription management
 
 ## [21.1.7] - 2021-04-07
-[https://github.com/stickyio/link_stickyio_preview/commit/90f666d03cc8b18d227553c8ccbfa65570e97349](https://github.com/stickyio/link_stickyio_preview/commit/90f666d03cc8b18d227553c8ccbfa65570e97349)
-[https://github.com/stickyio/link_stickyio_preview/commit/b962dce3365c296a86d61f1f21a53086516ffea1](https://github.com/stickyio/link_stickyio_preview/commit/b962dce3365c296a86d61f1f21a53086516ffea1)
-[https://github.com/stickyio/link_stickyio_preview/commit/b9a731bae46e126905f881c662dc2c4c9fe61f56](https://github.com/stickyio/link_stickyio_preview/commit/b9a731bae46e126905f881c662dc2c4c9fe61f56)
-[https://github.com/stickyio/link_stickyio_preview/commit/90ac8c44586563268f093621bc3a67d3a9edde82](https://github.com/stickyio/link_stickyio_preview/commit/90ac8c44586563268f093621bc3a67d3a9edde82)
+[90f666d03cc8b18d227553c8ccbfa65570e97349](https://github.com/stickyio/link_stickyio_preview/commit/90f666d03cc8b18d227553c8ccbfa65570e97349)
+[b962dce3365c296a86d61f1f21a53086516ffea1](https://github.com/stickyio/link_stickyio_preview/commit/b962dce3365c296a86d61f1f21a53086516ffea1)
+[b9a731bae46e126905f881c662dc2c4c9fe61f56](https://github.com/stickyio/link_stickyio_preview/commit/b9a731bae46e126905f881c662dc2c4c9fe61f56)
+[90ac8c44586563268f093621bc3a67d3a9edde82](https://github.com/stickyio/link_stickyio_preview/commit/90ac8c44586563268f093621bc3a67d3a9edde82)
 ### Changed
 - Removed unused debug variables and fixed linting complaints
 - Fixed major bug in `getActiveBillingModels()` where it was not looping through available offer objects
@@ -21,8 +21,8 @@ All notable changes to this project will be documented in this file.
 - New hostname custom preference and field created in sticky.io to store order's origin hostname - includes new system object custom preference metadata definition
 
 ## [21.1.6] - 2021-04-06
-[https://github.com/stickyio/link_stickyio_preview/commit/e9ac0128f93cb7d33dec076686516b1072e4d16a](https://github.com/stickyio/link_stickyio_preview/commit/e9ac0128f93cb7d33dec076686516b1072e4d16a)
-[https://github.com/stickyio/link_stickyio_preview/commit/f4345e3dffff22c0cf2a71df48029fa7fa7bb905](https://github.com/stickyio/link_stickyio_preview/commit/f4345e3dffff22c0cf2a71df48029fa7fa7bb905)
+[e9ac0128f93cb7d33dec076686516b1072e4d16a](https://github.com/stickyio/link_stickyio_preview/commit/e9ac0128f93cb7d33dec076686516b1072e4d16a)
+[f4345e3dffff22c0cf2a71df48029fa7fa7bb905](https://github.com/stickyio/link_stickyio_preview/commit/f4345e3dffff22c0cf2a71df48029fa7fa7bb905)
 ### Removed
 - Localization "examples" for offers, billing models, and prepaid terms
 
@@ -31,21 +31,21 @@ All notable changes to this project will be documented in this file.
 - Documentation to include localization examples for offers, billing models, and prepaid terms
 
 ## [21.1.5] - 2021-04-02
-[https://github.com/stickyio/link_stickyio_preview/commit/8521db282901c3f090fbcdc9f06257da0ba8fa81](https://github.com/stickyio/link_stickyio_preview/commit/8521db282901c3f090fbcdc9f06257da0ba8fa81)
-[https://github.com/stickyio/link_stickyio_preview/commit/cae39d8c37ac83e531bda817901e80495d4713bc](https://github.com/stickyio/link_stickyio_preview/commit/cae39d8c37ac83e531bda817901e80495d4713bc)
+[8521db282901c3f090fbcdc9f06257da0ba8fa81](https://github.com/stickyio/link_stickyio_preview/commit/8521db282901c3f090fbcdc9f06257da0ba8fa81)
+[cae39d8c37ac83e531bda817901e80495d4713bc](https://github.com/stickyio/link_stickyio_preview/commit/cae39d8c37ac83e531bda817901e80495d4713bc)
 ### Changed
 - Sanity check for product options in Cart-EditProductLineItem route
 - Reduced complexity of models, decorators, and helpers by using superModule
 - Accompanying unit test modifications to handle model superModule changes
 
 ## [21.1.4] - 2021-03-31
-[https://github.com/stickyio/link_stickyio_preview/commit/01b15d194e0d5acd8b9bd7db3f51e388fbba0772](https://github.com/stickyio/link_stickyio_preview/commit/01b15d194e0d5acd8b9bd7db3f51e388fbba0772)
+[01b15d194e0d5acd8b9bd7db3f51e388fbba0772](https://github.com/stickyio/link_stickyio_preview/commit/01b15d194e0d5acd8b9bd7db3f51e388fbba0772)
 ### Changed
 - When dealing with $0 or 0% off prepaid terms, make the default label only show number of cycles and not discount amount
 
 ## [21.1.3] - 2021-03-29
-[https://github.com/stickyio/link_stickyio_preview/commit/423c31bb646357a61db616d2e535b9cead9c8bb3](https://github.com/stickyio/link_stickyio_preview/commit/423c31bb646357a61db616d2e535b9cead9c8bb3)
-[https://github.com/stickyio/link_stickyio_preview/commit/9bcc0041c7789ac0df7904bd906377efa9210bc8](https://github.com/stickyio/link_stickyio_preview/commit/9bcc0041c7789ac0df7904bd906377efa9210bc8)
+[423c31bb646357a61db616d2e535b9cead9c8bb3](https://github.com/stickyio/link_stickyio_preview/commit/423c31bb646357a61db616d2e535b9cead9c8bb3)
+[9bcc0041c7789ac0df7904bd906377efa9210bc8](https://github.com/stickyio/link_stickyio_preview/commit/9bcc0041c7789ac0df7904bd906377efa9210bc8)
 ### Removed
 - Unused variables in route
 
@@ -54,16 +54,16 @@ All notable changes to this project will be documented in this file.
 - Cart-AddProduct modified to default to quantity of 1 if quantity is not included
 
 ## [21.1.2] - 2021-03-26
-[https://github.com/stickyio/link_stickyio_preview/commit/287634e4dfc5d3b7f3a5b92616721b9aded12252](https://github.com/stickyio/link_stickyio_preview/commit/287634e4dfc5d3b7f3a5b92616721b9aded12252)
-[https://github.com/stickyio/link_stickyio_preview/commit/a28049800c1aa5c1212df2618e94aa4b526136ce](https://github.com/stickyio/link_stickyio_preview/commit/a28049800c1aa5c1212df2618e94aa4b526136ce)
-[https://github.com/stickyio/link_stickyio_preview/commit/d7fcb781c5655a84de1eb2c3bf76033631934dff](https://github.com/stickyio/link_stickyio_preview/commit/d7fcb781c5655a84de1eb2c3bf76033631934dff)
-[https://github.com/stickyio/link_stickyio_preview/commit/e962ab7872bc2c58f9b826d03f3c100b163bd2fe](https://github.com/stickyio/link_stickyio_preview/commit/e962ab7872bc2c58f9b826d03f3c100b163bd2fe)
+[287634e4dfc5d3b7f3a5b92616721b9aded12252](https://github.com/stickyio/link_stickyio_preview/commit/287634e4dfc5d3b7f3a5b92616721b9aded12252)
+[a28049800c1aa5c1212df2618e94aa4b526136ce](https://github.com/stickyio/link_stickyio_preview/commit/a28049800c1aa5c1212df2618e94aa4b526136ce)
+[d7fcb781c5655a84de1eb2c3bf76033631934dff](https://github.com/stickyio/link_stickyio_preview/commit/d7fcb781c5655a84de1eb2c3bf76033631934dff)
+[e962ab7872bc2c58f9b826d03f3c100b163bd2fe](https://github.com/stickyio/link_stickyio_preview/commit/e962ab7872bc2c58f9b826d03f3c100b163bd2fe)
 ### Changed
 - Documentation includes Subscribe & Save example
 - Various sanity checks and whitespace cleanup for easier diff-ing
 
 ## [21.1.1] - 2021-03-22
-[https://github.com/stickyio/link_stickyio_preview/commit/17433aaa634591024ab50297a9263a43686456d8](https://github.com/stickyio/link_stickyio_preview/commit/17433aaa634591024ab50297a9263a43686456d8)
+[17433aaa634591024ab50297a9263a43686456d8](https://github.com/stickyio/link_stickyio_preview/commit/17433aaa634591024ab50297a9263a43686456d8)
 ### Removed
 - Unused variable in helper
 
@@ -71,10 +71,10 @@ All notable changes to this project will be documented in this file.
 - Front-end Javascript multi-modal targetting bug fixes for SFRA stupidity
 
 ## [21.1.0] - 2021-03-22
-[https://github.com/stickyio/link_stickyio_preview/commit/68b2ca5de17c9c92979e44a426d033316978e398](https://github.com/stickyio/link_stickyio_preview/commit/68b2ca5de17c9c92979e44a426d033316978e398)
-[https://github.com/stickyio/link_stickyio_preview/commit/8305073013a4c5150a143831caf9000c258040a2](https://github.com/stickyio/link_stickyio_preview/commit/8305073013a4c5150a143831caf9000c258040a2)
-[https://github.com/stickyio/link_stickyio_preview/commit/5310696c35e0a2e4abed6d69be3494d3087eab36](https://github.com/stickyio/link_stickyio_preview/commit/5310696c35e0a2e4abed6d69be3494d3087eab36)
-[https://github.com/stickyio/link_stickyio_preview/commit/9ac988fe786872bc486d7cda596dc04b5b333019](https://github.com/stickyio/link_stickyio_preview/commit/9ac988fe786872bc486d7cda596dc04b5b333019)
+[68b2ca5de17c9c92979e44a426d033316978e398](https://github.com/stickyio/link_stickyio_preview/commit/68b2ca5de17c9c92979e44a426d033316978e398)
+[8305073013a4c5150a143831caf9000c258040a2](https://github.com/stickyio/link_stickyio_preview/commit/8305073013a4c5150a143831caf9000c258040a2)
+[5310696c35e0a2e4abed6d69be3494d3087eab36](https://github.com/stickyio/link_stickyio_preview/commit/5310696c35e0a2e4abed6d69be3494d3087eab36)
+[9ac988fe786872bc486d7cda596dc04b5b333019](https://github.com/stickyio/link_stickyio_preview/commit/9ac988fe786872bc486d7cda596dc04b5b333019)
 ### Removed
 - SSO cache-busting header
 - Straight Sale custom preference
@@ -104,7 +104,7 @@ All notable changes to this project will be documented in this file.
 - Working unit tests
 
 ## [20.1.4] - 2021-03-10
-[https://github.com/stickyio/link_stickyio_preview/commit/4e597fc29ef53dc225fffdaf111be0174bafbee8](https://github.com/stickyio/link_stickyio_preview/commit/4e597fc29ef53dc225fffdaf111be0174bafbee8)
+[4e597fc29ef53dc225fffdaf111be0174bafbee8](https://github.com/stickyio/link_stickyio_preview/commit/4e597fc29ef53dc225fffdaf111be0174bafbee8)
 ### Removed
 - Unused functions for discounts and legacy Business Manager functions
 - Unused Business Manager templates
@@ -124,9 +124,9 @@ All notable changes to this project will be documented in this file.
 - Business Manager localization strings for sticky.io breadcrumbs
 
 ## [20.1.3] - 2021-03-06
-[https://github.com/stickyio/link_stickyio_preview/commit/619066aa5e7023cd81db6e778b8313f3b885e6cb](https://github.com/stickyio/link_stickyio_preview/commit/619066aa5e7023cd81db6e778b8313f3b885e6cb)
-[https://github.com/stickyio/link_stickyio_preview/commit/a65c12c2b71960fcc8237f05835c1ad2323e9b15](https://github.com/stickyio/link_stickyio_preview/commit/a65c12c2b71960fcc8237f05835c1ad2323e9b15)
-[https://github.com/stickyio/link_stickyio_preview/commit/5d2e54ccdb5e6adf8f91ce84e2ad1206b0a93cb2](https://github.com/stickyio/link_stickyio_preview/commit/5d2e54ccdb5e6adf8f91ce84e2ad1206b0a93cb2)
+[619066aa5e7023cd81db6e778b8313f3b885e6cb](https://github.com/stickyio/link_stickyio_preview/commit/619066aa5e7023cd81db6e778b8313f3b885e6cb)
+[a65c12c2b71960fcc8237f05835c1ad2323e9b15](https://github.com/stickyio/link_stickyio_preview/commit/a65c12c2b71960fcc8237f05835c1ad2323e9b15)
+[5d2e54ccdb5e6adf8f91ce84e2ad1206b0a93cb2](https://github.com/stickyio/link_stickyio_preview/commit/5d2e54ccdb5e6adf8f91ce84e2ad1206b0a93cb2)
 ### Removed
 - Site Custom Preference "Platform-Key" no longer in use - switched to a pure service API User/Password authentication model
 
