@@ -180,7 +180,6 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         var nonSubscriptionProduct = {};
         nonSubscriptionProduct.price = 0;
         var i;
-        var j;
         var thisProduct;
 
         for (i = 0; i < plis.length; i++) {
@@ -365,7 +364,7 @@ base.placeOrder = function (order, fraudDetectionStatus) {
  * @param {dw.customer.Customer} customer - The current customer
  * @returns {dw.customer.CustomerPaymentInstrument} newly stored payment Instrument
  */
-base.savePaymentInstrumentToWallet= function (billingData, currentBasket, customer) {
+base.savePaymentInstrumentToWallet = function (billingData, currentBasket, customer) {
     var wallet = customer.getProfile().getWallet();
 
     return Transaction.wrap(function () {
@@ -397,6 +396,6 @@ base.savePaymentInstrumentToWallet= function (billingData, currentBasket, custom
 
         return storedPaymentInstrument;
     });
-}
+};
 
 module.exports = base;
