@@ -1282,7 +1282,7 @@ function updateOffer(offerID, offerData) {
         if (offerData.products && offerData.products.length > 0) { params.body.products = offerData.products.map(function (id) { return { id: id }; }); }
         if (offerData.billingModels && offerData.billingModels.length > 0) { params.body.billing_models = offerData.billingModels.map(function (id) { return { id: id }; }); }
         var stickyioResponse = stickyioAPI('stickyio.http.put.offers').call(params);
-        if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+        if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
             return true;
         }
     }
