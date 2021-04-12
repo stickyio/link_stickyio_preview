@@ -66,8 +66,8 @@
                             <isif condition="${pdict.stickyioAllowBillNow}"><option value="bill_now" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'bill_now', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.bill_now', 'stickyio', null)}</option></isif>
                         </select>
                     </isif>
-                    <isif condition="${pdict.CurrentRequest.httpParameterMap.get('stickyiomsg_' + lineItem.stickyioSubscriptionID).value}">
-                        <p class="line-item-attributes stickyiosubscriptionresponse">${pdict.CurrentRequest.httpParameterMap.get('stickyiomsg_' + lineItem.stickyioSubscriptionID).value}</p>
+                    <isif condition="${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + lineItem.stickyioSubscriptionID).value}">
+                        <p class="line-item-attributes stickyiosubscriptionresponse">${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + lineItem.stickyioSubscriptionID).value}</p>
                     </isif>
                 </isif>
             </div>
