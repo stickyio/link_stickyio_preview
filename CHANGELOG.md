@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Sanity checks in API request/response
 - If consumer-selectable terms is true, but only one term available, default to that one term
+- sticky.io required custom fields are now their own job step
 
 ## [21.1.8] - 2021-04-09
 [39bb9bacacf963dd22e40b33574aaf490ea1df44](https://github.com/stickyio/link_stickyio_preview/commit/39bb9bacacf963dd22e40b33574aaf490ea1df44)
