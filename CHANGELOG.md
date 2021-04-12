@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.9] - 2021-04-11
+### Changed
+- Sanity checks in API request/response
+- If consumer-selectable terms is true, but only one term available, default to that one term
+
 ## [21.1.8] - 2021-04-09
 [39bb9bacacf963dd22e40b33574aaf490ea1df44](https://github.com/stickyio/link_stickyio_preview/commit/39bb9bacacf963dd22e40b33574aaf490ea1df44)
 ### Changed
