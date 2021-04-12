@@ -88,9 +88,9 @@ if (stickyioEnabled) {
                             message: stickyioResponse.message.message
                         });
                     } else {
-                        var url = req.httpHeaders.get('referer').replace(/&stickyiomsg(=[^&]*)?|^stickyiomsg(=[^&]*)?&?/, ''); // strip any existing stickyiomsg parameter off the URL
+                        var url = req.httpHeaders.get('referer').replace(/&stickyiomsg_([0-9a-f]{32}=[^&]*)?|^stickyiomsg_([0-9a-f]{32}=[^&]*)?&?/, ''); // strip any existing stickyiomsg parameter off the URL
                         res.json({
-                            redirectURL: url + '&stickyiomsg=' + stickyioResponse.message
+                            redirectURL: url + '&stickyiomsg_' + sid + '=' + stickyioResponse.message
                         });
                     }
                 } else {
