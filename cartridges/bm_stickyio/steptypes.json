@@ -37,12 +37,6 @@
                         "description": "When Reset All Products is checked, don't create new products in sticky.io and use existing sticky.io product IDs. If Reset All Products is checked and Persist Product IDs is unchecked, products will be created again in sticky.io.",
                         "@type": "boolean",
                         "@required": false
-                    },
-                    {
-                        "@name": "Wipe Preferences",
-                        "description": "Resets non-merchant administrable custom preferences related to products and orders. Only activate if you know what you're doing!",
-                        "@type": "boolean",
-                        "@required": false
                     }
                 ]
             },
@@ -110,6 +104,42 @@
                     {
                         "@code": "FINISHED_WITH_WARNINGS",
                         "description": "Used when the step finished with warnings."
+                    }
+                ]
+            }
+        },
+        {
+            "@type-id": "custom.stickyioCustomFields",
+            "@supports-parallel-execution": "true",
+            "@supports-site-context": "true",
+            "@supports-organization-context": "false",
+            "description": "Generate sticky.io custom fields and populate SFCC with returned values",
+            "module": "bm_stickyio/cartridge/scripts/steps/customFields.js",
+            "function": "customFields",
+            "transactional": "true",
+            "timeout-in-seconds": "900",
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "FINISHED",
+                        "description": "Used when the step finished successfully."
+                    },
+                    {
+                        "@code": "FINISHED_WITH_WARNINGS",
+                        "description": "Used when the step finished with warnings."
+                    }
+                ]
+            },
+            "parameters": {
+                "parameters": [
+                    {
+                        "@name": "Wipe SFCC Data",
+                        "description": "Resets non-merchant administrable sticky.io-related custom preferences. Only activate if you know what you're doing!",
+                        "@type": "boolean",
+                        "@required": false
                     }
                 ]
             }

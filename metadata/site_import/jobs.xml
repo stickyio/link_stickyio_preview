@@ -5,6 +5,13 @@
         <parameters/>
         <flow>
             <context site-id="RefArch"/>
+            <step step-id="sticky.io Custom Fields" type="custom.stickyioCustomFields" enforce-restart="false">
+                <description>(Re)create sticky.io required custom fields and populate SFCC custom preferences with returned IDs</description>
+                <parameters/>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="RefArch"/>
             <step step-id="sticky.io Campaign Sync" type="custom.stickyioCampaignSync" enforce-restart="false">
                 <description>Sync sticky.io campaign data to SFCC</description>
                 <parameters/>
@@ -39,30 +46,6 @@
             <run-once enabled="false">
                 <date>2019-11-15Z</date>
                 <time>18:26:58.000Z</time>
-            </run-once>
-        </triggers>
-    </job>
-
-    <job job-id="RebuildURLs" priority="0">
-        <description/>
-        <parameters/>
-        <split sequential="false">
-            <contexts template-ref="template_40">
-                <context site-id="RefArch"/>
-                <context site-id="RefArchGlobal"/>
-            </contexts>
-            <flow-template template-id="template_40">
-                <step step-id="RebuildURLs" type="UpdateStorefrontURLs" enforce-restart="false">
-                    <description/>
-                    <parameters/>
-                </step>
-            </flow-template>
-        </split>
-        <rules/>
-        <triggers>
-            <run-once enabled="false">
-                <date>2018-06-25Z</date>
-                <time>05:38:35.000Z</time>
             </run-once>
         </triggers>
     </job>
@@ -130,15 +113,16 @@ Updates SFCC storage of Campaigns, Offers, and Billing models with latest data f
         <parameters/>
         <flow>
             <context site-id="RefArch"/>
+            <step step-id="sticky.io Custom Fields" type="custom.stickyioCustomFields" enforce-restart="false">
+                <description>(Re)create sticky.io required custom fields and populate SFCC custom preferences with returned IDs</description>
+                <parameters/>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="RefArch"/>
             <step step-id="sticky.io Product Sync" type="custom.stickyioProductSync" enforce-restart="false">
                 <description>Pushes all sticky.io subscription products and SFCC subscription products that have changed since the last push, to sticky.io.</description>
-                <parameters>
-                    <parameter name="Email Log">false</parameter>
-                    <parameter name="Email Address">jrh@jordanholberg.com</parameter>
-                    <parameter name="Reset All Products">false</parameter>
-                    <parameter name="Persist Product IDs">false</parameter>
-                    <parameter name="Wipe Preferences">false</parameter>
-                </parameters>
+                <parameters/>
             </step>
         </flow>
         <flow>
@@ -189,35 +173,6 @@ Updates SFCC storage of Campaigns, Offers, and Billing models with latest data f
             <run-once enabled="false">
                 <date>2020-01-12Z</date>
                 <time>05:39:43.000Z</time>
-            </run-once>
-        </triggers>
-    </job>
-
-    <job job-id="Reindex" priority="0">
-        <description/>
-        <parameters/>
-        <split sequential="false">
-            <contexts template-ref="template_45">
-                <context site-id="RefArch"/>
-                <context site-id="RefArchGlobal"/>
-            </contexts>
-            <flow-template template-id="template_45">
-                <step step-id="Reindex" type="SearchReindex" enforce-restart="false">
-                    <description/>
-                    <parameters>
-                        <parameter name="Product related search indexes">true</parameter>
-                        <parameter name="Active data search index">true</parameter>
-                        <parameter name="Content search index">true</parameter>
-                        <parameter name="Indexer Type">Full Index Rebuild</parameter>
-                    </parameters>
-                </step>
-            </flow-template>
-        </split>
-        <rules/>
-        <triggers>
-            <run-once enabled="false">
-                <date>2018-06-25Z</date>
-                <time>05:36:56.000Z</time>
             </run-once>
         </triggers>
     </job>
