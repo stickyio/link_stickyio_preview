@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.10] - 2021-04-13
+### Changed
+- Always check is_recurring to determine if subscription is active and remove display of hold date in subscription management
+- Changed default ON HOLD label
+
 ## [21.1.9] - 2021-04-11
 [0162b211f3c9b3da731e37e7e6e919b3c6555b8c](https://github.com/stickyio/link_stickyio_preview/commit/0162b211f3c9b3da731e37e7e6e919b3c6555b8c)
 [cda0d425fb89141a90d8851d35d95011a8b64236](https://github.com/stickyio/link_stickyio_preview/commit/cda0d425fb89141a90d8851d35d95011a8b64236)
