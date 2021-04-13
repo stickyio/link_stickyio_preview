@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [21.1.10] - 2021-04-13
 [3d0e22de433174d2e107533ea1a07f660aadce51](https://github.com/stickyio/link_stickyio_preview/commit/3d0e22de433174d2e107533ea1a07f660aadce51)
+[df58acc87764b1079549058b825e4c5af635d789](https://github.com/stickyio/link_stickyio_preview/commit/df58acc87764b1079549058b825e4c5af635d789)
 ### Changed
 - Always check `is_recurring` to determine if subscription is active and remove display of hold date in subscription management
 - Changed default `label.subscriptionmanagement.on_hold` localization value
