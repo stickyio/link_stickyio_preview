@@ -23,7 +23,7 @@
                     </isif>
                 </p>
                 <isif condition="${lineItem.stickyioBillingModelID != 2}">
-                    <isif condition="${typeof (lineItem.recurring_date) !== 'undefined'}">
+                    <isif condition="${lineItem.is_recurring && typeof (lineItem.recurring_date) !== 'undefined'}">
                         <isif condition="${lineItem.options && lineItem.options.length > 1}">
                             <isloop items="${lineItem.options}" var="lineItemOption">
                                 <isif condition="${lineItemOption.optionId === 'stickyioTermOptions' && lineItemOption.selectedValueId !== '0'}">
@@ -35,14 +35,14 @@
                         </isif>
                         <p class="line-item-attributes">
                             ${Resource.msg('label.subscriptionmanagement.recur_at', 'stickyio', null)}: 
-                            <isif condition="${!lineItem.on_hold}">
+                            <isif condition="${lineItem.is_recurring}">
                                 <isif condition="${pdict.stickyioAllowRecurring === true}">
                                     <input type="text" size="11" class="datepicker" placeholder="${lineItem.recurring_date}" data-initialvalue="${lineItem.recurring_date}" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'recur_at', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" value="${lineItem.recurring_date}"/>
                                 <iselse/>
                                     ${lineItem.recurring_date}
                                 </isif>
                             <iselse/>
-                                ${Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null)} ${lineItem.hold_date}
+                                ${Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null)}
                             </isif>
                         </p>
                     </isif>
