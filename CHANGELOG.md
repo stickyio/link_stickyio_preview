@@ -8,9 +8,9 @@ All notable changes to this project will be documented in this file.
 - Changed default ON HOLD label
 
 ## [21.1.9] - 2021-04-11
-[0162b211f3c9b3da731e37e7e6e919b3c6555b8c](https://github.com/stickyio/link_stickyio_preview/commit/0162b211f3c9b3da731e37e7e6e919b3c6555b8c)
-[cda0d425fb89141a90d8851d35d95011a8b64236](https://github.com/stickyio/link_stickyio_preview/commit/cda0d425fb89141a90d8851d35d95011a8b64236)
-[993841bd6448e076ef8a7798528fb97dcaa532f4](https://github.com/stickyio/link_stickyio_preview/commit/993841bd6448e076ef8a7798528fb97dcaa532f4)
+[0162b211f3c9b3da731e37e7e6e919b3c6555b8c](https://github.com/stickyio/link_stickyio_preview/commit/0162b211f3c9b3da731e37e7e6e919b3c6555b8c)  
+[cda0d425fb89141a90d8851d35d95011a8b64236](https://github.com/stickyio/link_stickyio_preview/commit/cda0d425fb89141a90d8851d35d95011a8b64236)  
+[993841bd6448e076ef8a7798528fb97dcaa532f4](https://github.com/stickyio/link_stickyio_preview/commit/993841bd6448e076ef8a7798528fb97dcaa532f4)  
 [b8906b33b102a49ab2c1891257ea8c9765742166](https://github.com/stickyio/link_stickyio_preview/commit/b8906b33b102a49ab2c1891257ea8c9765742166)
 ### Changed
 - Sanity checks in API request/response
