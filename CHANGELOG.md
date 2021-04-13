@@ -4,8 +4,8 @@ All notable changes to this project will be documented in this file.
 ## [21.1.10] - 2021-04-13
 [3d0e22de433174d2e107533ea1a07f660aadce51](https://github.com/stickyio/link_stickyio_preview/commit/3d0e22de433174d2e107533ea1a07f660aadce51)
 ### Changed
-- Always check is_recurring to determine if subscription is active and remove display of hold date in subscription management
-- Changed default ON HOLD label
+- Always check `is_recurring` to determine if subscription is active and remove display of hold date in subscription management
+- Changed default `label.subscriptionmanagement.on_hold` localization value
 
 ## [21.1.9] - 2021-04-11
 [0162b211f3c9b3da731e37e7e6e919b3c6555b8c](https://github.com/stickyio/link_stickyio_preview/commit/0162b211f3c9b3da731e37e7e6e919b3c6555b8c)  
@@ -16,12 +16,12 @@ All notable changes to this project will be documented in this file.
 - Sanity checks in API request/response
 - If consumer-selectable terms is true, but only one term available, default to that one term
 - sticky.io required custom fields are now their own job step
-- Allow multiple subscription management result messages by targeting subscriptionID
+- Allow multiple subscription management result messages by targeting `subscriptionID`
 
 ## [21.1.8] - 2021-04-09
 [39bb9bacacf963dd22e40b33574aaf490ea1df44](https://github.com/stickyio/link_stickyio_preview/commit/39bb9bacacf963dd22e40b33574aaf490ea1df44)
 ### Changed
-- Fixed SFCC storage of sticky subscription_id in new_order return
+- Fixed SFCC storage of sticky `subscription_id` in `new_order` return
 - Added prepaid terms display in customer subscription management
 
 ## [21.1.7] - 2021-04-07
@@ -51,8 +51,8 @@ All notable changes to this project will be documented in this file.
 [8521db282901c3f090fbcdc9f06257da0ba8fa81](https://github.com/stickyio/link_stickyio_preview/commit/8521db282901c3f090fbcdc9f06257da0ba8fa81)  
 [cae39d8c37ac83e531bda817901e80495d4713bc](https://github.com/stickyio/link_stickyio_preview/commit/cae39d8c37ac83e531bda817901e80495d4713bc)
 ### Changed
-- Sanity check for product options in Cart-EditProductLineItem route
-- Reduced complexity of models, decorators, and helpers by using superModule
+- Sanity check for product options in `Cart-EditProductLineItem` route
+- Reduced complexity of models, decorators, and helpers by using `superModule`
 - Accompanying unit test modifications to handle model superModule changes
 
 ## [21.1.4] - 2021-03-31
@@ -67,8 +67,8 @@ All notable changes to this project will be documented in this file.
 - Unused variables in route
 
 ### Changed
-- Cart-EditProductLineItem modified to handle multiple product options
-- Cart-AddProduct modified to default to quantity of 1 if quantity is not included
+- `Cart-EditProductLineItem` modified to handle multiple product options
+- `Cart-AddProduct` modified to default to quantity of 1 if quantity is not included
 
 ## [21.1.2] - 2021-03-26
 [287634e4dfc5d3b7f3a5b92616721b9aded12252](https://github.com/stickyio/link_stickyio_preview/commit/287634e4dfc5d3b7f3a5b92616721b9aded12252)  
@@ -85,7 +85,7 @@ All notable changes to this project will be documented in this file.
 - Unused variable in helper
 
 ### Changed
-- Front-end Javascript multi-modal targetting bug fixes for SFRA stupidity
+- Front-end Javascript multi-modal targeting bug fixes for SFRA stupidity
 
 ## [21.1.0] - 2021-03-22
 [68b2ca5de17c9c92979e44a426d033316978e398](https://github.com/stickyio/link_stickyio_preview/commit/68b2ca5de17c9c92979e44a426d033316978e398)  
@@ -97,7 +97,7 @@ All notable changes to this project will be documented in this file.
 - Straight Sale custom preference
 - Out of the box Billing Models
 - "Custom" Billing Model/Offer configuration and underlying processes/code
-- Unused stickyioCycles decoratot
+- Unused `stickyioCycles` decorator
 
 ### Changed
 - SSO route endpoint
@@ -107,8 +107,8 @@ All notable changes to this project will be documented in this file.
 - Rewritten documentation
 - Job steps aligned with new system and custom object manipulation processes
 - Literal "null" sanity check on calculate.js
-- Simplified Cart-EditProductLineItem route and additional sanity checks
-- Quickview targetting
+- Simplified `Cart-EditProductLineItem` route and additional sanity checks
+- Quickview targeting
 
 ### Added
 - Support for any Billing Model
@@ -148,7 +148,7 @@ All notable changes to this project will be documented in this file.
 - Site Custom Preference "Platform-Key" no longer in use - switched to a pure service API User/Password authentication model
 
 ### Changed
-- Default to gateway id 1 when no gateway is set
+- Default to Gateway ID 1 when no gateway is set
 
 ## [20.1.2] - 2021-02-24
 [cc23828f0d4a2c1e20a756c87f03bef1977df910](https://github.com/stickyio/link_stickyio_preview/commit/cc23828f0d4a2c1e20a756c87f03bef1977df910)  
