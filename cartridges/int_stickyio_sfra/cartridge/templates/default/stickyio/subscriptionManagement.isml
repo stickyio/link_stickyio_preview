@@ -35,16 +35,14 @@
                         </isif>
                         <p class="line-item-attributes">
                             ${Resource.msg('label.subscriptionmanagement.recur_at', 'stickyio', null)}: 
-                            <isif condition="${lineItem.is_recurring}">
-                                <isif condition="${pdict.stickyioAllowRecurring === true}">
-                                    <input type="text" size="11" class="datepicker" placeholder="${lineItem.recurring_date}" data-initialvalue="${lineItem.recurring_date}" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'recur_at', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" value="${lineItem.recurring_date}"/>
-                                <iselse/>
-                                    ${lineItem.recurring_date}
-                                </isif>
+                            <isif condition="${pdict.stickyioAllowRecurring === true}">
+                                <input type="text" size="11" class="datepicker" placeholder="${lineItem.recurring_date}" data-initialvalue="${lineItem.recurring_date}" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'recur_at', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" value="${lineItem.recurring_date}"/>
                             <iselse/>
-                                ${Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null)}
+                                ${lineItem.recurring_date}
                             </isif>
                         </p>
+                    <iselse/>
+                        <p class="line-item-attributes">${Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null)}</p>
                     </isif>
                     <!--- if nothing is allowed, don't show this at all --->
                     <isif condition="${pdict.stickyioAllowSubManSelect}">
