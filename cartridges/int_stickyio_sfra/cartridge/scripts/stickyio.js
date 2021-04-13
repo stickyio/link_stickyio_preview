@@ -2257,14 +2257,13 @@ function updateOrderView(orderView, order) {
 
         thisOrderView.stickyioAllowSubManSelect = true;
         thisOrderView.stickyioAllowSubManStartOptions = true;
-        thisOrderView.stickyioAllowSubManStopOptions = true;
+        thisOrderView.stickyioAllowSubManPauseOptions = true;
 
         thisOrderView.stickyioAllowResume = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowResume');
         thisOrderView.stickyioAllowReset = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowReset');
         thisOrderView.stickyioAllowBillNow = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowBillNow');
 
         thisOrderView.stickyioAllowPause = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowPause');
-        thisOrderView.stickyioAllowStop = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowStop');
         thisOrderView.stickyioAllowTerminateNext = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowTerminateNext');
 
         if (thisOrderView.stickyioAllowResume !== true
@@ -2272,10 +2271,9 @@ function updateOrderView(orderView, order) {
             && thisOrderView.stickyioAllowBillNow !== true
         ) { thisOrderView.stickyioAllowSubManStartOptions = false; }
         if (thisOrderView.stickyioAllowPause !== true
-            && thisOrderView.stickyioAllowStop !== true
             && thisOrderView.stickyioAllowTerminateNext !== true
-        ) { thisOrderView.stickyioAllowSubManStopOptions = false; }
-        if (!thisOrderView.stickyioAllowSubManStartOptions && !thisOrderView.stickyioAllowSubManStopOptions) { thisOrderView.stickyioAllowSubManSelect = false; }
+        ) { thisOrderView.stickyioAllowSubManPauseOptions = false; }
+        if (!thisOrderView.stickyioAllowSubManStartOptions && !thisOrderView.stickyioAllowSubManPauseOptions) { thisOrderView.stickyioAllowSubManSelect = false; }
     }
     return thisOrderView;
 }
@@ -2332,28 +2330,10 @@ function subManUpdateRecurringDate(subscriptionID, date) {
 function subManPause(subscriptionID) {
     var params = {};
     params.id = subscriptionID;
-    params.helper = 'pause';
-    var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.pause').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
-        return { message: Resource.msg('label.subscriptionmanagement.response.pause', 'stickyio', null) };
-    }
-    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
-    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
-    return { error: true, message: message };
-}
-
-/**
- * Stop the sticky.io subscription
- * @param {string} subscriptionID - sticky.io subscription ID
- * @returns {Object} - result of the call
- */
-function subManStop(subscriptionID) {
-    var params = {};
-    params.id = subscriptionID;
     params.helper = 'stop';
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.stop').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
-        return { message: Resource.msg('label.subscriptionmanagement.response.stop', 'stickyio', null) };
+        return { message: Resource.msg('label.subscriptionmanagement.response.pause', 'stickyio', null) };
     }
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
     if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
@@ -2495,7 +2475,6 @@ function stickyioSubMan(orderNo, subscriptionID, action, bmID, date) {
         return subManUpdateRecurringDate(subscriptionID, date);
     }
     if (action === 'pause') { return subManPause(subscriptionID); }
-    if (action === 'stop') { return subManStop(subscriptionID); }
     if (action === 'terminate_next') { return subManTerminateNext(subscriptionID); }
     if (action === 'start') { return subManStart(orderNo, subscriptionID); }
     if (action === 'reset') { return subManReset(subscriptionID); }

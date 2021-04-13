@@ -41,17 +41,16 @@
                                 ${lineItem.recurring_date}
                             </isif>
                         </p>
-                    <iselse/>
+                    <iselseif condition="${typeof (lineItem.is_recurring) !== 'undefined'}"/>
                         <p class="line-item-attributes">${Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null)}</p>
                     </isif>
                     <!--- if nothing is allowed, don't show this at all --->
                     <isif condition="${pdict.stickyioAllowSubManSelect}">
                         <select class="line-item-attributes subscriptionmanagementselect quickview">
                             <option value="0">${Resource.msg('label.subscriptionmanagement.title', 'stickyio', null)}</option>
-                            <isif condition="${pdict.stickyioAllowSubManStopOptions}">
-                                <optgroup label="${Resource.msg('label.subscriptionmanagement.stoplabel', 'stickyio', null)}">
+                            <isif condition="${pdict.stickyioAllowSubManPauseOptions}">
+                                <optgroup label="${Resource.msg('label.subscriptionmanagement.pauselabel', 'stickyio', null)}">
                                     <isif condition="${pdict.stickyioAllowPause}"><option value="pause" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'pause', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.pause', 'stickyio', null)}</option></isif>
-                                    <isif condition="${pdict.stickyioAllowStop}"><option value="stop" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'stop', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.stop', 'stickyio', null)}</option></isif>
                                     <isif condition="${pdict.stickyioAllowTerminateNext}"><option value="terminate_next" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'terminate_next', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" ${lineItem.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.terminate_next', 'stickyio', null)}</option></isif>
                                 </optgroup>
                             </isif>
