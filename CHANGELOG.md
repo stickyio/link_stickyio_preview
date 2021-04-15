@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.11] - 2021-04-15
+[0ddba49bae3354b34f09f5f9d66082b536d62e0d](https://github.com/stickyio/link_stickyio_preview/commit/0ddba49bae3354b34f09f5f9d66082b536d62e0d)
 ### Changed
 - Check if sticky.io cartridge is enabled before running any custom OCAPI hooks or modified `cart/calculate.js` function
 
