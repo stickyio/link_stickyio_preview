@@ -2,6 +2,7 @@
 
 var Transaction = require('dw/system/Transaction');
 var Status = require('dw/system/Status');
+var stickyioEnabled = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioEnabled');
 
 /**
  * Add our custom transactionID to the basket's payment instrument if it's a sticky.io order
@@ -27,14 +28,16 @@ function updatePaymentInstrument(basket, paymentInstrumentRequest) {
  * @return {Status} returns an order status object
  */
 function afterPOST(basket, paymentInstrumentRequest) {
-    var shipments = basket.getShipments();
-    var i;
-    for (i = 0; i < shipments.length; i++) {
-        if (shipments[i].custom.stickyioOrderNo) {
-            try {
-                updatePaymentInstrument(basket, paymentInstrumentRequest);
-            } catch (e) {
-                return new Status(Status.ERROR);
+    if (stickyioEnabled) {
+        var shipments = basket.getShipments();
+        var i;
+        for (i = 0; i < shipments.length; i++) {
+            if (shipments[i].custom.stickyioOrderNo) {
+                try {
+                    updatePaymentInstrument(basket, paymentInstrumentRequest);
+                } catch (e) {
+                    return new Status(Status.ERROR);
+                }
             }
         }
     }

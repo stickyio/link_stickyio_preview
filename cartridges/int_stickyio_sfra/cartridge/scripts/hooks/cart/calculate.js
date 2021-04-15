@@ -17,6 +17,7 @@ var Logger = require('dw/system/Logger');
 var Status = require('dw/system/Status');
 var HookMgr = require('dw/system/HookMgr');
 var collections = require('*/cartridge/scripts/util/collections');
+var stickyioEnabled = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioEnabled');
 
 /**
  * @function calculate
@@ -171,7 +172,7 @@ function calculateProductPrices (basket) {
             productLineItem.setPriceValue(productPrices.get(product).valueOrNull);
         }
 
-        if (productLineItem.custom.stickyioTermsID && productLineItem.custom.stickyioTermsID !== '0' && productLineItem.custom.stickyioTermsID !== 'null') {
+        if (stickyioEnabled && productLineItem.custom.stickyioTermsID && productLineItem.custom.stickyioTermsID !== '0' && productLineItem.custom.stickyioTermsID !== 'null') {
             productLineItem.setPriceValue(productLineItem.getBasePrice().multiply(Number(productLineItem.custom.stickyioTermsID.split('-')[1])).value);
         }
     }
