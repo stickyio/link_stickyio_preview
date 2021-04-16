@@ -5,13 +5,6 @@
         <parameters/>
         <flow>
             <context site-id="RefArch"/>
-            <step step-id="sticky.io Custom Fields" type="custom.stickyioCustomFields" enforce-restart="false">
-                <description>(Re)create sticky.io required custom fields and populate SFCC custom preferences with returned IDs</description>
-                <parameters/>
-            </step>
-        </flow>
-        <flow>
-            <context site-id="RefArch"/>
             <step step-id="sticky.io Campaign Sync" type="custom.stickyioCampaignSync" enforce-restart="false">
                 <description>Sync sticky.io campaign data to SFCC</description>
                 <parameters/>
@@ -111,13 +104,6 @@
         <description>Pushes all sticky.io subscription products and SFCC subscription products that have changed since the last push to sticky.io.
 Updates SFCC storage of Campaigns, Offers, and Billing models with latest data from sticky.io.</description>
         <parameters/>
-        <flow>
-            <context site-id="RefArch"/>
-            <step step-id="sticky.io Custom Fields" type="custom.stickyioCustomFields" enforce-restart="false">
-                <description>(Re)create sticky.io required custom fields and populate SFCC custom preferences with returned IDs</description>
-                <parameters/>
-            </step>
-        </flow>
         <flow>
             <context site-id="RefArch"/>
             <step step-id="sticky.io Product Sync" type="custom.stickyioProductSync" enforce-restart="false">

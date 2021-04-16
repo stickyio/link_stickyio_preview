@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.12] - 2021-04-16
+### Changed
+- Use `token` instead of `id` when passing `custom_fields` in the sticky.io `new_order` API call
+
+### Removed
+- SFCC-generation/validation/storage of sticky.io required custom fields, associated jobs, code, and system preference custom attributes
+
 ## [21.1.11] - 2021-04-15
 [0ddba49bae3354b34f09f5f9d66082b536d62e0d](https://github.com/stickyio/link_stickyio_preview/commit/0ddba49bae3354b34f09f5f9d66082b536d62e0d)
 ### Changed

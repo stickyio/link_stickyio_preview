@@ -18,7 +18,6 @@ var Calendar = require('dw/util/Calendar');
 var Shipment = require('dw/order/Shipment');
 var Order = require('dw/order/Order');
 var OCAPI_VERSION = 'v19_10';
-var tokenPrefix = 'sfcc_';
 var subscriptionProductsLog = {};
 var offerProductsLog = [];
 var allStickyioProducts = {};
@@ -1339,92 +1338,6 @@ function getAttributes(stickyioPID) {
     return false; // this product failed being retrieved from sticky.io
 }
 
-
-/**
- * Get all custom fields from sticky.io
- * @param {number} pageNum - Pagination page number
- * @param {Array} customFields - sticky.io custom fields array
- * @returns {Object} - customFields array
-*/
-function getCustomFields(pageNum, customFields) {
-    var i;
-    var thisPageNum = pageNum;
-    var theseCustomFields = customFields;
-    if (thisPageNum === 0) { thisPageNum = 1; }
-    var params = {};
-    params.queryString = 'page=' + thisPageNum;
-    var stickyioResponse = stickyioAPI('stickyio.http.get.custom_fields').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
-        for (i = 0; i < stickyioResponse.object.result.data.length; i++) {
-            theseCustomFields.push(stickyioResponse.object.result.data[i]);
-        }
-        if (thisPageNum < parseInt(stickyioResponse.object.result.last_page, 10)) { thisPageNum++; getCustomFields(thisPageNum, theseCustomFields); }
-        return theseCustomFields;
-    }
-    return theseCustomFields;
-}
-
-/**
- * Get existing custom field from sticky.io
- * @param {string} tokenKey - sticky.io custom field token ID
- * @returns {Object} - Returns the custom field ID or false if not found
-*/
-function getCustomField(tokenKey) {
-    var i;
-    var customFields = getCustomFields(0, []);
-    if (customFields.length > 0) {
-        for (i = 0; i < customFields.length; i++) {
-            var thisCustomField = customFields[i];
-            if (thisCustomField.token_key === tokenKey) { return thisCustomField.id; }
-        }
-        return false;
-    }
-    return false;
-}
-
-/**
- * Create a new custom field in sticky.io
- * and saves the resultant ID to SFCC custom preference
- * @param {string} customPreferenceID - The SFCC custom preference
- * @param {string} customFieldName - The sticky.io custom field name
- * @param {string} tokenKey - The token of the sticky.io custom field
- * @param {number} fieldTypeID - sticky.io field type ID (options available in sticky.io docs)
- * @param {number} typeID - sticky.io type ID (options available in sticky.io docs)
- * @param {boolean} reset - boolean flag to force update of the local SFCC preference associated with this custom field
- * @returns {void}
-*/
-function createCustomField(customPreferenceID, customFieldName, tokenKey, fieldTypeID, typeID, reset) {
-    if (reset || Site.getCurrent().getCustomPreferenceValue(customPreferenceID) === null) { // create the custom field!
-        var customField = getCustomField(tokenPrefix + tokenKey);
-        if (!customField) {
-            var params = {};
-            var body = {};
-            body.name = customFieldName;
-            body.field_type_id = fieldTypeID;
-            body.type_id = typeID;
-            body.is_multi = false;
-            body.token_key = tokenPrefix + tokenKey;
-            params.body = body;
-            var stickyioResponse = stickyioAPI('stickyio.http.post.custom_fields').call(params);
-            if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data.id)) {
-                try {
-                    Transaction.wrap(function () { Site.getCurrent().setCustomPreferenceValue(customPreferenceID, parseInt(stickyioResponse.object.result.data.id, 10)); });
-                } catch (e) {
-                    Logger.error('Error while setting SFCC ' + customPreferenceID + ' custom preference.');
-                    throw e;
-                }
-            }
-        } else { // custom field already exists in sticky.io, so let's just update the SFCC preference
-            try {
-                Transaction.wrap(function () { Site.getCurrent().setCustomPreferenceValue(customPreferenceID, parseInt(customField, 10)); });
-            } catch (e) {
-                Logger.error('Error while setting SFCC ' + customPreferenceID + ' custom preference.');
-                throw e;
-            }
-        }
-    }
-}
-
 /**
  * Delete a variant from sticky.io
  * @param {number} variantID - sticky.io variant ID
@@ -1927,11 +1840,10 @@ function hasSubscriptionProducts(order) {
 
 /**
  * Create the bogus straight sale product in sticky.io and store its product ID in a SFCC custom preference
- * @param {boolean} reset - boolean flag to force update of the preference
  * @returns {void}
 */
-function createStraightSaleProduct(reset) {
-    var thisReset = reset;
+function createStraightSaleProduct() {
+    var reset = false;
     var stickyioResponse;
     var params = {};
     var body = {};
@@ -1942,11 +1854,11 @@ function createStraightSaleProduct(reset) {
         stickyioResponse = stickyioAPI('stickyio.http.post.product_index').call(params);
         if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.response_code === '100')) {
             if (stickyioResponse.object.result.products[existingStraightSaleID].product_sku !== 'stickyioStraightSale') { // this stickyioProductID we have stored doesn't match the straightSale product
-                thisReset = true; // reset it
+                reset = true; // reset it
             }
-        } else { thisReset = true; }
+        } else { reset = true; }
     }
-    if (thisReset || !existingStraightSaleID) {
+    if (reset || !existingStraightSaleID) {
         body.product_name = 'stickyioStraightSale';
         body.category_id = 1;
         body.product_sku = 'stickyioStraightSale';
@@ -2494,7 +2406,6 @@ module.exports = {
     validateProduct: validateProduct,
     getProductType: getProductType,
     createStraightSaleProduct: createStraightSaleProduct,
-    createCustomField: createCustomField,
     getAllStickyioMasterProducts: getAllStickyioMasterProducts,
     syncOffers: syncOffers,
     syncProduct: syncProduct,

@@ -122,18 +122,12 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         var plis = order.getAllProductLineItems();
         var stickyioGatewayID = Site.getCurrent().getCustomPreferenceValue('stickyioGatewayID');
         var stickyioStraightSaleProductID = Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleProductID');
-        var stickyioCustomFieldSiteID = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldSiteID');
-        var stickyioCustomFieldHostname = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldHostname');
-        var stickyioCustomFieldShipmentID = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldShipmentID');
-        var stickyioCustomFieldOrderNo = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldOrderNo');
-        var stickyioCustomFieldOrderToken = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldOrderToken');
-        var stickyioCustomFieldCustomerID = Site.getCurrent().getCustomPreferenceValue('stickyioCustomFieldCustomerID');
-        var siteIDObject = { id: stickyioCustomFieldSiteID, value: Site.getCurrent().ID };
-        var hostnameObject = { id: stickyioCustomFieldHostname, value: Site.getCurrent().httpsHostName };
-        var shipmentIDObject = { id: stickyioCustomFieldShipmentID, value: shipment.ID };
-        var orderNoObject = { id: stickyioCustomFieldOrderNo, value: order.orderNo };
-        var orderTokenObject = { id: stickyioCustomFieldOrderToken, value: order.orderToken };
-        var customerIDObject = { id: stickyioCustomFieldCustomerID, value: customer.ID }; // eslint-disable-line no-undef
+        var siteIDObject = { token: 'sfcc_site_id', value: Site.getCurrent().ID };
+        var hostnameObject = { token: 'sfcc_hostname', value: Site.getCurrent().httpsHostName };
+        var shipmentIDObject = { token: 'sfcc_shipment_id', value: shipment.ID };
+        var orderNoObject = { token: 'sfcc_order_number', value: order.orderNo };
+        var orderTokenObject = { token: 'sfcc_order_token', value: order.orderToken };
+        var customerIDObject = { token: 'sfcc_customer_id', value: customer.ID }; // eslint-disable-line no-undef
 
         var params = {};
         params.body = {};
@@ -185,12 +179,12 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         for (i = 0; i < plis.length; i++) {
             var thisOffer = {};
             var priceType = 'price';
-            if (plis[i].custom.stickyioOfferID) { // subscription product
+            if (plis[i].custom.stickyioOfferID && plis[i].custom.stickyioOfferID !== 0) { // subscription product
                 thisOffer.offer_id = plis[i].custom.stickyioOfferID;
                 thisOffer.product_id = plis[i].custom.stickyioProductID;
                 thisOffer.quantity = plis[i].quantityValue;
                 thisOffer.billing_model_id = plis[i].custom.stickyioBillingModelID;
-                if (plis[i].custom.stickyioTermsID) {
+                if (plis[i].custom.stickyioTermsID && plis[i].custom.stickyioTermsID !== '0') {
                     thisOffer.prepaid_cycles = plis[i].custom.stickyioTermsID.split('-')[1];
                     priceType = 'prepaid_price';
                 }
@@ -220,7 +214,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
             failedOrderData.stickyioOrderNo = stickyioResponse.object.result.order_id;
             failedOrderData.products = [];
             for (i = 0; i < plis.length; i++) {
-                if (plis[i].custom.stickyioOfferID) { // subscription product
+                if (plis[i].custom.stickyioOfferID && plis[i].custom.stickyioOfferID !== 0) { // subscription product
                     thisPLIStickyID = plis[i].custom.stickyioProductID.toString();
                     if (plis[i].getProduct().isVariant()) {
                         thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;
@@ -235,7 +229,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                     paymentInstrument.custom.stickyioTempCustomerID = null;
                     paymentInstrument.custom.stickyioTokenExpiration = null;
                     for (i = 0; i < plis.length; i++) {
-                        if (plis[i].custom.stickyioOfferID) { // subscription product
+                        if (plis[i].custom.stickyioOfferID && plis[i].custom.stickyioOfferID !== 0) { // subscription product
                             thisPLIStickyID = plis[i].custom.stickyioProductID.toString();
                             if (plis[i].getProduct().isVariant()) {
                                 thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;

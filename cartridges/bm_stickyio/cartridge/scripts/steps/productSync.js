@@ -12,6 +12,8 @@ exports.productSync = function (parameters) {
         stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false);
     }
 
+    stickyio.createStraightSaleProduct();
+
     var content = '';
     if (Object.keys(stickyio.subscriptionProductsLog).length > 0 || stickyio.offerProductsLog.length > 0) {
         if (Object.keys(stickyio.subscriptionProductsLog).length > 0) {

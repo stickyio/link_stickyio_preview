@@ -576,48 +576,6 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
-            <attribute-definition attribute-id="stickyioCustomFieldCustomerID">
-                <display-name xml:lang="x-default">Customer ID</display-name>
-                <description xml:lang="x-default">Stores the sticky.io custom order field Customer ID ID</description>
-                <type>int</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>true</externally-managed-flag>
-            </attribute-definition>
-            <attribute-definition attribute-id="stickyioCustomFieldOrderNo">
-                <display-name xml:lang="x-default">OrderNo</display-name>
-                <description xml:lang="x-default">Stores the sticky.io custom field ID for the SFCC order number</description>
-                <type>int</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>true</externally-managed-flag>
-            </attribute-definition>
-            <attribute-definition attribute-id="stickyioCustomFieldOrderToken">
-                <display-name xml:lang="x-default">OrderToken</display-name>
-                <description xml:lang="x-default">Custom field ID for sticky.io to store the SFCC order token</description>
-                <type>int</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>true</externally-managed-flag>
-            </attribute-definition>
-            <attribute-definition attribute-id="stickyioCustomFieldShipmentID">
-                <display-name xml:lang="x-default">ShipmentID</display-name>
-                <description xml:lang="x-default">Custom field ID for sticky.io to store the SFCC shipment ID</description>
-                <type>int</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>true</externally-managed-flag>
-            </attribute-definition>
-            <attribute-definition attribute-id="stickyioCustomFieldSiteID">
-                <display-name xml:lang="x-default">siteID</display-name>
-                <description xml:lang="x-default">Custom field ID for sticky.io to store the SFCC site ID</description>
-                <type>int</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>true</externally-managed-flag>
-            </attribute-definition>
-            <attribute-definition attribute-id="stickyioCustomFieldHostname">
-                <display-name xml:lang="x-default">Hostname</display-name>
-                <description xml:lang="x-default">Custom field ID for sticky.io to store the SFCC hostname</description>
-                <type>int</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>true</externally-managed-flag>
-            </attribute-definition>
             <attribute-definition attribute-id="stickyioEnabled">
                 <display-name xml:lang="x-default">Enable sticky.io</display-name>
                 <type>boolean</type>
