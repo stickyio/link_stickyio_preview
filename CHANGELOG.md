@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.12] - 2021-04-16
+[71646e114d3ede6978bceba0e12574eca4ae63b8](https://github.com/stickyio/link_stickyio_preview/commit/71646e114d3ede6978bceba0e12574eca4ae63b8)
 ### Changed
 - Use `token` instead of `id` when passing `custom_fields` in the sticky.io `new_order` API call
 
