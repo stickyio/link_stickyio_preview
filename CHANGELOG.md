@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.13] - 2021-04-20
+[3b46ae974c041ac7ce6f7a3943ee4ea74f49138c](https://github.com/stickyio/link_stickyio_preview/commit/3b46ae974c041ac7ce6f7a3943ee4ea74f49138c)
 ### Changed
 - Sanity checks for Kount
 - Default params for straight-sale subscription products in `new_order` call
