@@ -179,26 +179,28 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         for (i = 0; i < plis.length; i++) {
             var thisOffer = {};
             var priceType = 'price';
-            if (plis[i].custom.stickyioOfferID && plis[i].custom.stickyioOfferID !== 0) { // subscription product
+            if (plis[i].custom.stickyioOfferID && plis[i].custom.stickyioOfferID > 0) { // subscription product
                 thisOffer.offer_id = plis[i].custom.stickyioOfferID;
                 thisOffer.product_id = plis[i].custom.stickyioProductID;
                 thisOffer.quantity = plis[i].quantityValue;
                 thisOffer.billing_model_id = plis[i].custom.stickyioBillingModelID;
-                if (plis[i].custom.stickyioTermsID && plis[i].custom.stickyioTermsID !== '0') {
-                    thisOffer.prepaid_cycles = plis[i].custom.stickyioTermsID.split('-')[1];
+                if (plis[i].custom.stickyioTermsID && plis[i].custom.stickyioTermsID !== '0' && plis[i].custom.stickyioTermsID !== 'null') {
+                    thisOffer.prepaid_cycles = parseInt(plis[i].custom.stickyioTermsID.split('-')[1], 10);
                     priceType = 'prepaid_price';
                 }
-                thisOffer[priceType] = plis[i].adjustedNetPrice.value.toString(); // price before tax
+                thisOffer[priceType] = plis[i].adjustedNetPrice.value; // price before tax
                 thisProduct = plis[i].getProduct();
                 if (thisProduct && thisProduct.isVariant() && plis[i].custom.stickyioVariationID) { thisOffer.variant = { variant_id: plis[i].custom.stickyioVariationID }; }
                 offers.push(thisOffer);
             } else { // this is a non-subscription product
-                nonSubscriptionProduct.price += plis[i].adjustedNetPrice.value.toString();
+                nonSubscriptionProduct.price += Number(plis[i].adjustedNetPrice.value);
             }
-            if (plis[i].getTaxRate() > 0) { params.body.tax_rate = (plis[i].getTaxRate() * 100).toFixed(2).toString(); } // overall order tax rate, but there's a chance an item has 0% tax
+            if (plis[i].getTaxRate() > 0) { params.body.tax_rate = (plis[i].getTaxRate() * 100).toFixed(2); } // overall order tax rate, but there's a chance an item has 0% tax
         }
         if (nonSubscriptionProduct.price > 0) {
-            nonSubscriptionProduct.offer_id = stickyioSampleData.stickyioOID; // use any stickyioOID
+            nonSubscriptionProduct.price = nonSubscriptionProduct.price.toFixed(2);
+            nonSubscriptionProduct.offer_id = 1; // use any stickyioOID
+            nonSubscriptionProduct.prepaid_cycles = 1; // bogus cycles, just in case
             nonSubscriptionProduct.product_id = stickyioStraightSaleProductID;
             nonSubscriptionProduct.quantity = 1;
             offers.push(nonSubscriptionProduct);
@@ -214,7 +216,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
             failedOrderData.stickyioOrderNo = stickyioResponse.object.result.order_id;
             failedOrderData.products = [];
             for (i = 0; i < plis.length; i++) {
-                if (plis[i].custom.stickyioOfferID && plis[i].custom.stickyioOfferID !== 0) { // subscription product
+                if (plis[i].custom.stickyioOfferID && plis[i].custom.stickyioOfferID > 0) { // subscription product
                     thisPLIStickyID = plis[i].custom.stickyioProductID.toString();
                     if (plis[i].getProduct().isVariant()) {
                         thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;

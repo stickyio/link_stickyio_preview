@@ -24,9 +24,7 @@
                 console.log(e.message);
             }
         </script>
-        <isscript>
-            var kount = true;
-        </isscript>
+        <isset name="kount" value="true" scope="page" />
     </isif>
 
     <isif condition="${pdict.reportingURLs && pdict.reportingURLs.length}">
@@ -36,7 +34,7 @@
     <h1 class="page-title">
         ${Resource.msg('title.checkout','checkout',null)}
     </h1>
-    <div id="checkout-main" class="container data-checkout-stage <isif condition="${kount}">kaxsdc</isif> <isif condition="${pdict.order.usingMultiShipping && pdict.order.shipping.length > 1}">multi-ship</isif>" data-customer-type="${pdict.customer.registeredUser ? 'registered' : 'guest'}" data-checkout-stage="${pdict.currentStage}" data-checkout-get-url="${URLUtils.https('CheckoutServices-Get')}" <isif condition="${kount}">data-event="load"</isif>>
+    <div id="checkout-main" class="container data-checkout-stage <isif condition="${typeof(kount) !== 'undefined'}">kaxsdc</isif> <isif condition="${pdict.order.usingMultiShipping && pdict.order.shipping.length > 1}">multi-ship</isif>" data-customer-type="${pdict.customer.registeredUser ? 'registered' : 'guest'}" data-checkout-stage="${pdict.currentStage}" data-checkout-get-url="${URLUtils.https('CheckoutServices-Get')}" <isif condition="${typeof(kount) !== 'undefined'}">data-event="load"</isif>>
         <!----------------------------------------------------------------------------------->
         <!-- Help and Phone -->
         <!----------------------------------------------------------------------------------->
