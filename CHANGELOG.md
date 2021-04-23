@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.14] - 2021-04-22
-
+[50a6bbead857d5751afd5dc66811157f7b0be953](https://github.com/stickyio/link_stickyio_preview/commit/50a6bbead857d5751afd5dc66811157f7b0be953)
 ### Added
 - UrbanStems initial delivery date and buffer days support
 
