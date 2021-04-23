@@ -4,6 +4,7 @@ var Transaction = require('dw/system/Transaction');
 var Order = require('dw/order/Order');
 var OrderMgr = require('dw/order/OrderMgr');
 var Status = require('dw/system/Status');
+var Site = require('dw/system/Site');
 var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
 var stickyioEnabled = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioEnabled');
 
@@ -27,7 +28,7 @@ function beforePOST(basket) {
 }
 
 /**
- * Changes order status to NEW if this OCAPI order is from sticky.io
+ * Changes order status to NEW if this OCAPI order is from sticky.io, and buffer the delivery date
  * @param {dw.order.Order} order - The current order
  * @return {Status} returns an order status object
  */
@@ -46,6 +47,10 @@ function afterPOST(order) {
                     thisOrder.setExportStatus(Order.EXPORT_STATUS_READY);
                     thisOrder.setPaymentStatus(Order.PAYMENT_STATUS_PAID);
                     thisOrder.custom.stickyioOrder = true;
+                    var bufferDays = Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') ? Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') : 0;
+                    var millisInADay = 1000 * 60 * 60 * 24; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours = milliseconds in a day
+                    var deliveryDate = new Date().getTime() + (bufferDays * millisInADay); // add bufferDays to now
+                    thisOrder.custom.stickyioSubDeliveryDate = new Date(deliveryDate); // today + bufferDays
                     Transaction.commit();
                     COHelpers.sendConfirmationEmail(thisOrder, thisOrder.getCustomerLocaleID()); // change this to your Subscription Re-Bill Confirmation helper function/template
                 } catch (e) {

@@ -14,6 +14,7 @@ var stickyioEnabled = require('dw/system/Site').getCurrent().getCustomPreference
 if (stickyioEnabled) {
     var stickyio = require('~/cartridge/scripts/stickyio');
     var OrderMgr = require('dw/order/OrderMgr');
+    var Site = require('dw/system/Site');
 
     server.append(
         'Confirm',
@@ -53,6 +54,8 @@ if (stickyioEnabled) {
                 var order = OrderMgr.getOrder(req.querystring.orderID);
                 var OrderModel = require('*/cartridge/models/order');
                 var Locale = require('dw/util/Locale');
+                var StringUtils = require('dw/util/StringUtils');
+                var Calendar = require('dw/util/Calendar');
                 var orderCustomerNo = req.currentCustomer.profile.customerNo;
                 var currentCustomerNo = order.customer.profile.customerNo;
                 var orderView = res.getViewData();
@@ -69,6 +72,25 @@ if (stickyioEnabled) {
                         );
                         orderView.order = stickyio.appendPLIs(orderModel, orderView.stickyioOrderData.data);
                         orderView.order.orderToken = order.orderToken;
+                        var bufferDays = Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') ? Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') : 0;
+                        orderView.order.bufferDays = bufferDays;
+
+                        // loop through all productLineItems for all shipments and, if subscription, modify the recurring_date to be date + buffer
+                        var i;
+                        for (i = 0; i < orderView.order.shipping.length; i++) {
+                            var shippingModel = orderView.order.shipping[i];
+                            var j;
+                            for (j = 0; j < shippingModel.productLineItems.items.length; j++) {
+                                var lineItem = shippingModel.productLineItems.items[j];
+                                if (lineItem.recurring_date) {
+                                    var originalDate = new Date(lineItem.recurring_date);
+                                    var millisInADay = 1000 * 60 * 60 * 24; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours = milliseconds in a day
+                                    var recurDate = originalDate.getTime() + (bufferDays * millisInADay); // add bufferDays from customer set delivery date
+                                    var newDate = StringUtils.formatCalendar(new Calendar(new Date(recurDate)), 'yyyy-MM-dd'); // create new date in appropriate format yyyy-mm-dd
+                                    lineItem.recurring_date = newDate;
+                                }
+                            }
+                        }
                     } catch (e) {
                         Logger.error(e);
                     }

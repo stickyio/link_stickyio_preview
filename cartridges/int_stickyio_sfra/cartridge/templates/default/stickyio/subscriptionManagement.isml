@@ -36,7 +36,7 @@
                         <p class="line-item-attributes">
                             ${Resource.msg('label.subscriptionmanagement.recur_at', 'stickyio', null)}: 
                             <isif condition="${pdict.stickyioAllowRecurring === true}">
-                                <input type="text" size="11" class="datepicker" placeholder="${lineItem.recurring_date}" data-initialvalue="${lineItem.recurring_date}" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'recur_at', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" value="${lineItem.recurring_date}"/>
+                                <input type="text" size="11" class="datepicker" placeholder="${lineItem.recurring_date}" data-buffer="${Number(pdict.order.bufferDays).toFixed(0)}" data-initialvalue="${lineItem.recurring_date}" data-href="${URLUtils.url('Stickyio-ManageSubscription', 'action', 'recur_at', 'sid',lineItem.stickyioSubscriptionID, 'ID', pdict.order.orderNumber, 'token', pdict.order.orderToken)}" value="${lineItem.recurring_date}"/>
                             <iselse/>
                                 ${lineItem.recurring_date}
                             </isif>

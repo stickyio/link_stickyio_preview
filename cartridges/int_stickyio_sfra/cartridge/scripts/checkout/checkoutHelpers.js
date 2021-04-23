@@ -11,6 +11,8 @@ var Order = require('dw/order/Order');
 var Status = require('dw/system/Status');
 var Resource = require('dw/web/Resource');
 var Site = require('dw/system/Site');
+var StringUtils = require('dw/util/StringUtils');
+var Calendar = require('dw/util/Calendar');
 var Transaction = require('dw/system/Transaction');
 var Logger = require('dw/system/Logger');
 
@@ -111,6 +113,8 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
     var error = false;
     var sendCSREmail = false;
     var failedOrderData = {};
+    var subscriptionIDs = [];
+    var i;
 
     try {
         var stickyioSampleData = stickyio.hasSubscriptionProducts(order);
@@ -173,7 +177,6 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         var offers = [];
         var nonSubscriptionProduct = {};
         nonSubscriptionProduct.price = 0;
-        var i;
         var thisProduct;
 
         for (i = 0; i < plis.length; i++) {
@@ -237,6 +240,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                                 thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;
                             }
                             plis[i].custom.stickyioSubscriptionID = stickyioResponse.object.result.subscription_id[thisPLIStickyID];
+                            subscriptionIDs.push(stickyioResponse.object.result.subscription_id[thisPLIStickyID]);
                         }
                     }
                 });
@@ -311,6 +315,21 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
             Transaction.wrap(function () { OrderMgr.failOrder(order, true); });
             error = true;
             serverErrors.push(Resource.msg('error.technical', 'checkout', null));
+        }
+    }
+
+    // next recurring delivery date logic for UrbanStems
+    if (subscriptionIDs.length > 0 && order.custom.stickyioSubDeliveryDate) { // if we have returned subscriptionIDs from sticky and the customer selected a delivery date
+        var bufferDays = Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') ? Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') : 0;
+        var millisInADay = 1000 * 60 * 60 * 24; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours = milliseconds in a day
+        var recurDate = order.custom.stickyioSubDeliveryDate.getTime() - (bufferDays * millisInADay); // substract bufferDays from customer set delivery date
+        var newDate = StringUtils.formatCalendar(new Calendar(new Date(recurDate)), 'yyyy-MM-dd'); // create new date in appropriate format yyyy-mm-dd
+        for (i = 0; i < subscriptionIDs.length; i++) {
+            try {
+                stickyio.subManUpdateRecurringDate(subscriptionIDs[i], newDate); // update recur date for next order in sticky.io
+            } catch (e) {
+                Logger.error('sticky.io recur_at error: ' + e); // dump any error to our logs, but let the customer continue
+            }
         }
     }
 
