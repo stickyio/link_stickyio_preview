@@ -82,7 +82,7 @@ $(document).ready(function () {
             if (thisDateInput.length > 0) {
                 var recurringDate = thisDateInput.val();
                 thisDateInput.datepicker({ // initialize jQueryUI datepicker
-                    minDate: parseInt(thisDateInput.data('buffer'), 10) * -1, // can't be less than our site's custom buffer day amount
+                    minDate: parseInt(thisDateInput.data('buffer'), 10), // can't be less than our site's custom buffer day amount
                     dateFormat: 'yy-mm-dd',
                     onClose: function (selectedDate) {
                         if (recurringDate !== selectedDate) {
