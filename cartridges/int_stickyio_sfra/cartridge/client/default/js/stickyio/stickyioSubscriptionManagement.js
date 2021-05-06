@@ -88,7 +88,12 @@ $(document).ready(function () {
                         if (recurringDate !== selectedDate) {
                             var thisURL = $(this).data('href');
                             thisURL = thisURL.replace(/&date=[0-9]{4}-[0-9]{2}-[0-9]{2}/, ''); // strip any existing date params
-                            $(this).data('href', thisURL += '&date=' + $(this).val());
+                            // modify date submitted to sticky to add the buffer days
+                            var originalDate = new Date($(this).val());
+                            var millisInADay = 1000 * 60 * 60 * 24; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours = milliseconds in a day
+                            var recurDate = originalDate.getTime() - (parseInt(thisDateInput.data('buffer'), 10) * millisInADay); // subtract bufferDays from customer set delivery date
+                            var newDate = new Date(recurDate).toISOString().substring(0,10); // create new date in appropriate format yyyy-mm-dd
+                            $(this).data('href', thisURL += '&date=' + newDate);
                             $(this).trigger('datepickchange');
                         }
                     }

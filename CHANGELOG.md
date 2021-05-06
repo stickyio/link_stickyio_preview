@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.15] - 2021-05-06
+### Changed
+- Fixed submission of user-selected date to transparently add buffer days prior to submission to sticky
+
 ## [21.1.15] - 2021-04-29
 [5a00e26d228be141829b458d9f924e35b2fe4b1d](https://github.com/stickyio/link_stickyio_preview/commit/5a00e26d228be141829b458d9f924e35b2fe4b1d)
 ### Changed
