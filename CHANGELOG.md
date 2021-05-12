@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.14] - 2021-05-11
+### Added
+- Ability to pass in custom headers for sticky.io API calls
+- Custom headers for sso call
+
 ## [21.1.13] - 2021-04-20
 [3b46ae974c041ac7ce6f7a3943ee4ea74f49138c](https://github.com/stickyio/link_stickyio_preview/commit/3b46ae974c041ac7ce6f7a3943ee4ea74f49138c)
 ### Changed

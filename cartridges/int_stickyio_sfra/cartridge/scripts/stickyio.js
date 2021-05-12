@@ -1,7 +1,7 @@
 /**
  * The main sticky.io library providing API connectivity,
- * object parsing, storage and retrieval, validation and helperfunctions.
- *Functions are selectively exported at the end for precise control.
+ * object parsing, storage and retrieval, validation and helper functions.
+ * Functions are selectively exported at the end for precise control.
 */
 
 'use strict';
@@ -69,8 +69,14 @@ function stickyioAPI(svcName) {
             url = url.replace('{ENDPOINT}', endpoint + (theseParams ? (theseParams.id ? '/' + theseParams.id : '') + (theseParams.helper ? '/' + theseParams.helper : '') + (theseParams.id2 ? '/' + theseParams.id2 : '') : ''));
             if (theseParams.queryString) { url += '?' + theseParams.queryString; }
             thisSvc.setRequestMethod(method);
-            thisSvc.addHeader('Content-Type', 'application/json');
             thisSvc.setAuthentication('BASIC');
+            thisSvc.addHeader('Content-Type', 'application/json');
+            if (theseParams.headers) {
+                var i;
+                for (i = 0; i < theseParams.headers.length; i++) {
+                    thisSvc.addHeader(theseParams.headers[i].key, theseParams.headers[i].value);
+                }
+            }
             thisSvc.setURL(url);
             if (theseParams && theseParams.body) { return JSON.stringify(theseParams.body); }
             return null;
@@ -123,6 +129,7 @@ function stickyioAPI(svcName) {
  */
 function sso(redirect, user) {
     var params = {};
+    params.headers = [{ key: 'Uri-Domain', value: Site.current.httpsHostName }];
     params.helper = 'basic_auth';
     params.body = {};
     params.body.username = user;
