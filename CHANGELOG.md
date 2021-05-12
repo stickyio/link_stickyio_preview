@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 - Ability to pass in custom headers for sticky.io API calls
 - Custom headers for sso call
 
+### Changed
+- Variable scoping in helper and collect returned `subscriptionIDs` just in case for future development
+
 ## [21.1.13] - 2021-04-20
 [3b46ae974c041ac7ce6f7a3943ee4ea74f49138c](https://github.com/stickyio/link_stickyio_preview/commit/3b46ae974c041ac7ce6f7a3943ee4ea74f49138c)
 ### Changed

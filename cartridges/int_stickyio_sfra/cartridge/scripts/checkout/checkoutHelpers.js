@@ -110,7 +110,9 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
     var serverErrors = [];
     var error = false;
     var sendCSREmail = false;
+    var subscriptionIDs = [];
     var failedOrderData = {};
+    var i;
 
     try {
         var stickyioSampleData = stickyio.hasSubscriptionProducts(order);
@@ -173,7 +175,6 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         var offers = [];
         var nonSubscriptionProduct = {};
         nonSubscriptionProduct.price = 0;
-        var i;
         var thisProduct;
 
         for (i = 0; i < plis.length; i++) {
@@ -237,6 +238,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                                 thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;
                             }
                             plis[i].custom.stickyioSubscriptionID = stickyioResponse.object.result.subscription_id[thisPLIStickyID];
+                            subscriptionIDs.push(stickyioResponse.object.result.subscription_id[thisPLIStickyID]);
                         }
                     }
                 });
