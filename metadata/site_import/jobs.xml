@@ -163,4 +163,23 @@ Updates SFCC storage of Campaigns, Offers, and Billing models with latest data f
         </triggers>
     </job>
 
+    <job job-id="Subscription Order Data Export" priority="0">
+        <description>Export fields for sticky.io import</description>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="Export" type="custom.orderDataExport" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2021-05-13Z</date>
+                <time>21:13:24.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
 </jobs>

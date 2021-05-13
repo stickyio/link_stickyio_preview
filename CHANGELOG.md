@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.17] - 2021-05-13
+### Added
+- New subscription data export to csv job
+
 ## [21.1.16] - 2021-05-12
 [995cefd9c8c3852c5a62372a8641566059094a17](https://github.com/stickyio/link_stickyio_preview/commit/995cefd9c8c3852c5a62372a8641566059094a17)
 [d4017f8a372fe285f4914c3df52fcd12c1b3ef48](https://github.com/stickyio/link_stickyio_preview/commit/d4017f8a372fe285f4914c3df52fcd12c1b3ef48)

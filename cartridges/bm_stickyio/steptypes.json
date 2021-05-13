@@ -265,6 +265,32 @@
                     }
                 ]
             }
+        },
+        {
+            "@type-id": "custom.orderDataExport",
+            "@supports-parallel-execution": "false",
+            "@supports-site-context": "true",
+            "@supports-organization-context": "false",
+            "description": "Export subscription order data",
+            "module": "bm_stickyio/cartridge/scripts/steps/orderDataExport.js",
+            "function": "orderDataExport",
+            "transactional": "true",
+            "timeout-in-seconds": "900",
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "FINISHED",
+                        "description": "Used when the step finished successfully."
+                    },
+                    {
+                        "@code": "FINISHED_WITH_WARNINGS",
+                        "description": "Used when the step finished with warnings."
+                    }
+                ]
+            }
         }]
     }
 }
