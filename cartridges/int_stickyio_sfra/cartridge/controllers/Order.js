@@ -76,6 +76,7 @@ if (stickyioEnabled) {
                         orderView.order.bufferDays = bufferDays;
 
                         // loop through all productLineItems for all shipments and, if subscription, modify the recurring_date to be date + buffer
+                        var stickyioSubDeliveryDate = order.custom.stickyioSubDeliveryDate;
                         var i;
                         for (i = 0; i < orderView.order.shipping.length; i++) {
                             var shippingModel = orderView.order.shipping[i];
@@ -83,11 +84,13 @@ if (stickyioEnabled) {
                             for (j = 0; j < shippingModel.productLineItems.items.length; j++) {
                                 var lineItem = shippingModel.productLineItems.items[j];
                                 if (lineItem.recurring_date) {
-                                    var originalDate = new Date(lineItem.recurring_date);
-                                    var millisInADay = 1000 * 60 * 60 * 24; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours = milliseconds in a day
-                                    var recurDate = originalDate.getTime() + (bufferDays * millisInADay); // add bufferDays from customer set delivery date
-                                    var newDate = StringUtils.formatCalendar(new Calendar(new Date(recurDate)), 'yyyy-MM-dd'); // create new date in appropriate format yyyy-mm-dd
-                                    lineItem.recurring_date = newDate;
+                                    var originalRecurringDate = new Date(lineItem.recurring_date + 'T00:00:00.000Z');
+                                    if (stickyioSubDeliveryDate.getTime() !== originalRecurringDate.getTime()) {
+                                        var millisInADay = 1000 * 60 * 60 * 24; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours = milliseconds in a day
+                                        var recurDate = originalRecurringDate.getTime() + (bufferDays * millisInADay); // add bufferDays from customer set delivery date
+                                        var newDate = StringUtils.formatCalendar(new Calendar(new Date(recurDate)), 'yyyy-MM-dd'); // create new date in appropriate format yyyy-mm-dd
+                                        lineItem.recurring_date = newDate;
+                                    }
                                 }
                             }
                         }

@@ -88,6 +88,12 @@ if (stickyioEnabled) {
                             message: stickyioResponse.message.message
                         });
                     } else {
+                        if (action === 'recur_at') {
+                            var bufferDays = Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') ? Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') : 0;
+                            var millisInADay = 1000 * 60 * 60 * 24; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours = milliseconds in a day
+                            var stickyioSubDeliveryDate = new Date(date + 'T00:00:00.000Z').getTime() + (bufferDays * millisInADay); // add bufferDays from customer set delivery date
+                            Transaction.wrap(function () { order.custom.stickyioSubDeliveryDate = new Date(stickyioSubDeliveryDate); });
+                        }
                         var url = req.httpHeaders.get('referer').replace(/&subscriptionmsg_([0-9a-f]{32}=[^&]*)?|^subscriptionmsg_([0-9a-f]{32}=[^&]*)?&?/, ''); // strip any existing stickyiomsg parameter off the URL
                         res.json({
                             redirectURL: url + '&subscriptionmsg_' + sid + '=' + stickyioResponse.message

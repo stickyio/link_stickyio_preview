@@ -92,6 +92,8 @@ $(document).ready(function () {
                             var originalDate = new Date($(this).val());
                             var millisInADay = 1000 * 60 * 60 * 24; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours = milliseconds in a day
                             var recurDate = originalDate.getTime() - (parseInt(thisDateInput.data('buffer'), 10) * millisInADay); // subtract bufferDays from customer set delivery date
+                            var now = new Date();
+                            if (recurDate < now.getTime()) { recurDate = now.getTime(); } // check to make sure recurDate is not less than today. If so, set recurDate to today.
                             var newDate = new Date(recurDate).toISOString().substring(0,10); // create new date in appropriate format yyyy-mm-dd
                             $(this).data('href', thisURL += '&date=' + newDate);
                             $(this).trigger('datepickchange');

@@ -318,15 +318,17 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         }
     }
 
-    // next recurring delivery date logic for UrbanStems
-    if (subscriptionIDs.length > 0 && order.custom.stickyioSubDeliveryDate) { // if we have returned subscriptionIDs from sticky and the customer selected a delivery date
+     // next recurring delivery date logic for UrbanStems
+     if (subscriptionIDs.length > 0 && order.custom.stickyioSubDeliveryDate) { // if we have returned subscriptionIDs from sticky and the customer selected a delivery date
         var bufferDays = Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') ? Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') : 0;
         var millisInADay = 1000 * 60 * 60 * 24; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours = milliseconds in a day
         var recurDate = order.custom.stickyioSubDeliveryDate.getTime() - (bufferDays * millisInADay); // substract bufferDays from customer set delivery date
+        var now = new Date();
+        if (now.getTime() - recurDate < bufferDays * millisInADay) { recurDate = order.custom.stickyioSubDeliveryDate; } // if right now minus the desired date minus our bufferDays is less than bufferDays, use the date the customer originally selected
         var newDate = StringUtils.formatCalendar(new Calendar(new Date(recurDate)), 'yyyy-MM-dd'); // create new date in appropriate format yyyy-mm-dd
         for (i = 0; i < subscriptionIDs.length; i++) {
             try {
-                stickyio.subManUpdateRecurringDate(subscriptionIDs[i], newDate); // update recur date for next order in sticky.io
+                stickyio.stickyioSubMan(null, subscriptionIDs[i], 'recur_at', 0, newDate); // update recur date for next order in sticky.io
             } catch (e) {
                 Logger.error('sticky.io recur_at error: ' + e); // dump any error to our logs, but let the customer continue
             }
