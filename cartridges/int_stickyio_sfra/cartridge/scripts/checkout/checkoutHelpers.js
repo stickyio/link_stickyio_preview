@@ -318,8 +318,8 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         }
     }
 
-     // next recurring delivery date logic for UrbanStems
-     if (subscriptionIDs.length > 0 && order.custom.stickyioSubDeliveryDate) { // if we have returned subscriptionIDs from sticky and the customer selected a delivery date
+    // next recurring delivery date logic for UrbanStems
+    if (subscriptionIDs.length > 0 && order.custom.stickyioSubDeliveryDate) { // if we have returned subscriptionIDs from sticky and the customer selected a delivery date
         var bufferDays = Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') ? Site.current.getCustomPreferenceValue('stickyioBufferDayAmount') : 0;
         var millisInADay = 1000 * 60 * 60 * 24; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours = milliseconds in a day
         var recurDate = order.custom.stickyioSubDeliveryDate.getTime() - (bufferDays * millisInADay); // substract bufferDays from customer set delivery date
