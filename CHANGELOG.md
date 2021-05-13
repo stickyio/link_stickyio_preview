@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.16] - 2021-05-12
+[995cefd9c8c3852c5a62372a8641566059094a17](https://github.com/stickyio/link_stickyio_preview/commit/995cefd9c8c3852c5a62372a8641566059094a17)
 ### Changed
 - Bug fixes for buffer dates
 
