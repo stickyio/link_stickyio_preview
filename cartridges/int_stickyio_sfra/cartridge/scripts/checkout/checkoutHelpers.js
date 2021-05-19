@@ -216,16 +216,16 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
             // save our response object just in case the transaction fails in the next step
             failedOrderData.stickyioOrderNo = stickyioResponse.object.result.order_id;
             failedOrderData.products = [];
-            for (i = 0; i < plis.length; i++) {
-                if (plis[i].custom.stickyioOfferID && plis[i].custom.stickyioOfferID > 0) { // subscription product
-                    thisPLIStickyID = plis[i].custom.stickyioProductID.toString();
-                    if (plis[i].getProduct().isVariant()) {
-                        thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;
-                    }
-                    failedOrderData.products.push({ id: plis[i].productID, subscriptionID: stickyioResponse.object.result.subscription_id[thisPLIStickyID] });
-                }
-            }
             try {
+                for (i = 0; i < plis.length; i++) {
+                    if (plis[i].custom.stickyioOfferID && plis[i].custom.stickyioOfferID > 0) { // subscription product
+                        thisPLIStickyID = plis[i].custom.stickyioProductID.toString();
+                        if (plis[i].getProduct().isVariant()) {
+                            thisPLIStickyID = thisPLIStickyID + '-' + plis[i].custom.stickyioVariationID;
+                        }
+                        failedOrderData.products.push({ id: plis[i].productID, subscriptionID: stickyioResponse.object.result.subscription_id[thisPLIStickyID] });
+                    }
+                }
                 Transaction.wrap(function () {
                     shipment.custom.stickyioOrderNo = stickyioResponse.object.result.order_id;
                     shipment.custom.stickyioOrderResponse = JSON.stringify(stickyioResponse.object.result);
@@ -303,10 +303,12 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                 var Mail = require('dw/net/Mail');
                 var mimeEncodedText = require('dw/value/MimeEncodedText');
                 var mail = new Mail();
-                mail.addTo(Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com');
-                mail.setFrom(Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com');
+                var csEmail = Site.current.getCustomPreferenceValue('customerServiceEmail').toString();
+                if (!csEmail || csEmail.length === 0 || (/salesforce\.com$/).test(csEmail)) { csEmail = 'noreply@bogustestorganization.com'; } // it is not possible to send emails from a salesforce.com address in SFCC
+                mail.addTo(csEmail);
+                mail.setFrom(csEmail);
                 mail.setSubject(subject);
-                mail.setContent(mimeEncodedText(body));
+                mail.setContent(new mimeEncodedText(body));
                 mail.send();
             }
         } catch (e) {

@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.15] - 2021-05-18
+### Changed
+- Default CSR email address for sending error emails changed to working domain
+- Better detection if using invalid CSR email for site
+- Wrapped `new_order` response in larger try/catch to prevent failed orders when not necessary
+
 ## [21.1.14] - 2021-05-11
 [4149851601be055b6454397805d6370c7cd514c3](https://github.com/stickyio/link_stickyio_preview/commit/4149851601be055b6454397805d6370c7cd514c3)  
 [68ed5be1a7d7b193eb66e5c789cdef61c3d2fd9](https://github.com/stickyio/link_stickyio_preview/commit/668ed5be1a7d7b193eb66e5c789cdef61c3d2fd9)
