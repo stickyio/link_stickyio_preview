@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.15] - 2021-05-18
+[fbbe07ba4b2ae56c4a8c5f44163cb68ed0e5f3c0](https://github.com/stickyio/link_stickyio_preview/commit/fbbe07ba4b2ae56c4a8c5f44163cb68ed0e5f3c0)
 ### Changed
 - Default CSR email address for sending error emails changed to working domain
 - Better detection if using invalid CSR email for site
