@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.16] - 2021-05-20
+[57aa5ffd53ce004de64d82efd3395b361b76cee7](https://github.com/stickyio/link_stickyio_preview/commit/57aa5ffd53ce004de64d82efd3395b361b76cee7)
 ### Added
 - Wipe custom object during product reset
 
