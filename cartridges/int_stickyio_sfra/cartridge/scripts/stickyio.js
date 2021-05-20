@@ -1710,6 +1710,7 @@ function buildOfferSyncData(localAllStickyioProducts) {
     var offerSyncData = {};
     var thisOfferID;
     var i;
+    var j;
     Object.keys(localAllStickyioProducts).forEach(function (productID) {
         var product = ProductMgr.getProduct(productID);
         if (product && product.custom.stickyioProductID !== null) {
@@ -1737,6 +1738,10 @@ function buildOfferSyncData(localAllStickyioProducts) {
                     offerSyncData[thisOfferID].billingModels.splice(offerSyncData[thisOfferID].billingModels.indexOf('2'), 1); // remove the straight sale model
                 }
             }
+            for (j = offerSyncData[thisOfferID].billingModels.length; j > 0; j--) {
+                var thisBillingModel = offerSyncData[thisOfferID].billingModels[j];
+                if (thisBillingModel === 'updateSFCC') { offerSyncData[thisOfferID].billingModels.splice(j); }
+            }
         }
     }
     if (stickyioCampaigns && stickyioCampaigns.offers && Object.keys(stickyioCampaigns.offers).length > 0) {
@@ -1747,6 +1752,10 @@ function buildOfferSyncData(localAllStickyioProducts) {
                 if (stickyioCampaigns.offers[thisOfferID].is_prepaid) { // check to see if this offer supports straight sale (any offer that's not of type prepaid)
                     offerSyncData[thisOfferID].billingModels.splice(offerSyncData[thisOfferID].billingModels.indexOf('2'), 1); // remove the straight sale model
                 }
+            }
+            for (j = offerSyncData[thisOfferID].billingModels.length; j > 0; j--) {
+                var thisBillingModel = offerSyncData[thisOfferID].billingModels[j];
+                if (thisBillingModel === 'updateSFCC') { offerSyncData[thisOfferID].billingModels.splice(j); }
             }
         }
     }
@@ -1789,6 +1798,18 @@ function syncProduct(product, localAllStickyioProducts, reset, persist, recursed
     var productSetProducts;
     var thisReset = reset;
     var thisPersist = persist;
+    if (!recursed && thisReset) {
+        var stickyioCampaigns = getCampaignCustomObject();
+        if (!stickyioCampaigns || Object.keys(stickyioCampaigns).length === 0) { // if we don't have a default object, create one
+            Transaction.wrap(function () {
+                stickyioCampaigns = CustomObjectMgr.createCustomObject('stickyioCampaigns', 'campaigns');
+            });
+        }
+        Transaction.wrap(function () {
+            stickyioCampaigns.custom.jsonData = null; // make sure the campaign data is empty
+        });
+    }
+
     if (localAllStickyioProducts === null) { // this should never happen
         allStickyioProducts = getAllStickyioMasterProducts();
     } else { allStickyioProducts = localAllStickyioProducts; }
