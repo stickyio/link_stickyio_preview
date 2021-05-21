@@ -1239,7 +1239,9 @@ function getCampaigns(parameters) {
     if (Object.keys(campaignData).length > 0) {
         var sampleProductID;
         campaignJSON.updateTime = new Date();
-        campaignJSON.products = getAllStickyioVariantProducts(allStickyioProducts);
+        if (allStickyioProducts) {
+            campaignJSON.products = getAllStickyioVariantProducts(allStickyioProducts);
+        }
         if ((existingJSON && existingJSON.products && !deepEqual(existingJSON.products, campaignJSON.products)) || (!existingJSON || !existingJSON.products)) {
             if (campaignJSON.products) { campaignJSON.products.updateSFCC = true; }
         }
@@ -1709,6 +1711,7 @@ function buildOfferSyncData(localAllStickyioProducts) {
     var stickyioCampaigns = getCampaignCustomObjectJSON(); // get our latest campaignJSON
     var offerSyncData = {};
     var thisOfferID;
+    var thisBillingModel;
     var i;
     var j;
     Object.keys(localAllStickyioProducts).forEach(function (productID) {
@@ -1739,7 +1742,7 @@ function buildOfferSyncData(localAllStickyioProducts) {
                 }
             }
             for (j = offerSyncData[thisOfferID].billingModels.length; j > 0; j--) {
-                var thisBillingModel = offerSyncData[thisOfferID].billingModels[j];
+                thisBillingModel = offerSyncData[thisOfferID].billingModels[j];
                 if (thisBillingModel === 'updateSFCC') { offerSyncData[thisOfferID].billingModels.splice(j); }
             }
         }
@@ -1754,7 +1757,7 @@ function buildOfferSyncData(localAllStickyioProducts) {
                 }
             }
             for (j = offerSyncData[thisOfferID].billingModels.length; j > 0; j--) {
-                var thisBillingModel = offerSyncData[thisOfferID].billingModels[j];
+                thisBillingModel = offerSyncData[thisOfferID].billingModels[j];
                 if (thisBillingModel === 'updateSFCC') { offerSyncData[thisOfferID].billingModels.splice(j); }
             }
         }

@@ -301,14 +301,14 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                 var body = 'Customer orderNo: ' + order.orderNo + ' successfully placed, but subscription order details may be missing.\n\n';
                 body += JSON.stringify(failedOrderData, null, 2);
                 var Mail = require('dw/net/Mail');
-                var mimeEncodedText = require('dw/value/MimeEncodedText');
+                var MimeEncodedText = require('dw/value/MimeEncodedText');
                 var mail = new Mail();
                 var csEmail = Site.current.getCustomPreferenceValue('customerServiceEmail').toString();
                 if (!csEmail || csEmail.length === 0 || (/salesforce\.com$/).test(csEmail)) { csEmail = 'noreply@bogustestorganization.com'; } // it is not possible to send emails from a salesforce.com address in SFCC
                 mail.addTo(csEmail);
                 mail.setFrom(csEmail);
                 mail.setSubject(subject);
-                mail.setContent(new mimeEncodedText(body));
+                mail.setContent(new MimeEncodedText(body));
                 mail.send();
             }
         } catch (e) {
