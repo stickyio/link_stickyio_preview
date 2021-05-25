@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.18] - 2021-05-25
+[2b517770594462e54b9d58410147081fb6cf497c](https://github.com/stickyio/link_stickyio_preview/commit/2b517770594462e54b9d58410147081fb6cf497c)
 ### Added
 - New service to update `custom_fields` on a sticky.io order
 - New method to call updating `custom_fields` on existing sticky.io order
