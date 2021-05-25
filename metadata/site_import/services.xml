@@ -405,6 +405,17 @@
         <credential-id>sticky.io</credential-id>
     </service>
 
+    <service service-id="stickyio.http.put.orders.customfields">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>stickyio</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>stickyio.http.put.v2</profile-id>
+        <credential-id>sticky.io</credential-id>
+    </service>
+
     <service service-id="stickyio.http.put.products.variants">
         <service-type>HTTP</service-type>
         <enabled>true</enabled>

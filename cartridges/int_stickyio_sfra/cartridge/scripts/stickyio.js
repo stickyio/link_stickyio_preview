@@ -1370,6 +1370,22 @@ function updateStickyioVariant(variant) {
 }
 
 /**
+ * Update an order's custom fields in sticky.io
+ * @param {string} orderNumber - sticky.io order number
+ * @param {Object} customFields - array of custom field objects denoted by { token, value }
+ * @returns {Object} - Result of the API call
+ */
+function updateStickyioCustomField(orderNumber, customFields) {
+    var params = {};
+    var body = {};
+    params.id = orderNumber;
+    params.helper = 'customfields';
+    body.custom_fields = customFields;
+    params.body = body;
+    return stickyioAPI('stickyio.http.put.orders.customfields').call(params);
+}
+
+/**
  * Running log of product updates in sticky.io
  * @param {string} productID - SFCC productID
  * @param {Object} data - sticky.io data to store
@@ -2419,7 +2435,6 @@ module.exports = {
     shipmentUpdate: shipmentUpdate,
     updateOrderView: updateOrderView,
     appendPLIs: appendPLIs,
-    updateStickyioOrderDetails: updateStickyioOrderDetails,
     stickyioSubMan: stickyioSubMan,
     generateObjects: generateObjects,
     cleanupFiles: cleanupFiles
