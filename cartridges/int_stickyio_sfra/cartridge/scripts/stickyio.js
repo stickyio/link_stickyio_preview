@@ -795,7 +795,8 @@ function getCatalogIDs() {
     var params = {};
     var body = {};
     body.method = 'get';
-    body.uri = Site.current.httpsHostName + '/s/-/dw/data/' + OCAPI_VERSION + '/catalogs';
+    body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs';
+    body.hostname = Site.current.httpsHostName;
     body.isClient = 'false';
     params.body = body;
     params.helper = 'sfccbridge';
@@ -824,7 +825,8 @@ function bindSharedProductOptions(sharedProductOptionsToBind) {
             var params = {};
             var body = {};
             body.method = 'put';
-            body.uri = Site.current.httpsHostName + '/s/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
+            body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
+            body.hostname = Site.current.httpsHostName;
             body.isClient = 'false';
             body.data = JSON.stringify({ id: thisSharedProductOption, sorting_mode: 'byexplicitorder' });
             params.body = body;
@@ -856,7 +858,8 @@ function checkSharedProductOptions(catalogIDs) {
             var params = {};
             var body = {};
             body.method = 'get';
-            body.uri = Site.current.httpsHostName + '/s/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
+            body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
+            body.hostname = Site.current.httpsHostName;
             body.isClient = 'false';
             params.body = body;
             params.helper = 'sfccbridge';
@@ -900,7 +903,8 @@ function addSharedProductOptionValues(catalogIDs, sharedOptionValueObject) {
                 var params = {};
                 var body = {};
                 body.method = 'put';
-                body.uri = Site.current.httpsHostName + '/s/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOptionID + '/values/' + thisSharedProductOptionValue.id;
+                body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOptionID + '/values/' + thisSharedProductOptionValue.id;
+                body.hostname = Site.current.httpsHostName;
                 body.isClient = 'false';
                 var value = {};
                 if (thisSharedProductOptionValue.name) {
@@ -940,7 +944,8 @@ function updateProductOptions(products) {
                 var params = {};
                 var body = {};
                 body.method = 'put';
-                body.uri = Site.current.httpsHostName + '/s/-/dw/data/' + OCAPI_VERSION + '/products/' + thisProductID + '/product_options/' + thisSharedProductOption;
+                body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/products/' + thisProductID + '/product_options/' + thisSharedProductOption;
+                body.hostname = Site.current.httpsHostName;
                 body.isClient = 'false';
                 body.data = JSON.stringify({ id: thisSharedProductOption, shared: true });
                 params.body = body;
