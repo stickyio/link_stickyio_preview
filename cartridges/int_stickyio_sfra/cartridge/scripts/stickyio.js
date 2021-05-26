@@ -1783,15 +1783,17 @@ function buildOfferSyncData(localAllStickyioProducts) {
     if (stickyioCampaigns && stickyioCampaigns.offers && Object.keys(stickyioCampaigns.offers).length > 0) {
         for (i = 0; i < Object.keys(stickyioCampaigns.offers).length; i++) {
             thisOfferID = Object.keys(stickyioCampaigns.offers)[i];
-            if (!offerSyncData[thisOfferID]) { // no products were bound to this offer, but lets update its billing models anyway
-                offerSyncData[thisOfferID] = { billingModels: Object.keys(stickyioCampaigns.billingModels) };
-                if (stickyioCampaigns.offers[thisOfferID].is_prepaid) { // check to see if this offer supports straight sale (any offer that's not of type prepaid)
-                    offerSyncData[thisOfferID].billingModels.splice(offerSyncData[thisOfferID].billingModels.indexOf('2'), 1); // remove the straight sale model
+            if (thisOfferID !== 'updateSFCC') {
+                if (!offerSyncData[thisOfferID]) { // no products were bound to this offer, but lets update its billing models anyway
+                    offerSyncData[thisOfferID] = { billingModels: Object.keys(stickyioCampaigns.billingModels) };
+                    if (stickyioCampaigns.offers[thisOfferID].is_prepaid) { // check to see if this offer supports straight sale (any offer that's not of type prepaid)
+                        offerSyncData[thisOfferID].billingModels.splice(offerSyncData[thisOfferID].billingModels.indexOf('2'), 1); // remove the straight sale model
+                    }
                 }
-            }
-            for (j = offerSyncData[thisOfferID].billingModels.length; j > 0; j--) {
-                thisBillingModel = offerSyncData[thisOfferID].billingModels[j];
-                if (thisBillingModel === 'updateSFCC') { offerSyncData[thisOfferID].billingModels.splice(j); }
+                for (j = offerSyncData[thisOfferID].billingModels.length; j > 0; j--) {
+                    thisBillingModel = offerSyncData[thisOfferID].billingModels[j];
+                    if (thisBillingModel === 'updateSFCC') { offerSyncData[thisOfferID].billingModels.splice(j); }
+                }
             }
         }
     }
