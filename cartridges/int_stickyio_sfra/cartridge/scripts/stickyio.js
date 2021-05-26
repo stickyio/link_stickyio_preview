@@ -795,7 +795,7 @@ function getCatalogIDs() {
     var params = {};
     var body = {};
     body.method = 'get';
-    body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs';
+    body.uri = Site.current.httpsHostName + 's/-/dw/data/' + OCAPI_VERSION + '/catalogs';
     body.isClient = 'false';
     params.body = body;
     params.helper = 'sfccbridge';
@@ -824,7 +824,7 @@ function bindSharedProductOptions(sharedProductOptionsToBind) {
             var params = {};
             var body = {};
             body.method = 'put';
-            body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
+            body.uri = Site.current.httpsHostName + 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
             body.isClient = 'false';
             body.data = JSON.stringify({ id: thisSharedProductOption, sorting_mode: 'byexplicitorder' });
             params.body = body;
@@ -856,7 +856,7 @@ function checkSharedProductOptions(catalogIDs) {
             var params = {};
             var body = {};
             body.method = 'get';
-            body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
+            body.uri = Site.current.httpsHostName + 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOption;
             body.isClient = 'false';
             params.body = body;
             params.helper = 'sfccbridge';
@@ -900,7 +900,7 @@ function addSharedProductOptionValues(catalogIDs, sharedOptionValueObject) {
                 var params = {};
                 var body = {};
                 body.method = 'put';
-                body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOptionID + '/values/' + thisSharedProductOptionValue.id;
+                body.uri = Site.current.httpsHostName + 's/-/dw/data/' + OCAPI_VERSION + '/catalogs/' + thisCatalogID + '/shared_product_options/' + thisSharedProductOptionID + '/values/' + thisSharedProductOptionValue.id;
                 body.isClient = 'false';
                 var value = {};
                 if (thisSharedProductOptionValue.name) {
@@ -940,7 +940,7 @@ function updateProductOptions(products) {
                 var params = {};
                 var body = {};
                 body.method = 'put';
-                body.uri = 's/-/dw/data/' + OCAPI_VERSION + '/products/' + thisProductID + '/product_options/' + thisSharedProductOption;
+                body.uri = Site.current.httpsHostName + 's/-/dw/data/' + OCAPI_VERSION + '/products/' + thisProductID + '/product_options/' + thisSharedProductOption;
                 body.isClient = 'false';
                 body.data = JSON.stringify({ id: thisSharedProductOption, shared: true });
                 params.body = body;
@@ -1392,6 +1392,23 @@ function updateStickyioCustomField(orderNumber, customFields) {
     body.custom_fields = customFields;
     params.body = body;
     return stickyioAPI('stickyio.http.put.orders.customfields').call(params);
+}
+
+/**
+ * Void an order in sticky.io
+ * @param {string} orderNumber - sticky.io order number
+ * @returns {Object} - True or error
+ */
+function voidStickyioOrder(orderNumber) {
+    var params = {};
+    var body = {};
+    body.order_id = orderNumber;
+    params.body = body;
+    var stickyioResponse = stickyioAPI('stickyio.http.post.order_void').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
+        return true;
+    }
+    return stickyioResponse.error;
 }
 
 /**
@@ -2465,6 +2482,8 @@ module.exports = {
     orderShippingUpdate: orderShippingUpdate,
     shipmentUpdate: shipmentUpdate,
     updateOrderView: updateOrderView,
+    updateStickyioCustomField: updateStickyioCustomField,
+    voidStickyioOrder: voidStickyioOrder,
     appendPLIs: appendPLIs,
     stickyioSubMan: stickyioSubMan,
     generateObjects: generateObjects,

@@ -33,6 +33,7 @@ function beforePOST(basket) {
  */
 function afterPOST(order) {
     if (stickyioEnabled) {
+        var stickyio = require('~/cartridge/scripts/stickyio');
         var thisOrder = order;
         var shipments = thisOrder.getShipments();
         var i;
@@ -47,9 +48,17 @@ function afterPOST(order) {
                     thisOrder.setPaymentStatus(Order.PAYMENT_STATUS_PAID);
                     thisOrder.custom.stickyioOrder = true;
                     Transaction.commit();
+                    /*
+                    // if you have custom fields in sticky.io that need to be updated with data, this is the place to do it for any re-bills
+                    var customFields = [];
+                    var customField1 = { token: 'customField1Name', value: customField1Value };
+                    customFields.push(customField1);
+                    stickyio.updateStickyioCustomField(shipments[i].custom.stickyioOrderNo, customFields);
+                    */
                     COHelpers.sendConfirmationEmail(thisOrder, thisOrder.getCustomerLocaleID()); // change this to your Subscription Re-Bill Confirmation helper function/template
                 } catch (e) {
                     Transaction.wrap(function () { OrderMgr.failOrder(thisOrder, true); });
+                    stickyio.voidStickyioOrder(shipments[i].custom.stickyioOrderNo);
                     return new Status(Status.ERROR);
                 }
             }

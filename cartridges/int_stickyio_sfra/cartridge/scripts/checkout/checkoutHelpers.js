@@ -112,6 +112,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
     var sendCSREmail = false;
     var subscriptionIDs = [];
     var failedOrderData = {};
+    var thisStickyioOrderNo;
     var i;
 
     try {
@@ -156,7 +157,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         params.body.preserve_force_gateway = 1;
         params.body.tranType = 'Sale';
         params.body.ipAddress = order.remoteHost;
-        params.body.custom_fields = [siteIDObject, hostnameObject, shipmentIDObject, orderNoObject, orderTokenObject, customerIDObject];
+        params.body.custom_fields = [siteIDObject, hostnameObject, shipmentIDObject, orderNoObject, orderTokenObject, customerIDObject]; // if you have your own custom fields, include them here
         params.body.shippingId = shippingMethodID;
         params.body.campaignId = stickyioSampleData.stickyioCID;
         params.body.is_precalculated_price = true;
@@ -214,7 +215,8 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         var stickyioResponse = stickyio.stickyioAPI('stickyio.http.post.new_order').call(params);
         if (!stickyioResponse.error && stickyioResponse.object.result.response_code === '100' && stickyioResponse.object.result.error_found === '0') {
             // save our response object just in case the transaction fails in the next step
-            failedOrderData.stickyioOrderNo = stickyioResponse.object.result.order_id;
+            thisStickyioOrderNo = stickyioResponse.object.result.order_id;
+            failedOrderData.stickyioOrderNo = thisStickyioOrderNo;
             failedOrderData.products = [];
             try {
                 for (i = 0; i < plis.length; i++) {
@@ -227,7 +229,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                     }
                 }
                 Transaction.wrap(function () {
-                    shipment.custom.stickyioOrderNo = stickyioResponse.object.result.order_id;
+                    shipment.custom.stickyioOrderNo = thisStickyioOrderNo;
                     shipment.custom.stickyioOrderResponse = JSON.stringify(stickyioResponse.object.result);
                     paymentInstrument.custom.stickyioTempCustomerID = null;
                     paymentInstrument.custom.stickyioTokenExpiration = null;
@@ -272,10 +274,16 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                 error = true;
                 serverErrors.push(Resource.msg('checkout.error.nosave', 'stickyio', null));
             }
+            if (thisStickyioOrderNo) {
+                stickyio.voidStickyioOrder(thisStickyioOrderNo);
+            }
         }
     } catch (e) {
         error = true;
         Transaction.wrap(function () { OrderMgr.failOrder(order, true); });
+        if (thisStickyioOrderNo) {
+            stickyio.voidStickyioOrder(thisStickyioOrderNo);
+        }
         serverErrors.push(Resource.msg('error.technical', 'checkout', null));
     }
 
@@ -313,6 +321,9 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
             }
         } catch (e) {
             Transaction.wrap(function () { OrderMgr.failOrder(order, true); });
+            if (thisStickyioOrderNo) {
+                stickyio.voidStickyioOrder(thisStickyioOrderNo);
+            }
             error = true;
             serverErrors.push(Resource.msg('error.technical', 'checkout', null));
         }

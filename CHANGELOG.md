@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.19] - 2021-05-26
+### Added
+- New service to void a sticky.io order
+- Custom field demo code (commented out) for OCAPI order hooks on re-bill
+- Voiding of sticky.io order when SFCC order creation fails
+
 ## [21.1.18] - 2021-05-25
 [d129b6280bcc5fd6dd3e656f8755a0f285bb032e](https://github.com/stickyio/link_stickyio_preview/commit/d129b6280bcc5fd6dd3e656f8755a0f285bb032e)
 ### Added
