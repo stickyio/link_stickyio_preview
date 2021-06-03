@@ -1,0 +1,7 @@
+<isloop items="${pdict.subscriptions}" var="subscription">
+    <div class="row">
+        <div class="col-xs-12 col-lg-6 offset-lg-3">
+            <isinclude template="account/subscription/subscriptionCard"/>
+        </div>
+    </div>
+</isloop>

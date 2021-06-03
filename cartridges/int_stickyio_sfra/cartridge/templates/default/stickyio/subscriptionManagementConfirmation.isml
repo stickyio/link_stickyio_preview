@@ -3,7 +3,7 @@
 		<p>${pdict.message}</p>
 		<p>
 			<button class="stickyioconfirmbutton"
-				data-href="${URLUtils.url("Stickyio-ManageSubscription",
+				data-href="${URLUtils.url("Subscriptions-Manage",
 					'action', pdict.action,
 					'ID', pdict.ID,
 					'token', pdict.token,

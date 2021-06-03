@@ -619,7 +619,7 @@
                 <type>boolean</type>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
-                <default-value>true</default-value>
+                <default-value>false</default-value>
             </attribute-definition>
             <attribute-definition attribute-id="stickyioSubManAllowPause">
                 <display-name xml:lang="x-default">Allow Pause</display-name>
@@ -640,14 +640,6 @@
             <attribute-definition attribute-id="stickyioSubManAllowReset">
                 <display-name xml:lang="x-default">Allow Reset</display-name>
                 <description xml:lang="x-default">Allow the consumer to reset their subscription</description>
-                <type>boolean</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>false</externally-managed-flag>
-                <default-value>true</default-value>
-            </attribute-definition>
-            <attribute-definition attribute-id="stickyioSubManAllowResume">
-                <display-name xml:lang="x-default">Allow Resume/Un-pause</display-name>
-                <description xml:lang="x-default">Allow the consumer to resume/un-pause a stopped subscription</description>
                 <type>boolean</type>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>

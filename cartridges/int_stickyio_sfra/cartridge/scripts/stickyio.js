@@ -1962,8 +1962,8 @@ function getOrderBillingModels(orders, activeBillingModels) {
     var j;
     var k;
     var theseOrders = orders;
-    for (i = 0; i < Object.keys(theseOrders.data).length; i++) {
-        var thisStickyioOrder = theseOrders.data[Object.keys(theseOrders.data)[i]];
+    for (i = 0; i < Object.keys(theseOrders.orderData).length; i++) {
+        var thisStickyioOrder = theseOrders.orderData[Object.keys(theseOrders.orderData)[i]];
         for (j = 0; j < thisStickyioOrder.products.length; j++) {
             var thisStickyioOrderProduct = thisStickyioOrder.products[j];
             var productActiveBillingModels = getActiveBillingModels(ProductMgr.getProduct(thisStickyioOrderProduct.sku), thisStickyioOrderProduct.offer.id);
@@ -1984,7 +1984,7 @@ function getOrderBillingModels(orders, activeBillingModels) {
                     }
                 }
                 if (billingModels.length > 0) {
-                    theseOrders.data[Object.keys(theseOrders.data)[i]].products[j].billing_models = billingModels;
+                    theseOrders.orderData[Object.keys(theseOrders.orderData)[i]].products[j].billing_models = billingModels;
                 }
             }
         }
@@ -2002,7 +2002,7 @@ function getOrderBillingModels(orders, activeBillingModels) {
 function getOrders(orderNumbers, includeBillingModels, activeBillingModels) {
     var returnData = {};
     var orders = {};
-    orders.data = {};
+    orders.orderData = {};
     var params = {};
     var body = {};
     body.order_id = orderNumbers;
@@ -2010,9 +2010,9 @@ function getOrders(orderNumbers, includeBillingModels, activeBillingModels) {
     var stickyioResponse = stickyioAPI('stickyio.http.post.order_view').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
         if (typeof (stickyioResponse.object.result.data) === 'undefined') { // single order return
-            orders.data[stickyioResponse.object.result.order_id] = stickyioResponse.object.result;
+            orders.orderData[stickyioResponse.object.result.order_id] = stickyioResponse.object.result;
         } else { // multi order return
-            orders.data = stickyioResponse.object.result.data;
+            orders.orderData = stickyioResponse.object.result.data;
         }
         if (includeBillingModels) {
             returnData = getOrderBillingModels(orders, activeBillingModels);
@@ -2119,146 +2119,119 @@ function shipmentUpdate(shipment, orderNo) {
 }
 
 /**
- * Append the sticky.io order subscription data to our orderModel's product line items
- * for display to the consumer.
- * @param {Object} orderModel - SFCC orderModel
- * @param {Object} stickyioOrderData - sticky.io order
- * @returns {Object} - The updated orderModel
- */
-function appendPLIs(orderModel, stickyioOrderData) {
-    var thisOrderModel = orderModel;
-    var x;
-    var y;
-    var i;
-    var j;
-    for (x = 0; x < thisOrderModel.shipping.length; x++) {
-        var thisShippingModel = thisOrderModel.shipping[x];
-        for (y = 0; y < thisShippingModel.productLineItems.items.length; y++) {
-            var lineItem = thisShippingModel.productLineItems.items[y];
-            for (i = 0; i < Object.keys(stickyioOrderData).length; i++) {
-                var thisStickyioOrder = stickyioOrderData[Object.keys(stickyioOrderData)[i]];
-                for (j = 0; j < thisStickyioOrder.products.length; j++) {
-                    var thisStickyioOrderProduct = thisStickyioOrder.products[j];
-                    if (thisStickyioOrderProduct.subscription_id === lineItem.stickyioSubscriptionID) {
-                        lineItem.is_recurring = !!+thisStickyioOrderProduct.is_recurring;
-                        lineItem.on_hold = !!+thisStickyioOrderProduct.on_hold;
-                        if (thisStickyioOrderProduct.hold_date !== '') {
-                            lineItem.hold_date = thisStickyioOrderProduct.hold_date;
-                            lineItem.recurring_date = Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null) + ' ' + lineItem.hold_date;
-                        } else { lineItem.recurring_date = thisStickyioOrderProduct.recurring_date; }
-                        lineItem.billingModels = thisStickyioOrderProduct.billing_models;
-                        thisShippingModel.productLineItems.items[y] = lineItem;
-                    }
-                }
-            }
-        }
-        thisOrderModel.shipping[x] = thisShippingModel;
-    }
-    return thisOrderModel;
-}
-
-/**
  * Commit the transaction to update the PLI details from sticky.io
  * @param {Object} product - sticky.io product data for an order
  * @param {dw.order.ProductLineItem} pli - Shipment product line item
- * @returns {void}
+ * @returns {Object} - Updated billing model details
  */
 function commitOrderDetails(product, pli) {
+    var billingModel = {};
     var thisPLI = pli;
     Transaction.wrap(function () {
+        // detect if this billingmodel has terms?
         if (product.billing_model.id !== thisPLI.custom.stickyioBillingModelID) {
             thisPLI.custom.stickyioBillingModelID = Number(product.billing_model.id);
+            billingModel.stickyioBillingModelID = Number(product.billing_model.id);
         }
         if (product.billing_model.name !== thisPLI.custom.stickyioBillingModelDetails) {
             thisPLI.custom.stickyioBillingModelDetails = product.billing_model.name;
+            billingModel.stickyioBillingModelDetails = product.billing_model.name;
         }
     });
+    return billingModel;
 }
 
 /**
- * Update the SFCC shipment with the lastest sticky.io information
- * @param {string} stickyioOrderNo - sticky.io order number
- * @param {dw.order.Shipment} shipment - Order shipment tied to this sticky.io order
- * @returns {Object} - The new (or original) sticky.io order number
+ * Update the SFCC order's shipment(s) with the lastest sticky.io information
+ * as it's possible a CSR has changed the billing model for a customer
+ * and return an update orderView object
+ * @param {Object} orderView - The existing orderView object
+ * @returns {Object} - Updated orderView object
  */
-function updateStickyioOrderDetails(stickyioOrderNo, shipment) {
-    var thisShimpment = shipment;
+function updateSubscriptionDetails(orderView) {
+    var thisOrderView = orderView;
+    var orderShipments = orderView.order.getShipments();
     var i;
     var j;
-    var stickyioOrderData = getOrders([stickyioOrderNo], false, false);
-    if (stickyioOrderData) {
-        var thisStickyioOrder = stickyioOrderData.data[Object.keys(stickyioOrderData.data)[0]];
-        for (i = 0; i < thisShimpment.productLineItems.length; i++) {
-            var thisPLI = thisShimpment.productLineItems[i];
-            if (thisPLI.custom.stickyioSubscriptionID) {
-                for (j = 0; j < thisStickyioOrder.products.length; j++) {
-                    var thisStickyioProduct = thisStickyioOrder.products[j];
-                    if (thisStickyioProduct.subscription_id === thisPLI.custom.stickyioSubscriptionID) {
-                        commitOrderDetails(thisStickyioProduct, thisPLI); // it's possible a CSR has changed the billing model for a customer, so update it here
+    var k;
+    for (i = 0; i < orderShipments.length; i++) {
+        var thisShipment = orderShipments[i];
+        if (thisShipment.custom.stickyioOrderNo) {
+            var stickyioOrderNo = thisShipment.custom.stickyioOrderNo;
+            var stickyioOrderData = getOrders([stickyioOrderNo], false, false);
+            if (stickyioOrderData) {
+                var thisStickyioOrder = stickyioOrderData.data[Object.keys(stickyioOrderData.data)[0]];
+                for (j = 0; j < thisShipment.productLineItems.length; j++) {
+                    var thisPLI = thisShipment.productLineItems[j];
+                    if (thisPLI.custom.stickyioSubscriptionID) {
+                        for (k = 0; k < thisStickyioOrder.products.length; k++) {
+                            var thisStickyioProduct = thisStickyioOrder.products[k];
+                            if (thisStickyioProduct.subscription_id === thisPLI.custom.stickyioSubscriptionID) {
+                                var billingModel = commitOrderDetails(thisStickyioProduct, thisPLI);
+                                thisPLI.stickyioBillingModelID = billingModel.stickyioBillingModelID;
+                                thisPLI.stickyioBillingModelDetails = billingModel.stickyioBillingModelDetails;
+                            }
+                        }
                     }
                 }
             }
         }
-        if (thisStickyioOrder.child_id !== '') { // there might be a newer order number for this order, so update it
-            var latestOrderNo = thisStickyioOrder.child_id.split(',');
-            latestOrderNo = latestOrderNo[latestOrderNo.length - 1];
-            if (stickyioOrderNo !== latestOrderNo) {
-                Transaction.wrap(function () { thisShimpment.custom.stickyioOrderNo = latestOrderNo; });
-                return latestOrderNo;
-            }
-            return null;
-        }
-        return stickyioOrderNo;
     }
-    return null;
+    return thisOrderView;
 }
 
 /**
- * Update the orderView object with sticky.io subscription
+ * Get subscription data from sticky.io and retrieve
  * management possibilities to turn off/on consumer control
- * @param {Object} orderView - The existing orderView object
- * @param {dw.order.Order} order - The original order
+ * @param {string} stickyioOrderNumber - sticky.io order number
+ * @param {string} subscriptionID - sticky.io subscriptionID
  * @returns {Object} - Updated orderView object
  */
-function updateOrderView(orderView, order) {
-    var thisOrderView = orderView;
-    var stickyioOrderNumbers = [];
-    var orderShipments = order.getShipments();
+function getSubscriptionData(stickyioOrderNumber, subscriptionID) {
     var i;
-    for (i = 0; i < orderShipments.length; i++) {
-        if (orderShipments[i].custom.stickyioOrderNo) {
-            var thisStickyioOrderNo = updateStickyioOrderDetails(orderShipments[i].custom.stickyioOrderNo, orderShipments[i]);
-            if (thisStickyioOrderNo) { stickyioOrderNumbers.push(thisStickyioOrderNo); }
+    var j;
+    var stickyioOrderData = {};
+    stickyioOrderData.stickyioOrderData = getOrders([stickyioOrderNumber], true, true).orderData;
+    for (i = 0; i < Object.keys(stickyioOrderData.stickyioOrderData).length; i++) {
+        var thisOrder = Object.keys(stickyioOrderData.stickyioOrderData)[i];
+        for (j = 0; j < stickyioOrderData.stickyioOrderData[thisOrder].products.length; j++) {
+            var thisProduct = stickyioOrderData.stickyioOrderData[thisOrder].products[j];
+            if (thisProduct.subscription_id === subscriptionID) {
+                stickyioOrderData.stickyioBillingModelID = thisProduct.billing_model.id;
+                stickyioOrderData.stickyioBillingModelDetails = thisProduct.billing_model.name;
+                stickyioOrderData.offerType = thisProduct.prepaid ? 'prepaid' : 'standard';
+                stickyioOrderData.is_recurring = !!+thisProduct.is_recurring;
+                stickyioOrderData.on_hold = !!+thisProduct.on_hold;
+                if (thisProduct.hold_date !== '') {
+                    stickyioOrderData.hold_date = thisProduct.hold_date;
+                    stickyioOrderData.recurring_date = Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null) + ' ' + stickyioOrderData.hold_date;
+                } else { stickyioOrderData.recurring_date = thisProduct.recurring_date; }
+                stickyioOrderData.billingModels = thisProduct.billing_models;
+                break;
+            }
         }
     }
 
-    if (stickyioOrderNumbers.length > 0) {
-        thisOrderView.stickyioOrderData = getOrders(stickyioOrderNumbers, true, true);
+    stickyioOrderData.stickyioAllowRecurring = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowRecurringDate');
+    stickyioOrderData.stickyioAllowUpdateBillingModel = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowUpdateBillingModel');
 
-        thisOrderView.stickyioAllowRecurring = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowRecurringDate');
-        thisOrderView.stickyioAllowUpdateBillingModel = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowUpdateBillingModel');
+    stickyioOrderData.stickyioAllowSubManSelect = true;
+    stickyioOrderData.stickyioAllowSubManStartOptions = true;
+    stickyioOrderData.stickyioAllowSubManPauseOptions = true;
 
-        thisOrderView.stickyioAllowSubManSelect = true;
-        thisOrderView.stickyioAllowSubManStartOptions = true;
-        thisOrderView.stickyioAllowSubManPauseOptions = true;
+    stickyioOrderData.stickyioAllowReset = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowReset');
+    stickyioOrderData.stickyioAllowBillNow = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowBillNow');
+    stickyioOrderData.stickyioAllowPause = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowPause');
+    stickyioOrderData.stickyioAllowTerminateNext = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowTerminateNext');
 
-        thisOrderView.stickyioAllowResume = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowResume');
-        thisOrderView.stickyioAllowReset = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowReset');
-        thisOrderView.stickyioAllowBillNow = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowBillNow');
-
-        thisOrderView.stickyioAllowPause = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowPause');
-        thisOrderView.stickyioAllowTerminateNext = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowTerminateNext');
-
-        if (thisOrderView.stickyioAllowResume !== true
-            && thisOrderView.stickyioAllowReset !== true
-            && thisOrderView.stickyioAllowBillNow !== true
-        ) { thisOrderView.stickyioAllowSubManStartOptions = false; }
-        if (thisOrderView.stickyioAllowPause !== true
-            && thisOrderView.stickyioAllowTerminateNext !== true
-        ) { thisOrderView.stickyioAllowSubManPauseOptions = false; }
-        if (!thisOrderView.stickyioAllowSubManStartOptions && !thisOrderView.stickyioAllowSubManPauseOptions) { thisOrderView.stickyioAllowSubManSelect = false; }
-    }
-    return thisOrderView;
+    if (stickyioOrderData.stickyioAllowReset !== true
+        && stickyioOrderData.stickyioAllowBillNow !== true
+    ) { stickyioOrderData.stickyioAllowSubManStartOptions = false; }
+    if (stickyioOrderData.stickyioAllowPause !== true
+        && stickyioOrderData.stickyioAllowTerminateNext !== true
+    ) { stickyioOrderData.stickyioAllowSubManPauseOptions = false; }
+    if (!stickyioOrderData.stickyioAllowSubManStartOptions && !stickyioOrderData.stickyioAllowSubManPauseOptions) { stickyioOrderData.stickyioAllowSubManSelect = false; }
+    return stickyioOrderData;
 }
 
 /**
@@ -2348,42 +2321,9 @@ function subManTerminateNext(subscriptionID) {
  * @returns {void}
  */
 function updateOrderID(shipment, orderID) {
+    // do we actually need to do this?
     var thisShipment = shipment;
     Transaction.wrap(function () { thisShipment.custom.stickyioOrderNo = orderID; });
-}
-
-/**
- * Start the sticky.io subscription
- * @param {string} orderNo - SFCC order number
- * @param {string} subscriptionID - sticky.io subscription ID
- * @returns {Object} - result of the call
- */
-function subManStart(orderNo, subscriptionID) {
-    var i;
-    var j;
-    var params = {};
-    params.id = subscriptionID;
-    params.helper = 'start';
-    var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.start').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
-        // update the original SFCC order's lineitem sticky.io order ID
-        var newOrderID = stickyioResponse.object.result.data.orderId;
-        var order = OrderMgr.getOrder(orderNo);
-        var orderShipments = order.getShipments();
-        for (i = 0; i < orderShipments.length; i++) {
-            var thisShipment = orderShipments[i];
-            for (j = 0; j < thisShipment.productLineItems.length; j++) {
-                var thisPLI = thisShipment.productLineItems[j];
-                if (thisPLI.custom.stickyioSubscriptionID === subscriptionID) {
-                    updateOrderID(thisShipment, newOrderID);
-                    return { message: Resource.msg('label.subscriptionmanagement.response.start', 'stickyio', null) };
-                }
-            }
-        }
-    }
-    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
-    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
-    return { error: true, message: message };
 }
 
 /**
@@ -2459,9 +2399,23 @@ function stickyioSubMan(orderNo, subscriptionID, action, bmID, date) {
     }
     if (action === 'pause') { return subManPause(subscriptionID); }
     if (action === 'terminate_next') { return subManTerminateNext(subscriptionID); }
-    if (action === 'start') { return subManStart(orderNo, subscriptionID); }
     if (action === 'reset') { return subManReset(subscriptionID); }
     if (action === 'bill_now') { return subManBillNow(orderNo, subscriptionID); }
+    return false;
+}
+
+/**
+ * Get a specific subscription from sticky.io
+ * @param {string} subscriptionID - sticky.io subscription ID
+ * @returns {Object} - subscription data or false
+ */
+function getSubscription(subscriptionID) {
+    var params = {};
+    params.id = subscriptionID;
+    var stickyioResponse = stickyioAPI('stickyio.http.get.subscriptions').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
+        return stickyioResponse.object.result.data;
+    }
     return false;
 }
 
@@ -2488,11 +2442,12 @@ module.exports = {
     updateStickyioShipping: updateStickyioShipping,
     orderShippingUpdate: orderShippingUpdate,
     shipmentUpdate: shipmentUpdate,
-    updateOrderView: updateOrderView,
+    getSubscriptionData: getSubscriptionData,
+    updateSubscriptionDetails: updateSubscriptionDetails,
     updateStickyioCustomField: updateStickyioCustomField,
     voidStickyioOrder: voidStickyioOrder,
-    appendPLIs: appendPLIs,
     stickyioSubMan: stickyioSubMan,
     generateObjects: generateObjects,
-    cleanupFiles: cleanupFiles
+    cleanupFiles: cleanupFiles,
+    getSubscription: getSubscription
 };

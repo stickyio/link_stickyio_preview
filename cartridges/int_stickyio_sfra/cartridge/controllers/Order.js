@@ -13,70 +13,25 @@ var stickyioEnabled = require('dw/system/Site').getCurrent().getCustomPreference
 
 if (stickyioEnabled) {
     var stickyio = require('~/cartridge/scripts/stickyio');
-    var OrderMgr = require('dw/order/OrderMgr');
-
-    server.append(
-        'Confirm',
-        function (req, res, next) {
-            var order = OrderMgr.getOrder(req.querystring.ID);
-            var token = req.querystring.token ? req.querystring.token : null;
-
-            if (!order
-                || !token
-                || token !== order.orderToken
-                || order.customer.ID !== req.currentCustomer.raw.ID
-            ) {
-                return next();
-            }
-
-            var orderView = res.getViewData();
-            if (order.custom.stickyioOrder === true) {
-                orderView.stickyioOrder = true;
-                if (req.currentCustomer.profile) {
-                    try {
-                        orderView = stickyio.updateOrderView(orderView, order);
-                    } catch (e) {
-                        Logger.error(e);
-                    }
-                }
-            }
-            res.setViewData(orderView);
-
-            return next();
-        }
-    );
+    var consentTracking = require('*/cartridge/scripts/middleware/consentTracking');
+    var userLoggedIn = require('*/cartridge/scripts/middleware/userLoggedIn');
 
     server.append(
         'Details',
+        consentTracking.consent,
+        server.middleware.https,
+        userLoggedIn.validateLoggedIn,
         function (req, res, next) {
-            if (req.currentCustomer.profile) {
-                var order = OrderMgr.getOrder(req.querystring.orderID);
-                var OrderModel = require('*/cartridge/models/order');
-                var Locale = require('dw/util/Locale');
-                var orderCustomerNo = req.currentCustomer.profile.customerNo;
-                var currentCustomerNo = order.customer.profile.customerNo;
-                var orderView = res.getViewData();
-                if (order && orderCustomerNo === currentCustomerNo && order.custom.stickyioOrder) {
-                    try {
-                        orderView = stickyio.updateOrderView(orderView, order);
-                        // we have to update the order model again because details from sticky.io may have changed the original order
-                        var config = { numberOfLineItems: '*' };
-                        var currentLocale = Locale.getLocale(req.locale.id);
-                        var updatedOrder = OrderMgr.getOrder(req.querystring.orderID);
-                        var orderModel = new OrderModel(
-                            updatedOrder,
-                            { config: config, countryCode: currentLocale.country, containerView: 'order' }
-                        );
-                        orderView.order = stickyio.appendPLIs(orderModel, orderView.stickyioOrderData.data);
-                        orderView.order.orderToken = order.orderToken;
-                    } catch (e) {
-                        Logger.error(e);
-                    }
+            var orderView = res.getViewData();
+            if (orderView.stickyioOrder) {
+                try {
+                    orderView = stickyio.updateSubscriptionDetails(orderView); // update local SFCC order with potential CSR changes in sticky.io
+                } catch (e) {
+                    Logger.error(e);
                 }
-                res.setViewData(orderView);
             }
-
-            return next();
+            res.setViewData(orderView);
+            next();
         }
     );
 
@@ -84,21 +39,21 @@ if (stickyioEnabled) {
         'Track',
         function (req, res, next) {
             if (req.currentCustomer.profile) {
+                var OrderMgr = require('dw/order/OrderMgr');
                 var order = OrderMgr.getOrder(req.querystring.trackOrderNumber);
                 var orderCustomerNo = req.currentCustomer.profile.customerNo;
                 var currentCustomerNo = order.customer.profile.customerNo;
 
                 var orderView = res.getViewData();
-                if (orderView.order && order && orderCustomerNo === currentCustomerNo && order.custom.stickyioOrder) {
+                if (orderView.order && orderView.stickyioOrder && order && orderCustomerNo === currentCustomerNo) {
                     try {
-                        orderView = stickyio.updateOrderView(orderView, order);
+                        orderView = stickyio.updateSubscriptionDetails(orderView); // update local SFCC order with potential CSR changes in sticky.io
                     } catch (e) {
                         Logger.error(e);
                     }
                 }
                 res.setViewData(orderView);
             }
-
             return next();
         }
     );

@@ -1,0 +1,31 @@
+<div class="row justify-content-center">
+    <div class="col-sm-6">
+        <!---Profile--->
+        <isinclude template="account/profileCard"/>
+
+        <isif condition="${!pdict.account.isExternallyAuthenticated}">
+            <!---Password--->
+            <isinclude template="account/passwordCard"/>
+        </isif>
+
+        <!---Address Book--->
+        <isinclude template="account/addressBookCard"/>
+    </div>
+    <div class="col-sm-6">
+        <!---Order History--->
+        <isif condition="${pdict.account.orderHistory}">
+            <isif condition="${pdict.account.subscriptions}">
+                <div class="card">
+                    <div class="card-header clearfix">
+                        <h3 class="pull-left">${Resource.msg('label.subscriptionmanagement.orderheader', 'stickyio', null)}</h3>
+                        <a href="${URLUtils.url('Subscriptions-List')}" class="pull-right" aria-label="${Resource.msg('link.view', 'account', null)}">${Resource.msg('link.view', 'account', null)}</a>
+                    </div>
+                </div>
+            </isif>
+            <isset name="order" value="${pdict.account.orderHistory}" scope="page"/>
+            <isinclude template="account/order/orderHistoryCard"/>
+        </isif>
+        <!---Payment--->
+        <isinclude template="account/paymentCard"/>
+    </div>
+</div>

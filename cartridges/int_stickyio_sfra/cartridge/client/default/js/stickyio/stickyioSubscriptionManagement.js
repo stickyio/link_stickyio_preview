@@ -74,7 +74,7 @@ $('body').on('click', '.stickyioconfirmbutton', function () {
 $(document).ready(function () {
     if ($('.subscriptionmanagement', $('body')).length > 0) {
         processInclude(require('./stickyioQuickView'));
-        $('.product-line-item', $('body')).each(function () {
+        $('.subscriptionmanagement', $('body')).each(function () {
             // Safari on macOS doesn't support the native HTML5 date picker (and iOS has incomplete support),
             // so we need a different control. We're shipping with jQueryUI's datepicker as a stand-alone
             // node module (jquery-datepicker), so it should be easy to replace if it doesn't fit your needs.

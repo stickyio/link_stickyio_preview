@@ -31,10 +31,25 @@
 }
 
 .ui-datepicker {
-    z-index: 2 !important;
+    z-index: 2 !important; /* sadly, this !important is necessary because the native datepicker css doesn't set a z-index high enough */
 }
 
-/* sadly, this important is necessary because the native datepicker css doesn't set a z-index high enough */
+.stickyiohold {
+    opacity: 0.5;
+}
+
+.subscriptionmanagement h3 {
+    max-width: 10em;
+}
+
+.subscriptionmanagement input.datepicker {
+    border: none;
+    cursor: pointer;
+}
+
+.subscriptionmanagement .hint {
+    font-size: 0.5em;
+}
 
 /* modal overrides for the standard Bootstrap modal
 Bootstrap modal is built in such a way that capturing a click
