@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.20] - 2021-06-02
+[4d74df25709b1355a6ffbfe0e20358c4a96250a9](https://github.com/stickyio/link_stickyio_preview/commit/4d74df25709b1355a6ffbfe0e20358c4a96250a9)
 ### Changed
 - New Subscription Management via My Account
 
