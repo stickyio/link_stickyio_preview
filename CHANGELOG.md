@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.21] - 2021-06-04
+### Added
+- Added back sticky.io payment processor and method as CRM is not yet ready for the switch to non-use
+
+### Changed
+- Documentation reverted to include payment processor and method instructions
+
 ## [21.1.20] - 2021-06-02
 [4d74df25709b1355a6ffbfe0e20358c4a96250a9](https://github.com/stickyio/link_stickyio_preview/commit/4d74df25709b1355a6ffbfe0e20358c4a96250a9)
 ### Changed

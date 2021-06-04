@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<payment-settings xmlns="http://www.demandware.com/xml/impex/paymentsettings/2009-09-15">
+
+    <payment-method method-id="sticky.io">
+        <name xml:lang="x-default">sticky.io re-bill</name>
+        <description xml:lang="x-default">sticky.io Payment Method used to accept re-bills via OCAPI from the sticky.io system.</description>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>STICKYIO</processor-id>
+    </payment-method>
+
+</payment-settings>
