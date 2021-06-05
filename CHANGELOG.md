@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.22] - 2021-06-04
+[a31bf0a5553050af272c64e816e6e27008da3f03](https://github.com/stickyio/link_stickyio_preview/commit/a31bf0a5553050af272c64e816e6e27008da3f03)
 ### Changed
 - sticky.io instance domain example uri
 
