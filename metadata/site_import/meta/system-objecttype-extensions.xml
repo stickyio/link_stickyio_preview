@@ -570,7 +570,7 @@
         <custom-attribute-definitions>
             <attribute-definition attribute-id="stickyioAPIURL">
                 <display-name xml:lang="x-default">Instance Domain</display-name>
-                <description xml:lang="x-default">sticky.io provided instance domain (example: instance.stickyio.com)</description>
+                <description xml:lang="x-default">sticky.io provided instance domain (example: instance.sticky.io)</description>
                 <type>string</type>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
