@@ -2,7 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.23] - 2021-06-07
-[0e5e12e9b4c8194e1d35af449340f0222912f95](https://github.com/stickyio/link_stickyio_preview/commit/60e5e12e9b4c8194e1d35af449340f0222912f95)
+[0e5e12e9b4c8194e1d35af449340f0222912f95](https://github.com/stickyio/link_stickyio_preview/commit/60e5e12e9b4c8194e1d35af449340f0222912f95)  
+[ca5f64d3c33dec31f9ce74bddb6eb3259ab474bf](https://github.com/stickyio/link_stickyio_preview/commit/ca5f64d3c33dec31f9ce74bddb6eb3259ab474bf)
 ### Changed
 - Bug fix for subscription management controls
 
