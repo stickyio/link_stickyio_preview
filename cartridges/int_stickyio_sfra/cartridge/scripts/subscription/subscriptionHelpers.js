@@ -160,8 +160,8 @@ function getSubscriptions(currentCustomer, querystring, locale) {
             var thisShipmentPLIs = thisShipment.productLineItems;
             for (k = 0; k < thisShipmentPLIs.length; k++) {
                 var thisPLI = thisShipmentPLIs[k];
-                if (thisPLI.custom.stickyioSubscriptionID && thisPLI.custom.stickyioSubscriptionID !== 'undefined') {
-                    if (!subscriptions[thisPLI.custom.stickyioSubscriptionID]) { subscriptions[thisPLI.custom.stickyioSubscriptionID] = { orderData: {}, orderNumbers: [] }; }
+                if (thisPLI.custom.stickyioSubscriptionID && thisPLI.custom.stickyioSubscriptionID !== 'undefined' && !subscriptions[thisPLI.custom.stickyioSubscriptionID]) {
+                    subscriptions[thisPLI.custom.stickyioSubscriptionID] = { orderData: {}, orderNumbers: [] };
                     subscriptions[thisPLI.custom.stickyioSubscriptionID].orderNumbers.push(thisShipmentOrderNumbers);
                     subscriptions[thisPLI.custom.stickyioSubscriptionID].orderData.shipTo = thisShipment.shippingAddress.fullName;
                     subscriptions[thisPLI.custom.stickyioSubscriptionID].orderData.name = thisPLI.productName;
