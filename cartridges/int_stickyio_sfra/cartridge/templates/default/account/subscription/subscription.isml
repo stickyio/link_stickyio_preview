@@ -4,7 +4,7 @@
         <div class="subscriptionmanagement" data-subscriptionid="${subscription.subscriptionID}">
             <h3 class="pull-left">${subscription.orderData.name}</h3>
         <!--- if nothing is allowed, don't show this at all --->
-            <isif condition="${subscription.stickyioAllowSubManSelect && subscription.is_recurring}">
+            <isif condition="${(subscription.stickyioAllowSubManSelect && subscription.is_recurring) || (subscription.on_hold && !subscription.is_recurring)}">
                 <select class="subscriptionmanagementselect quickview pull-right">
                     <option value="0">${Resource.msg('label.subscriptionmanagement.title', 'stickyio', null)}</option>
                     <isif condition="${subscription.stickyioAllowSubManPauseOptions}">

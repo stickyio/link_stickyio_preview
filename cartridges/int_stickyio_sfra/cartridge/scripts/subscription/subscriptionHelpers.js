@@ -220,7 +220,7 @@ function getSubscriptions(currentCustomer, querystring, locale) {
                             validSubscriptionIDs[thisProductSubscriptionID].statusText = Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null);
                             validSubscriptionIDs[thisProductSubscriptionID].status = 'hold';
                         }
-                        if (thisProduct.is_recurring === '0') { // logic to determine if subscription is complete
+                        if (thisProduct.on_hold === '0' && thisProduct.is_recurring === '0') { // logic to determine if subscription is complete
                             delete (validSubscriptionIDs[thisProductSubscriptionID].nextRecurring);
                             validSubscriptionIDs[thisProductSubscriptionID].statusText = Resource.msg('label.subscriptionmanagement.complete', 'stickyio', null);
                             validSubscriptionIDs[thisProductSubscriptionID].status = 'complete';
