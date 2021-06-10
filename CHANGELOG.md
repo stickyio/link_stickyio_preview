@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.24] - 2021-06-10
+[73bcd53514a8b62d1e75dc6e4e9af38a7e36cc8d](https://github.com/stickyio/link_stickyio_preview/commit/73bcd53514a8b62d1e75dc6e4e9af38a7e36cc8d)
 ### Changed
 - Don't allow null values in custom_fields update and endpoint typo fix
 
