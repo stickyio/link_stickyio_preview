@@ -1392,9 +1392,16 @@ function updateStickyioVariant(variant) {
 function updateStickyioCustomField(orderNumber, customFields) {
     var params = {};
     var body = {};
+    var theseCustomFields = [];
+    var i;
+    for (i = 0; i < customFields.length; i++) {
+        if (customFields[i].value) {
+            theseCustomFields.push(customFields[i]);
+        }
+    }
     params.id = orderNumber;
-    params.helper = 'customfields';
-    body.custom_fields = customFields;
+    params.helper = 'custom_fields';
+    body.custom_fields = theseCustomFields;
     params.body = body;
     return stickyioAPI('stickyio.http.put.orders.customfields').call(params);
 }
