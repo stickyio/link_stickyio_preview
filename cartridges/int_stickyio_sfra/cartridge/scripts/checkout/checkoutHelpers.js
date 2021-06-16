@@ -161,7 +161,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         params.body.shippingId = shippingMethodID;
         params.body.campaignId = stickyioSampleData.stickyioCID;
         params.body.is_precalculated_price = true;
-        params.body.dynamic_shipping_charge = shipment.shippingTotalPrice.value.toString();
+        params.body.dynamic_shipping_charge = shipment.adjustedShippingTotalNetPrice.value.toString();
         params.body.tax_rate = 0;
 
         if (paymentInstrument.custom.stickyioKountSessionID) {
