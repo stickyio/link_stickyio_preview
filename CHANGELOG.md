@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.25] - 2021-06-16
+[9af787ad063a190f4f57e72646b4d6f36d750312](https://github.com/stickyio/link_stickyio_preview/commit/9af787ad063a190f4f57e72646b4d6f36d750312)
 ### Changed
 - Use `adjustedShippingPriceNetTotal` instead of straight `shippingTotalPrice` to take shipping promotion discounts into consideration
 
