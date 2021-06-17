@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [21.1.26] - 2021-06-17
+### Removed
+- Removed custom sticky.io payment processor, method, and installation instructions
+
 ## [21.1.25] - 2021-06-16
 [9af787ad063a190f4f57e72646b4d6f36d750312](https://github.com/stickyio/link_stickyio_preview/commit/9af787ad063a190f4f57e72646b4d6f36d750312)
 ### Changed
