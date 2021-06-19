@@ -3,7 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## [21.1.27] - 2021-06-18
 [09589bd84b52cbe861328ec90035fd07d91e4237](https://github.com/stickyio/link_stickyio_preview/commit/09589bd84b52cbe861328ec90035fd07d91e4237)  
-[a3e5e0165b86416eee902b29b49d885f3092b391](https://github.com/stickyio/link_stickyio_preview/commit/a3e5e0165b86416eee902b29b49d885f3092b391)
+[a3e5e0165b86416eee902b29b49d885f3092b391](https://github.com/stickyio/link_stickyio_preview/commit/a3e5e0165b86416eee902b29b49d885f3092b391)  
+[b28bc9aa9431e5dc25b651b009af27aafc3c03b2](https://github.com/stickyio/link_stickyio_preview/commit/b28bc9aa9431e5dc25b651b009af27aafc3c03b2)
 ### Changed
 - Sanity check for kount
 
