@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 [b28bc9aa9431e5dc25b651b009af27aafc3c03b2](https://github.com/stickyio/link_stickyio_preview/commit/b28bc9aa9431e5dc25b651b009af27aafc3c03b2)
 ### Changed
 - Sanity check for kount
+- Bump OCAPI version to 21.6
 
 ### Removed
 - Removed unused client-side JS for SFRA 5.3.0 compatibility
