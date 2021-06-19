@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 - Sanity check for kount
 
 ### Removed
-- Removed unused client-side JS for SFRA 5.5.3 compatibility
+- Removed unused client-side JS for SFRA 5.3.0 compatibility
 
 ## [21.1.26] - 2021-06-17
 [514b4ed253131ca9133d81fcc5170ec8a43f5417](https://github.com/stickyio/link_stickyio_preview/commit/514b4ed253131ca9133d81fcc5170ec8a43f5417)
