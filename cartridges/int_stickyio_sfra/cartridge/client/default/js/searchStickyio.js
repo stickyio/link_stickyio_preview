@@ -4,6 +4,6 @@ var processInclude = require('base/util');
 
 $(document).ready(function () {
     processInclude(require('base/search/search'));
-    processInclude(require('./product/quickView'));
+    processInclude(require('base/product/quickView'));
     processInclude(require('./stickyio/stickyio'));
 });

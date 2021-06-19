@@ -3,6 +3,6 @@
 var processInclude = require('base/util');
 
 $(document).ready(function () {
-    processInclude(require('./product/quickView'));
+    processInclude(require('base/product/quickView'));
     processInclude(require('./stickyio/stickyio'));
 });
