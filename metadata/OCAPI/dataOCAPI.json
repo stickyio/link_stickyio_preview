@@ -1,5 +1,5 @@
 {
-    "_v": "21.6",
+    "_v": "19.10",
     "clients": [{
         "client_id": "{API CLIENT ID}",
         "allowed_origins": [],
