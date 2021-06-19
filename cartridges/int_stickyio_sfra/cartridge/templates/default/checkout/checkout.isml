@@ -10,7 +10,7 @@
     </isscript>
 
     <isif condition="${pdict.stickyioOrder && dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioEnabled') && dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioKountMerchantID')}">
-        <script type='text/javascript' src='https://ssl.kaptcha.com/collect/sdk?m=${dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioKountMerchantID')}'></script>
+        <script src="https://ssl.kaptcha.com/collect/sdk?m=${dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioKountMerchantID')}"></script>
         <script>
             try {
                 var client = new ka.ClientSDK();
@@ -132,5 +132,5 @@
     </div>
     <isinclude template="checkout/shipping/shippingAddressTemplate" />
     
-    <isif condition="${kount}"><script>client.autoLoadEvents();</script></isif>
+    <isif condition="${typeof(kount) !== 'undefined'}"><script>client.autoLoadEvents();</script></isif>
 </isdecorate>
