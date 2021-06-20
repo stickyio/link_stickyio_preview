@@ -7,4 +7,7 @@ module.exports = function OrderModel(lineItemContainer, options) {
     this.stickyioOrder = Object.hasOwnProperty.call(lineItemContainer, 'stickyioOrder')
     ? lineItemContainer.stickyioOrder
     : false;
+    this.orderToken = Object.hasOwnProperty.call(lineItemContainer, 'orderToken')
+    ? lineItemContainer.orderToken
+    : null;
 };

@@ -107,8 +107,7 @@ if (stickyioEnabled) {
             var subscriptions = ordersResult.subscriptions;
             if (subscriptions.length > 0) {
                 subscription = Object.assign(subscriptions[0], stickyio.getSubscriptionData(subscriptions[0].orderNumbers[0].stickyioOrderNo, subscriptions[0].subscriptionID));
-                order = OrderMgr.getOrder(subscription.orderNumbers[0].sfccOrderNo);
-                subscription.orderNumbers[0].sfccOrderToken = order.orderToken;
+                order = OrderMgr.getOrder(subscription.orderNumbers[0].sfccOrderNo, subscription.orderNumbers[0].sfccOrderToken);
                 currentCustomerNo = order.customer.profile.customerNo;
             }
             var orderCustomerNo = req.currentCustomer.profile.customerNo;
@@ -172,8 +171,8 @@ if (stickyioEnabled) {
 
             // need to make sure this order belongs to the logged in customer
             var ID = req.querystring.ID;
-            var order = OrderMgr.getOrder(ID);
             var token = req.querystring.token ? req.querystring.token : null;
+            var order = OrderMgr.getOrder(ID, token);
 
             if (!order
                 || !token
@@ -221,7 +220,7 @@ if (stickyioEnabled) {
 
             if (!error) {
                 if (confirm) {
-                    var stickyioResponse = stickyio.stickyioSubMan(ID, sid, action, bmid, date);
+                    var stickyioResponse = stickyio.stickyioSubMan(ID, token, sid, action, bmid, date);
                     if (stickyioResponse.error) {
                         res.json({
                             error: stickyioResponse.error,

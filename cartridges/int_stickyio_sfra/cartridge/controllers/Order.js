@@ -40,7 +40,7 @@ if (stickyioEnabled) {
         function (req, res, next) {
             if (req.currentCustomer.profile) {
                 var OrderMgr = require('dw/order/OrderMgr');
-                var order = OrderMgr.getOrder(req.querystring.trackOrderNumber);
+                var order = OrderMgr.getOrder(req.querystring.trackOrderNumber); // not possible to update to non-deprecated getOrder() as SFRA core functionality does not provide the orderToken as a possible field
                 var orderCustomerNo = req.currentCustomer.profile.customerNo;
                 var currentCustomerNo = order.customer.profile.customerNo;
 

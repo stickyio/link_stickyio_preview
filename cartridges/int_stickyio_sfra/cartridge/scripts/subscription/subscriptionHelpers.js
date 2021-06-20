@@ -148,14 +148,15 @@ function getSubscriptions(currentCustomer, querystring, locale) {
     var y;
     var z;
     for (i = 0; i < orders.length; i++) {
-        var thisOrder = OrderMgr.getOrder(orders[i].orderNumber);
+        var thisOrder = OrderMgr.getOrder(orders[i].orderNumber, orders[i].orderToken);
         customerID = thisOrder.getCustomer().ID; // this gets overwritten every time, but that's ok
         var orderShipments = thisOrder.getShipments();
         for (j = 0; j < orderShipments.length; j++) {
             var thisShipment = orderShipments[j];
             var thisShipmentOrderNumbers = {
                 stickyioOrderNo: thisShipment.custom.stickyioOrderNo,
-                sfccOrderNo: orders[i].orderNumber
+                sfccOrderNo: orders[i].orderNumber,
+                sfccOrderToken: orders[i].orderToken
             };
             var thisShipmentPLIs = thisShipment.productLineItems;
             for (k = 0; k < thisShipmentPLIs.length; k++) {

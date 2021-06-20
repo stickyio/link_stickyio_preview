@@ -44,7 +44,7 @@ exports.orderUpdateStickyioToSFCC = function (parameters) {
                         var thisStickyioOrder = stickyioOrderData.data[[Object.keys(stickyioOrderData.data)[k]]];
                         if (thisStickyioOrder.tracking_number !== '') {
                             if (thisShipment.stickyioOrderNo === thisStickyioOrder.order_id) {
-                                if (stickyio.updateSFCCShipping(OrderMgr.getOrder(thisSFCCOrder.orderNo), thisShipment.id, thisStickyioOrder.tracking_number)) {
+                                if (stickyio.updateSFCCShipping(OrderMgr.getOrder(thisSFCCOrder.orderNo, thisSFCCOrder.orderToken), thisShipment.id, thisStickyioOrder.tracking_number)) {
                                     thisShipment.tracking_number = thisStickyioOrder.tracking_number;
                                     orderChange = true;
                                     break;
@@ -54,8 +54,8 @@ exports.orderUpdateStickyioToSFCC = function (parameters) {
                     }
                 }
                 if (orderChange) {
-                    stickyio.orderShippingUpdate(thisSFCCOrder.orderNo); // update the order's shipping status
-                    thisSFCCOrder.status = OrderMgr.getOrder(thisSFCCOrder.orderNo).getShippingStatus().displayValue;
+                    stickyio.orderShippingUpdate(thisSFCCOrder.orderNo, thisSFCCOrder.orderToken); // update the order's shipping status
+                    thisSFCCOrder.status = OrderMgr.getOrder(thisSFCCOrder.orderNo, thisSFCCOrder.orderToken).getShippingStatus().displayValue;
                     changedOrders.push(thisSFCCOrder);
                 }
             }
@@ -85,6 +85,7 @@ exports.orderUpdateSFCCtoStickyio = function (parameters) {
         var order = orders.next();
         var thisOrderObject = {};
         thisOrderObject.orderNo = order.orderNo;
+        thisOrderObject.orderToken = order.orderToken;
         thisOrderObject.shipments = [];
         var orderShipments = order.getShipments();
         for (i = 0; i < orderShipments.length; i++) {
@@ -112,7 +113,7 @@ exports.orderUpdateSFCCtoStickyio = function (parameters) {
                         var thisStickyioOrder = stickyioOrderData.data[[Object.keys(stickyioOrderData.data)[k]]];
                         if (thisShipment.stickyioOrderNo === thisStickyioOrder.order_id) {
                             if (stickyio.updateStickyioShipping(thisShipment.stickyioOrderNo, thisShipment.trackingNumber)) {
-                                if (stickyio.shipmentUpdate(OrderMgr.getOrder(thisSFCCOrder.orderNo).getShipment(thisShipment.id), thisSFCCOrder.orderNo)) { // update the shipment to be sticky.io complete)
+                                if (stickyio.shipmentUpdate(OrderMgr.getOrder(thisSFCCOrder.orderNo, thisSFCCOrder.orderToken).getShipment(thisShipment.id), thisSFCCOrder.orderNo)) { // update the shipment to be sticky.io complete)
                                     orderChange = true;
                                     break;
                                 }

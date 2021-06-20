@@ -2073,10 +2073,11 @@ function updateStickyioShipping(stickyioOrderNumber, trackingNumber) {
 /**
  * Update this order shipping status
  * @param {string} orderNo - SFCC order number
+ * @param {string} orderToken - SFCC order token
  * @returns {boolean} - boolean result
  */
-function orderShippingUpdate(orderNo) { // loop through all order shipments and see if they're shipped or not, then update the order shipping status
-    var order = OrderMgr.getOrder(orderNo);
+function orderShippingUpdate(orderNo, orderToken) { // loop through all order shipments and see if they're shipped or not, then update the order shipping status
+    var order = OrderMgr.getOrder(orderNo, orderToken);
     var shipments = order.getShipments();
     var shipped = false;
     var i;
@@ -2354,10 +2355,11 @@ function subManReset(subscriptionID) {
 /**
  * Bill the sticky.io subscription now
  * @param {string} orderNo - SFCC order number
+ * @param {string} orderToken - SFCC order token
  * @param {string} subscriptionID - sticky.io subscription ID
  * @returns {Object} - result of the call
  */
-function subManBillNow(orderNo, subscriptionID) {
+function subManBillNow(orderNo, orderToken, subscriptionID) {
     var i;
     var j;
     var params = {};
@@ -2367,7 +2369,7 @@ function subManBillNow(orderNo, subscriptionID) {
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         // update the original SFCC order's lineitem sticky.io order ID
         var newOrderID = stickyioResponse.object.result.data.orderId;
-        var order = OrderMgr.getOrder(orderNo);
+        var order = OrderMgr.getOrder(orderNo, orderToken);
         var orderShipments = order.getShipments();
         for (i = 0; i < orderShipments.length; i++) {
             var thisShipment = orderShipments[i];
@@ -2388,13 +2390,14 @@ function subManBillNow(orderNo, subscriptionID) {
 /**
  * Make the change the subscription as indicated by the user
  * @param {string} orderNo - SFCC order number
+ * @param {string} orderToken - SFCC order token
  * @param {string} subscriptionID - sticky.io subscription ID
  * @param {string} action - Subscription management action
  * @param {number} bmID - Billing Model ID to change to
  * @param {string} date - Date to change to
  * @returns {Object} - result of the change
  */
-function stickyioSubMan(orderNo, subscriptionID, action, bmID, date) {
+function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date) {
     if (!action || !subscriptionID) { return false; }
     if (action === 'billing_model') {
         if (!bmID) { return false; }
@@ -2407,7 +2410,7 @@ function stickyioSubMan(orderNo, subscriptionID, action, bmID, date) {
     if (action === 'pause') { return subManPause(subscriptionID); }
     if (action === 'terminate_next') { return subManTerminateNext(subscriptionID); }
     if (action === 'reset') { return subManReset(subscriptionID); }
-    if (action === 'bill_now') { return subManBillNow(orderNo, subscriptionID); }
+    if (action === 'bill_now') { return subManBillNow(orderNo, orderToken, subscriptionID); }
     return false;
 }
 
