@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [21.1.29] - 2021-06-28
+[e560cbe76ab158ef2bedb8864f9e1a6a5aa3f382](https://github.com/stickyio/link_stickyio_preview/commit/e560cbe76ab158ef2bedb8864f9e1a6a5aa3f382)
 ### Changed
 - Removal and replacement of `Object.assign()` method to ensure compatibility with older API versions
 
