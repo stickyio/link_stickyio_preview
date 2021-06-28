@@ -106,7 +106,14 @@ if (stickyioEnabled) {
             var currentCustomerNo;
             var subscriptions = ordersResult.subscriptions;
             if (subscriptions.length > 0) {
-                subscription = Object.assign(subscriptions[0], stickyio.getSubscriptionData(subscriptions[0].orderNumbers[0].stickyioOrderNo, subscriptions[0].subscriptionID));
+                var subscriptionData = stickyio.getSubscriptionData(subscriptions[0].orderNumbers[0].stickyioOrderNo, subscriptions[0].subscriptionID);
+                var i;
+                for (i = 0; i < Object.keys(subscriptionData).length; i++) {
+                    var key = Object.keys(subscriptionData)[i];
+                    var data = subscriptionData[Object.keys(subscriptionData)[i]];
+                    subscriptions[0][key] = data;
+                }
+                subscription = subscriptions[0];
                 order = OrderMgr.getOrder(subscription.orderNumbers[0].sfccOrderNo, subscription.orderNumbers[0].sfccOrderToken);
                 currentCustomerNo = order.customer.profile.customerNo;
             }
