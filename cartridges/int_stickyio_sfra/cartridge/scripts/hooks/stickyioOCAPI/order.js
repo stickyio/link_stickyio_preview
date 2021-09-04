@@ -59,7 +59,7 @@ function afterPOST(order) {
                 } catch (e) {
                     Transaction.wrap(function () { OrderMgr.failOrder(thisOrder, true); });
                     stickyio.voidStickyioOrder(shipments[i].custom.stickyioOrderNo);
-                    return new Status(Status.ERROR);
+                    return new Status(Status.ERROR, "ERROR", e);
                 }
             }
         }
