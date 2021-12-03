@@ -176,7 +176,7 @@
 
     <service service-id="stickyio.http.post.authorize_payment">
         <service-type>HTTP</service-type>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
         <log-prefix>stickyio</log-prefix>
         <comm-log-enabled>true</comm-log-enabled>
         <force-prd-enabled>false</force-prd-enabled>
