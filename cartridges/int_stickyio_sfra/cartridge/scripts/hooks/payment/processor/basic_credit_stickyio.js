@@ -176,55 +176,6 @@ function Authorize(order, paymentInstrument, paymentProcessor) {
     if (thisPaymentInstrument.custom.stickyioTokenExpiration > Date.now().time) {
         error = true;
         serverErrors.push(Resource.msg('checkout.error.tokenexpired', 'stickyio', null));
-    } else {
-        var tokenType = 'payment_token';
-        try {
-            var stickyioSampleData = stickyio.hasSubscriptionProducts(order);
-            var billingAddress = order.getBillingAddress();
-
-            var params = {};
-            params.body = {};
-            params.body.billingFirstName = billingAddress.firstName;
-            params.body.billingLastName = billingAddress.lastName;
-            params.body.billingAddress1 = billingAddress.address1;
-            params.body.billingAddress2 = billingAddress.address2;
-            params.body.billingCity = billingAddress.city;
-            params.body.billingState = billingAddress.stateCode;
-            params.body.billingZip = billingAddress.postalCode;
-            params.body.billingCountry = billingAddress.countryCode.value;
-            params.body.phone = billingAddress.phone;
-            params.body.email = order.getCustomerEmail();
-            params.body[tokenType] = thisPaymentInstrument.getCreditCardToken();
-            params.body.ipAddress = order.remoteHost;
-            params.body.productId = stickyioSampleData.stickyioPID;
-            params.body.campaignId = stickyioSampleData.stickyioCID;
-            params.body.auth_amount = order.getTotalGrossPrice().value;
-            params.body.cascade_enabled = false;
-            params.body.save_customer = true;
-            params.body.validate_only_flag = false;
-            params.body.void_flag = false;
-
-            var stickyioResponse = stickyio.stickyioAPI('stickyio.http.post.authorize_payment').call(params);
-            if (!stickyioResponse.error && stickyioResponse.object.result.response_code === '100' && stickyioResponse.object.result.error_found === '0') {
-                try {
-                    Transaction.wrap(function () {
-                        thisPaymentInstrument.custom.stickyioTempCustomerID = stickyioResponse.object.result.temp_customer_id; // the new token for final order placement
-                        thisPaymentInstrument.paymentTransaction.setTransactionID(stickyioResponse.object.result.transactionID); // will return "Not Available" when testing
-                        thisPaymentInstrument.paymentTransaction.setPaymentProcessor(paymentProcessor);
-                    });
-                } catch (e) {
-                    error = true;
-                    serverErrors.push(Resource.msg('checkout.error.decline', 'stickyio', null));
-                }
-            } else {
-                error = true;
-                if (stickyioResponse.object.result.error_message) { serverErrors.push(stickyioResponse.object.result.error_message); }
-                if (stickyioResponse.object.result.decline_reason) { serverErrors.push(stickyioResponse.object.result.decline_reason); }
-            }
-        } catch (e) {
-            error = true;
-            serverErrors.push(e);
-        }
     }
 
     return { fieldErrors: fieldErrors, serverErrors: serverErrors, error: error };
