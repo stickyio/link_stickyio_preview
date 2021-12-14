@@ -213,7 +213,7 @@ function getSubscriptions(currentCustomer, querystring, locale) {
                     var thisProductSubscriptionID = thisProduct.subscription_id;
                     if (assertSubscriptionID(thisProductSubscriptionID, thisStickyioOrderNo) && customerID === getCustomerID(thisStickyOrderData.custom_fields)) { // make sure this stickyOrderNumber is under the subscriptionID key and belongs to the current customer. If not, toss the entire subscriptionID from subscriptions (old order in SFCC from testing sharing same order number as new order)
                         validSubscriptionIDs[thisProductSubscriptionID] = {
-                            nextRecurring: thisProduct.recurring_date,
+                            nextRecurring: stickyio.getNextDeliveryDate(thisStickyOrderData, thisProduct, thisProduct.recurring_date),
                             statusText: Resource.msg('label.subscriptionmanagement.active', 'stickyio', null),
                             status: 'active'
                         };

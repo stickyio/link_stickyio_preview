@@ -131,6 +131,8 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         var orderNoObject = { token: 'sfcc_order_number', value: order.orderNo };
         var orderTokenObject = { token: 'sfcc_order_token', value: order.orderToken };
         var customerIDObject = { token: 'sfcc_customer_id', value: customer.ID }; // eslint-disable-line no-undef
+        var customerDeliveryDateObject = { token: 'sfcc_customer_delivery_date', value: '' };
+        var currentCycleObject = { token: 'sfcc_current_cycle', value: 1 };
 
         var params = {};
         params.body = {};
@@ -157,7 +159,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         params.body.preserve_force_gateway = 1;
         params.body.tranType = 'Sale';
         params.body.ipAddress = order.remoteHost;
-        params.body.custom_fields = [siteIDObject, hostnameObject, shipmentIDObject, orderNoObject, orderTokenObject, customerIDObject]; // if you have your own custom fields, include them here
+        params.body.custom_fields = [siteIDObject, hostnameObject, shipmentIDObject, orderNoObject, orderTokenObject, customerIDObject, customerDeliveryDateObject, currentCycleObject]; // if you have your own custom fields, include them here
         params.body.shippingId = shippingMethodID;
         params.body.campaignId = stickyioSampleData.stickyioCID;
         params.body.is_precalculated_price = true;

@@ -22,6 +22,8 @@ var subscriptionProductsLog = {};
 var offerProductsLog = [];
 var allStickyioProducts = {};
 
+const BILLING_MODEL_TYPE_BY_CYCLE = 1;
+
 /**
  * Mask sensitive data from HTTPClient API calls that may appear in logs
  * @param {Object} jsonObject - JSON request/response object
@@ -2213,7 +2215,9 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID) {
                 if (thisProduct.hold_date !== '') {
                     stickyioOrderData.hold_date = thisProduct.hold_date;
                     stickyioOrderData.recurring_date = Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null) + ' ' + stickyioOrderData.hold_date;
-                } else { stickyioOrderData.recurring_date = thisProduct.recurring_date; }
+                } else { 
+                    stickyioOrderData.recurring_date = getNextDeliveryDate(stickyioOrderData.stickyioOrderData[thisOrder], thisProduct, thisProduct.recurring_date); 
+                }
                 stickyioOrderData.billingModels = thisProduct.billing_models;
                 break;
             }
@@ -2429,6 +2433,96 @@ function getSubscription(subscriptionID) {
     return false;
 }
 
+/**
+ * Get an order's custom field in sticky.io by token
+ * @param {Object} customFields - array of custom field objects denoted by { token, value }
+ * @param {string} token - the token of the custom field
+ * @returns {Object} - the custom field if found
+ */
+function getStickyioCustomField(customFields, token) {
+    let customField;
+
+    if (customFields) {
+        let i;
+        for (i = 0; i < customFields.length; i++) {
+            if (customFields[i].token_key === token) {
+                customField = customFields[i];
+                break;
+            }
+        }
+    }
+
+    return customField;
+}
+
+/**
+ * Get sticky's billing model by ID
+ * @param {number} billingModelId - the billing model id to look for
+ * @returns {Object} - the billing model
+ */
+ function getBillingModelById(billingModelId) {
+    let params = {};
+    let body = {};
+    body.id = billingModelId;
+    params.body = body;
+
+    let stickyioResponse = stickyioAPI('stickyio.http.post.billing_model_view').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.status === 'OK' && typeof(stickyioResponse.object.result.data) !== 'undefined') {
+        return stickyioResponse.object.result.data[0];
+    }
+
+    return null;
+}
+
+/**
+ * Get the delivery frequency from sticky billing model
+ * @param {number} billingModelId - the id of the billing model
+ * @returns {number} - the delivery frequency (in days)
+ */
+function getStickyioDeliveryFrequency(billingModelId) {
+    let billingModel = getBillingModelById(billingModelId);
+    let frequency = 0;
+
+    if (billingModel) {
+        switch (Number(billingModel.bill_by_type_id)) {
+            case BILLING_MODEL_TYPE_BY_CYCLE:
+                frequency = Number(billingModel.bill_by_days);
+                break;
+            default:
+                frequency = 0;
+        }
+    }
+
+    return frequency;
+}
+
+/**
+ * Get the next delivery date
+ * @param {Object} stickyOrderData - sticky's order data
+ * @param {Object} currentProduct - current product data
+ * @param {Object} currentDeliveryDate - the current delivery date
+ * @returns {string} - the next delivery date
+ */
+ function getNextDeliveryDate(stickyOrderData, currentProduct, currentDeliveryDate) {
+    let nextDeliveryDate = currentDeliveryDate;
+    let customerDeliveryDate = getStickyioCustomField(stickyOrderData.custom_fields, 'sfcc_customer_delivery_date');
+    let currentCycle = getStickyioCustomField(stickyOrderData.custom_fields, 'sfcc_current_cycle');
+
+    if (customerDeliveryDate && currentCycle) {
+        let customerDeliveryDateValue = customerDeliveryDate.values[0].value;
+        let currentCycleValue = parseInt(currentCycle.values[0].value, 10);
+        let deliveryFrequency = getStickyioDeliveryFrequency(currentProduct.billing_model.id);
+
+        if (customerDeliveryDateValue.length > 0 && currentCycleValue >= 1 && deliveryFrequency > 0) {
+            let date = new Date(customerDeliveryDateValue);
+            date.setDate(date.getDate() + ((currentCycleValue-1) * deliveryFrequency));
+            nextDeliveryDate = date.toISOString().substring(0, 10);
+        }
+    }
+
+    return nextDeliveryDate;
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2459,5 +2553,9 @@ module.exports = {
     stickyioSubMan: stickyioSubMan,
     generateObjects: generateObjects,
     cleanupFiles: cleanupFiles,
-    getSubscription: getSubscription
+    getSubscription: getSubscription,
+    getStickyioCustomField: getStickyioCustomField,
+    getStickyioDeliveryFrequency: getStickyioDeliveryFrequency,
+    getNextDeliveryDate: getNextDeliveryDate,
+    getBillingModelById: getBillingModelById
 };
