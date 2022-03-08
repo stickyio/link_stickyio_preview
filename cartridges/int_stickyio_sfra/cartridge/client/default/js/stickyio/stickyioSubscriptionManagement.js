@@ -89,7 +89,7 @@ $('.stickyAddress-form').on('submit', function (e) {
     $.ajax({
         url: $(this).attr('action'),
         method: 'POST',
-        data     : $(this).serialize(),
+        data: $(this).serialize(),
         dataType: 'json',
         success: function (data) {
         	

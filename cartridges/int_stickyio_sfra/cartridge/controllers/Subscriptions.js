@@ -113,7 +113,6 @@ if (stickyioEnabled) {
                 currentCustomerNo = order.customer.profile.customerNo;
             }
            
-            
             var orderCustomerNo = req.currentCustomer.profile.customerNo;
             var breadcrumbs = [
                 {
@@ -288,7 +287,7 @@ if (stickyioEnabled) {
           	var sid = req.form.sid;
 			var stickyOrderNo = req.form.stickyioOrderNo;
   			
-  			var form = server.forms.getForm('stickyAddress');
+            var form = server.forms.getForm('stickyAddress');
         	var addrLine1 = form.address1.value;
         	var addrLine2 = form.address2.value;
         	var city = form.city.value;
@@ -321,14 +320,14 @@ if (stickyioEnabled) {
         	var success = true;
           	var sid = req.form.sid;
           	var stickyOrderNo = req.form.stickyioOrderNo;
-  			var form = server.forms.getForm('creditCard');
+            var form = server.forms.getForm('creditCard');
 
         	var cardType = form.cardType.value;
         	var cardNumber = form.cardNumber.value.replace(/\s/g, '');
         	
         	var expirationMonth = form.expirationMonth.value.toString();
         	var expirationYear = form.expirationYear.value.toString();
-			var cardSecurityCode = form.securityCode.value;
+        	var cardSecurityCode = form.securityCode.value;
 			var creditCardStatus;
 			var message;
 			
