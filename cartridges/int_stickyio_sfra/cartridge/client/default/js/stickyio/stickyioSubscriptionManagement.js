@@ -84,7 +84,7 @@ $('body').on('click', '.stickyCreditCardShow', function () {
 });
 
 $('.stickyAddress-form').on('submit', function (e) {
-	e.preventDefault();
+    e.preventDefault();
 	
     $.ajax({
         url: $(this).attr('action'),
@@ -98,12 +98,12 @@ $('.stickyAddress-form').on('submit', function (e) {
 });
 
 $('.stickyPaymentForm').on('submit', function (e) {
-	e.preventDefault();
+    e.preventDefault();
 	
     $.ajax({
         url: $(this).attr('action'),
         method: 'POST',
-        data     : $(this).serialize(),
+        data: $(this).serialize(),
         dataType: 'json',
         success: function (data) {
             $('.stickyioPaymentResponse').addClass(data.success ? 'stickyiosubmansuccess' : 'stickyiosubmanerror').text(data.message).show();
