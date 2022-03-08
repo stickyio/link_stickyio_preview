@@ -11,19 +11,19 @@
     <!--- Hidden input for credit card type --->
     <input type="hidden" class="form-control" id="cardType" name="${pdict.creditCardForm.cardType.htmlName}" value="">
 	 
-	<div class="row">
-		<div class="col-12">
-			<div class="form-group ${pdict.creditCardForm.creditCard.mandatory === true ? 'required' : ''}">
-				<label class="form-control-label" for="cardNumber">${Resource.msg('field.credit.card.number','creditCard',null)}</label>
-				<div class="card-number-wrapper">
-				     <input type="text" class="form-control cardNumber" id="cardNumber"
-				         value="" <isprint value=${pdict.creditCardForm.cardNumber.attributes} encoding="off"/>
-				         autocomplete="cc-number" aria-describedby="cardNumberInvalidMessage" >
-				     <div class="invalid-feedback" id="cardNumberInvalidMessage"></div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-12">
+            <div class="form-group ${pdict.creditCardForm.creditCard.mandatory === true ? 'required' : ''}">
+                <label class="form-control-label" for="cardNumber">${Resource.msg('field.credit.card.number','creditCard',null)}</label>
+                <div class="card-number-wrapper">
+                    <input type="text" class="form-control cardNumber" id="cardNumber"
+                        value="" <isprint value=${pdict.creditCardForm.cardNumber.attributes} encoding="off"/>
+                        autocomplete="cc-number" aria-describedby="cardNumberInvalidMessage" >
+                    <div class="invalid-feedback" id="cardNumberInvalidMessage"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-6">

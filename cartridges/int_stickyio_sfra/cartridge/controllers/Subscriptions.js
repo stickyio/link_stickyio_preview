@@ -145,7 +145,7 @@ if (stickyioEnabled) {
             if (order && orderCustomerNo === currentCustomerNo) { // additional check
                 // make our productModelOption data easier to deal with
                 res.render('account/subscriptionDetails', {
-                	sid : sid,
+                    sid : sid,
                     subscription: subscription,
                     addressForm: addressForm,
                     creditCardForm: creditCardForm,
@@ -156,7 +156,7 @@ if (stickyioEnabled) {
                 });
             } else if (subscriptions.length === 0) {
                 res.render('account/subscriptionDetails', {
-                	sid : sid,
+                    sid : sid,
                     subscription: null,
                     addressForm: addressForm,
                     creditCardForm: creditCardForm,
