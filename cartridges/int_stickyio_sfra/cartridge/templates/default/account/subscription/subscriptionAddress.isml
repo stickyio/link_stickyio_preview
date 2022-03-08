@@ -3,9 +3,9 @@
     action="${URLUtils.url('Subscriptions-UpdateShippingAddress')}"
     class="stickyAddress-form"
     method="POST" <isprint value="${pdict.addressForm.attributes}" encoding="off" />>
-	<isset name="orderData" value="${subscription.stickyioOrderData[subscription.orderNumbers[0].stickyioOrderNo]}" scope="page" />
-	<input type="hidden" name="stickyioOrderNo" value="${subscription.orderNumbers[0].stickyioOrderNo}"/>
-	<input type="hidden" name="sid" id="sid" value="${pdict.sid}" />
+    <isset name="orderData" value="${subscription.stickyioOrderData[subscription.orderNumbers[0].stickyioOrderNo]}" scope="page" />
+    <input type="hidden" name="stickyioOrderNo" value="${subscription.orderNumbers[0].stickyioOrderNo}"/>
+    <input type="hidden" name="sid" id="sid" value="${pdict.sid}" />
     <!-- Address 1 -->
     <div class="form-group
         ${pdict.addressForm.address1.mandatory === true ? 'required' : ''}">

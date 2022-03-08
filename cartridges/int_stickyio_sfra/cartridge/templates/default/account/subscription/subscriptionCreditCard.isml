@@ -4,106 +4,85 @@
     class="stickyPaymentForm"
     method="POST" <isprint value="${pdict.creditCardForm.attributes}" encoding="off" />>
     
-	<isset name="orderData" value="${subscription.stickyioOrderData[subscription.orderNumbers[0].stickyioOrderNo]}" scope="page" />
-	<input type="hidden" name="stickyioOrderNo" value="${subscription.orderNumbers[0].stickyioOrderNo}"/>
-	<input type="hidden" name="sid" id="sid" value="${pdict.sid}" />
+    <isset name="orderData" value="${subscription.stickyioOrderData[subscription.orderNumbers[0].stickyioOrderNo]}" scope="page" />
+    <input type="hidden" name="stickyioOrderNo" value="${subscription.orderNumbers[0].stickyioOrderNo}"/>
+    <input type="hidden" name="sid" id="sid" value="${pdict.sid}" />
 
-<!--- Hidden input for credit card type --->
-	<input type="hidden" class="form-control" id="cardType"
-	       name="${pdict.creditCardForm.cardType.htmlName}"
-	       value="">
-	
-	 <iscomment>${orderData.credit_card_number}</iscomment>
+    <!--- Hidden input for credit card type --->
+    <input type="hidden" class="form-control" id="cardType" name="${pdict.creditCardForm.cardType.htmlName}" value="">
 	 
 	<div class="row">
-	    <div class="col-12">
-	        <div class="form-group ${pdict.creditCardForm.creditCard.mandatory === true ? 'required' : ''}">
-	            <label class="form-control-label" for="cardNumber">${Resource.msg('field.credit.card.number','creditCard',null)}</label>
-	            <div class="card-number-wrapper">
-	                <input type="text" class="form-control cardNumber" id="cardNumber"
-	                    value="" <isprint value=${pdict.creditCardForm.cardNumber.attributes} encoding="off"/>
-	                    autocomplete="cc-number"
-	                    aria-describedby="cardNumberInvalidMessage"
-	                >
-	                
-	                <div class="invalid-feedback" id="cardNumberInvalidMessage"></div>
-	            </div>
-	        </div>
-	    </div>
+		<div class="col-12">
+			<div class="form-group ${pdict.creditCardForm.creditCard.mandatory === true ? 'required' : ''}">
+				<label class="form-control-label" for="cardNumber">${Resource.msg('field.credit.card.number','creditCard',null)}</label>
+				<div class="card-number-wrapper">
+				     <input type="text" class="form-control cardNumber" id="cardNumber"
+				         value="" <isprint value=${pdict.creditCardForm.cardNumber.attributes} encoding="off"/>
+				         autocomplete="cc-number" aria-describedby="cardNumberInvalidMessage" >
+				     <div class="invalid-feedback" id="cardNumberInvalidMessage"></div>
+				</div>
+			</div>
+		</div>
 	</div>
 
-	<div class="row">
-	    <div class="col-6">
-	        <div class="form-group  ${pdict.creditCardForm.expirationMonth.mandatory === true ? 'required' : ''}">
-	            <label class="form-control-label" for="expirationMonth">${Resource.msg('field.credit.card.expiration.month','creditCard',null)}</label>
-	            <select class="form-control expirationMonth custom-select" id="expirationMonth"
-	                <isprint value=${pdict.creditCardForm.expirationMonth.attributes} encoding="off"/>
-	                autocomplete="cc-exp-month"
-	                aria-describedby="expirationMonthInvalidMessage">
-	                <isloop items=${pdict.creditCardForm.expirationMonth.options} var="month">
-	                    <option id="${month.id}" value="${month.htmlValue}"
-	                        <isif condition="${month.id == orderData.cc_expires.substr(0,2)}">
-	                            selected
-	                        </isif> >
-	                        ${month.label}
-	                    </option>
-	                </isloop>
-	            </select>
-	            <div class="invalid-feedback" id="expirationMonthInvalidMessage"></div>
-	        </div>
-	    </div>
-	    <div class="col-6">
-	        <div class="form-group  ${pdict.creditCardForm.expirationYear.mandatory === true ? 'required' : ''}">
-	            <label class="form-control-label" for="expirationYear">${Resource.msg('field.credit.card.expiration.year','creditCard',null)}</label>
-	            <select class="form-control custom-select" id="year" <isprint value="${pdict.creditCardForm.expirationYear.attributes}" encoding="off" /> autocomplete="cc-exp-year">
+    <div class="row">
+        <div class="col-6">
+            <div class="form-group  ${pdict.creditCardForm.expirationMonth.mandatory === true ? 'required' : ''}">
+                <label class="form-control-label" for="expirationMonth">${Resource.msg('field.credit.card.expiration.month','creditCard',null)}</label>
+                <select class="form-control expirationMonth custom-select" id="expirationMonth"
+                    <isprint value=${pdict.creditCardForm.expirationMonth.attributes} encoding="off"/>
+                    autocomplete="cc-exp-month" aria-describedby="expirationMonthInvalidMessage">
+                    <isloop items=${pdict.creditCardForm.expirationMonth.options} var="month">
+                        <option id="${month.id}" value="${month.htmlValue}"
+                            <isif condition="${month.id == orderData.cc_expires.substr(0,2)}">
+                                selected
+                            </isif> >
+                            ${month.label}
+                        </option>
+                    </isloop>
+                </select>
+                <div class="invalid-feedback" id="expirationMonthInvalidMessage"></div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="form-group  ${pdict.creditCardForm.expirationYear.mandatory === true ? 'required' : ''}">
+                <label class="form-control-label" for="expirationYear">${Resource.msg('field.credit.card.expiration.year','creditCard',null)}</label>
+                <select class="form-control custom-select" id="year" <isprint value="${pdict.creditCardForm.expirationYear.attributes}" encoding="off" /> autocomplete="cc-exp-year">
                     <option value="${pdict.creditCardForm.expirationYear.options[0].htmlValue}">${pdict.creditCardForm.expirationYear.options[0].label}</option>
                     <isloop items=${pdict.expirationYears} var="year">
                         <option id="${year}" value="${year}" <isif condition="${year == pdict.paymentForm.expirationYear.value}">selected</isif> >${year}</option>
                     </isloop>
                 </select>
-	           
-	           <iscomment>
-	            <select class="form-control expirationYear custom-select" id="expirationYear"
-	                <isprint value=${pdict.creditCardForm.expirationYear.attributes} encoding="off"/>
-	                autocomplete="cc-exp-year"
-	                aria-describedby="expirationYearInvalidMessage">
-	                <option value="${pdict.creditCardForm.expirationYear.options[0].htmlValue}">${pdict.creditCardForm.expirationYear.options[0].label}</option>
-	                <isloop items=${pdict.expirationYears} var="year">
-	                    <option id="${year.toFixed(0)}" value="${year.toFixed(0)}">
-	                    <isprint value="${year}" formatter="####" /></option>
-	                </isloop>
-	            </select> 
-	            </iscomment>               
-	            <div class="invalid-feedback" id="expirationYearInvalidMessage"></div>
-	        </div>
-	    </div>
-	</div>
+                <div class="invalid-feedback" id="expirationYearInvalidMessage"></div>
+            </div>
+       </div>
+    </div>
 
-	<div class="row">
-	    <div class="col-sm-6">
-	        <div class="form-group ${pdict.creditCardForm.securityCode.mandatory === true ? 'required' : ''}">
-	            <label class="form-control-label" for="securityCode">${Resource.msg('field.credit.card.security.code','creditCard',null)}</label>
-	
-	            <button type="button" class="info-icon">
-	                <span class="icon" aria-hidden="true">i</span>
-	                <span class="sr-only">${Resource.msg('button.help.assistive.text','common',null)}</span>
-	                <span class="tooltip d-none">
-	                    ${Resource.msg('tooltip.security.code','creditCard',null)}
-	                </span>
-	            </button>
-	
-	            <input type="text" class="form-control securityCode" id="securityCode"
-	                <isprint value=${pdict.creditCardForm.securityCode.attributes} encoding="off"/>
-	                aria-describedby="securityCodeInvalidMessage" >
-	            <div class="invalid-feedback" id="securityCodeInvalidMessage"></div>
-	        </div>
-	    </div>
-	</div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group ${pdict.creditCardForm.securityCode.mandatory === true ? 'required' : ''}">
+                <label class="form-control-label" for="securityCode">${Resource.msg('field.credit.card.security.code','creditCard',null)}</label>
+		
+                <button type="button" class="info-icon">
+                    <span class="icon" aria-hidden="true">i</span>
+                    <span class="sr-only">${Resource.msg('button.help.assistive.text','common',null)}</span>
+                    <span class="tooltip d-none">
+                        ${Resource.msg('tooltip.security.code','creditCard',null)}
+                    </span>
+                </button>
+		
+                <input type="text" class="form-control securityCode" id="securityCode"
+                    <isprint value=${pdict.creditCardForm.securityCode.attributes} encoding="off"/>
+                    aria-describedby="securityCodeInvalidMessage" >
+                <div class="invalid-feedback" id="securityCodeInvalidMessage"></div>
+            </div>
+        </div>
+    </div>
 	
     <div class="row">
         <div class="col-6">
             <button type="submit" name="apply" class="btn btn-save btn-block btn-primary stickyPaymentUpdate">${Resource.msg('button.update','account',null)}</button>
-        </div>
+       </div>
     </div>
     <p class="stickyioPaymentResponse"></p>
 </form>
