@@ -23,7 +23,7 @@
             },
             {
                 "resource_id": "/orders",
-                "methods": ["post", "get"],
+                "methods": ["post"],
                 "read_attributes": "(**)",
                 "write_attributes": "(**)"
             },
