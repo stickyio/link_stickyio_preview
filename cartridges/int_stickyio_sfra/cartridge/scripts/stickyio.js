@@ -2085,12 +2085,12 @@ function updateStickyioPaymentInformation(stickyioOrderNumber, cardType, cardNum
     var orderData = {};
     orderData.cc_payment_type = cardType;
     orderData.cc_number = cardNumber;
-	orderData.cc_cvv = cardSecurityCode;
-	
-	var expiration = expMonth.length < 2 ? '0' + expMonth : expMonth;
-	expiration +=  expYear.length == 4 ? expYear.substr(2,2) : expYear;
-	
-	orderData.cc_expiration_date = expiration;
+    orderData.cc_cvv = cardSecurityCode;
+    
+    var expiration = expMonth.length < 2 ? '0' + expMonth : expMonth;
+    expiration +=  expYear.length == 4 ? expYear.substr(2,2) : expYear;
+    
+    orderData.cc_expiration_date = expiration;
     
     body.order_id[stickyioOrderNumber] = orderData;
     params.body = body;
@@ -2355,10 +2355,10 @@ function updateShippingAddress(stickyioOrderNumber, addrLine1, addrLine2, city, 
     orderData.phone = phone;
     orderData.shipping_address1 = addrLine1;
     orderData.shipping_address2 = addrLine2;
-  	orderData.shipping_city = city;
-  	orderData.shipping_state = state;
-  	orderData.shipping_zip = zip;
-  	orderData.shipping_country = country;
+    orderData.shipping_city = city;
+    orderData.shipping_state = state;
+    orderData.shipping_zip = zip;
+    orderData.shipping_country = country;
     
     body.order_id[stickyioOrderNumber] = orderData;
     params.body = body;
@@ -2372,28 +2372,6 @@ function updateShippingAddress(stickyioOrderNumber, addrLine1, addrLine2, city, 
     }
     return { error: true, message: message };
 
-
-/*
-    var params = {};   
-    params.body = {};
-    
-    params.id = sid;
-    params.helper = 'override';
-    params.id2 = 'address';
-    params.body.street = addrLine1;
-    params.body.city = city;
-    params.body.state = state;
-    params.body.country = country;
-    params.body.zip = zip;
-    
-    var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.shipping_address').call(params);
-    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
-        return { message: Resource.msg('label.subscriptionmanagement.response.shipping.update', 'stickyio', null) };
-    }
-    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
-    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
-    return { error: true, message: message };
-  */
 }
 
 

@@ -80,7 +80,7 @@ $('body').on('click', '.stickyAddressShow', function () {
 	$('.stickyioSubscriptionResponse').removeClass('stickyiosubmansuccess','stickyiosubmanerror').text('').hide();
 });
 $('body').on('click', '.stickyCreditCardShow', function () {
-	$('.stickyioPaymentResponse').removeClass('stickyiosubmansuccess','stickyiosubmanerror').text('').hide();
+    $('.stickyioPaymentResponse').removeClass('stickyiosubmansuccess','stickyiosubmanerror').text('').hide();
 });
 
 $('.stickyAddress-form').on('submit', function (e) {
@@ -92,8 +92,7 @@ $('.stickyAddress-form').on('submit', function (e) {
         data: $(this).serialize(),
         dataType: 'json',
         success: function (data) {
-        	
-			$('.stickyioSubscriptionResponse').addClass(data.success ? 'stickyiosubmansuccess' : 'stickyiosubmanerror').text(data.message).show();
+            $('.stickyioSubscriptionResponse').addClass(data.success ? 'stickyiosubmansuccess' : 'stickyiosubmanerror').text(data.message).show();
         }
     });
 });
@@ -107,8 +106,7 @@ $('.stickyPaymentForm').on('submit', function (e) {
         data     : $(this).serialize(),
         dataType: 'json',
         success: function (data) {
-        	
-			$('.stickyioPaymentResponse').addClass(data.success ? 'stickyiosubmansuccess' : 'stickyiosubmanerror').text(data.message).show();
+            $('.stickyioPaymentResponse').addClass(data.success ? 'stickyiosubmansuccess' : 'stickyiosubmanerror').text(data.message).show();
         }
     });
 });
