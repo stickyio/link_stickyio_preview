@@ -2095,7 +2095,7 @@ function updateStickyioPaymentInformation(stickyioOrderNumber, cardType, cardNum
     body.order_id[stickyioOrderNumber] = orderData;
     params.body = body;
     var stickyioResponse = stickyioAPI('stickyio.http.post.order_update').call(params);
-    if (!stickyioResponse.error && stickyioResponse.object.result.status === 'SUCCESS') {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
         return true;
     }
     return false;
@@ -2347,7 +2347,33 @@ function getSubscriptionShippingAddress(sid) {
  * @param {string} subscriptionID - sticky.io subscription ID
  * @returns {Object} - result of the call
  */
-function updateShippingAddress(sid, addrLine1, addrLine2, city, state, zip, country, phone) {
+function updateShippingAddress(stickyioOrderNumber, addrLine1, addrLine2, city, state, zip, country, phone) {
+    var params = {};
+    var body = {};
+    body.order_id = {};
+    var orderData = {};
+    orderData.phone = phone;
+    orderData.shipping_address1 = addrLine1;
+    orderData.shipping_address2 = addrLine2;
+  	orderData.shipping_city = city;
+  	orderData.shipping_state = state;
+  	orderData.shipping_zip = zip;
+  	orderData.shipping_country = country;
+    
+    body.order_id[stickyioOrderNumber] = orderData;
+    params.body = body;
+    
+    var stickyioResponse = stickyioAPI('stickyio.http.post.order_update').call(params);
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    
+    //for address sometimes 911 is returned even though the order shipping address is updated.
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && (stickyioResponse.object.result.response_code === '100' || stickyioResponse.object.result.response_code === '911')) {
+        return { message: Resource.msg('label.subscriptionmanagement.response.shipping.update', 'stickyio', null) };
+    }
+    return { error: true, message: message };
+
+
+/*
     var params = {};   
     params.body = {};
     
@@ -2367,6 +2393,7 @@ function updateShippingAddress(sid, addrLine1, addrLine2, city, state, zip, coun
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
     if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
     return { error: true, message: message };
+  */
 }
 
 

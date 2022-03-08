@@ -1,5 +1,4 @@
 <div id="stickyDiv" class="collapse" data-toggle="collapse">
-
 <form
     action="${URLUtils.url('Subscriptions-UpdateShippingAddress')}"
     class="stickyAddress-form"
@@ -13,7 +12,7 @@
         <label class="form-control-label" for="address1">
             <isprint value="${pdict.addressForm.address1.label}" encoding="htmlcontent" />
         </label>
-        <input type="text" class="form-control" id="address1" value="${pdict.subscriptionShippingAddress.street}" <isprint value="${pdict.addressForm.address1.attributes}" encoding="off" />>
+        <input type="text" class="form-control" id="address1" value="${orderData.shipping_street_address}" <isprint value="${pdict.addressForm.address1.attributes}" encoding="off" />>
         <div class="invalid-feedback"></div>
     </div>
 
@@ -23,7 +22,7 @@
         <label class="form-control-label" for="address2">
             <isprint value="${pdict.addressForm.address2.label}" encoding="htmlcontent" />
         </label>
-        <input type="text" class="form-control" id="address2" value="${pdict.subscriptionShippingAddress.street_2 ? pdict.subscriptionShippingAddress.street_2: ''}" <isprint value="${pdict.addressForm.address2.attributes}" encoding="off" />>
+        <input type="text" class="form-control" id="address2" value="${orderData.shipping_street_address2 ? orderData.shipping_street_address2: ''}" <isprint value="${pdict.addressForm.address2.attributes}" encoding="off" />>
         <div class="invalid-feedback"></div>
     </div>
 
@@ -40,7 +39,7 @@
                     <isprint value="${pdict.addressForm.country.attributes}" encoding="off" />
                     autocomplete="country">
                     <isloop items=${pdict.addressForm.country.options} var="country">
-                        <option id="${country.id}" value="${country.htmlValue}" <isif condition="${pdict.subscriptionShippingAddress.country == country.id}">selected</isif>>${country.label}</option>
+                        <option id="${country.id}" value="${country.htmlValue}" <isif condition="${orderData.shipping_country == country.id}">selected</isif>>${country.label}</option>
                     </isloop>
                 </select>
                 <div class="invalid-feedback"></div>
@@ -58,7 +57,7 @@
                     <isprint value="${pdict.addressForm.states.stateCode.attributes}" encoding="off" />
                     autocomplete="address-level1">
                     <isloop items=${pdict.addressForm.states.stateCode.options} var="state">
-                        <option id="${state.id}" value="${state.htmlValue}" <isif condition="${pdict.subscriptionShippingAddress.state == state.id}">selected</isif>>${state.label || ' '}</option>
+                        <option id="${state.id}" value="${state.htmlValue}" <isif condition="${orderData.shipping_state == state.id}">selected</isif>>${state.label || ' '}</option>
                     </isloop>
                 </select>
                 <div class="invalid-feedback"></div>
@@ -75,7 +74,7 @@
                 <label class="form-control-label" for="city">
                     <isprint value="${pdict.addressForm.city.label}" encoding="htmlcontent" />
                 </label>
-                <input type="text" class="form-control" id="city" value="${pdict.subscriptionShippingAddress.city}" <isprint value="${pdict.addressForm.city.attributes}" encoding="off" />>
+                <input type="text" class="form-control" id="city" value="${orderData.shipping_city}" <isprint value="${pdict.addressForm.city.attributes}" encoding="off" />>
                  
                 <div class="invalid-feedback"></div>
             </div>
@@ -88,7 +87,7 @@
                 <label class="form-control-label" for="zipCode">
                     <isprint value="${pdict.addressForm.postalCode.label}" encoding="htmlcontent" />
                 </label>
-                <input type="text" class="form-control" id="zipCode" value="${pdict.subscriptionShippingAddress.zip}" <isprint value="${pdict.addressForm.postalCode.attributes}" encoding="off" />>
+                <input type="text" class="form-control" id="zipCode" value="${orderData.shipping_postcode}" <isprint value="${pdict.addressForm.postalCode.attributes}" encoding="off" />>
                 <div class="invalid-feedback"></div>
             </div>
         </div>
@@ -100,7 +99,7 @@
         <label class="form-control-label" for="phone">
             <isprint value="${pdict.addressForm.phone.label}" encoding="htmlcontent" />
         </label>
-        <input type="text" class="form-control" id="phone" value="${pdict.subscriptionShippingAddress.phone}" <isprint value="${pdict.addressForm.phone.attributes}" encoding="off" /> autocomplete="tel">
+        <input type="text" class="form-control" id="phone" value="${orderData.customers_telephone}" <isprint value="${pdict.addressForm.phone.attributes}" encoding="off" /> autocomplete="tel">
         <div class="invalid-feedback"></div>
     </div>
 

@@ -104,12 +104,10 @@ if (stickyioEnabled) {
             var order;
             var subscription;
             var currentCustomerNo;
-            var subscriptionShippingAddress = null;
             
             var sid = req.querystring.sid;
             var subscriptions = ordersResult.subscriptions;
             if (subscriptions.length > 0) {
-           		subscriptionShippingAddress = stickyio.getSubscriptionShippingAddress(sid);
                 subscription = Object.assign(subscriptions[0], stickyio.getSubscriptionData(subscriptions[0].orderNumbers[0].stickyioOrderNo, subscriptions[0].subscriptionID));
                 order = OrderMgr.getOrder(subscription.orderNumbers[0].sfccOrderNo, subscription.orderNumbers[0].sfccOrderToken);
                 currentCustomerNo = order.customer.profile.customerNo;
@@ -150,7 +148,6 @@ if (stickyioEnabled) {
                 res.render('account/subscriptionDetails', {
                 	sid : sid,
                     subscription: subscription,
-                    subscriptionShippingAddress: subscriptionShippingAddress,
                     addressForm: addressForm,
                     creditCardForm: creditCardForm,
                     expirationYears : creditCardExpirationYears,
@@ -162,7 +159,6 @@ if (stickyioEnabled) {
                 res.render('account/subscriptionDetails', {
                 	sid : sid,
                     subscription: null,
-                    subscriptionShippingAddress: subscriptionShippingAddress,
                     addressForm: addressForm,
                     creditCardForm: creditCardForm,
                     expirationYears : creditCardExpirationYears,
@@ -290,8 +286,9 @@ if (stickyioEnabled) {
         function (req, res, next) {
         	var success = true;
           	var sid = req.form.sid;
+			var stickyOrderNo = req.form.stickyioOrderNo;
+  			
   			var form = server.forms.getForm('stickyAddress');
-
         	var addrLine1 = form.address1.value;
         	var addrLine2 = form.address2.value;
         	var city = form.city.value;
@@ -301,7 +298,7 @@ if (stickyioEnabled) {
           	var postalCode = form.postalCode.value;
 
  
-        	var stickyioResponse = stickyio.updateShippingAddress(sid, addrLine1, addrLine2, city, state, postalCode, country, phone);     	
+        	var stickyioResponse = stickyio.updateShippingAddress(stickyOrderNo, addrLine1, addrLine2, city, state, postalCode, country, phone);     	
  		 	if (stickyioResponse.error) {
  		 		success = false;
  		 	}
