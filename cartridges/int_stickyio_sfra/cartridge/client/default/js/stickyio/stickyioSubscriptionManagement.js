@@ -6,6 +6,11 @@
 
 var processInclude = require('base/util');
 var datepickerFactory = require('jquery-datepicker');
+
+var base = require('base/product/base');
+var cleave = require('base/components/cleave');
+
+
 datepickerFactory($);
 
 /**
@@ -71,6 +76,43 @@ $('body').on('click', '.stickyioconfirmbutton', function () {
     });
 });
 
+$('body').on('click', '.stickyAddressShow', function () {
+	$('.stickyioSubscriptionResponse').removeClass('stickyiosubmansuccess','stickyiosubmanerror').text('').hide();
+});
+$('body').on('click', '.stickyCreditCardShow', function () {
+	$('.stickyioPaymentResponse').removeClass('stickyiosubmansuccess','stickyiosubmanerror').text('').hide();
+});
+
+$('.stickyAddress-form').on('submit', function (e) {
+	e.preventDefault();
+	
+    $.ajax({
+        url: $(this).attr('action'),
+        method: 'POST',
+        data     : $(this).serialize(),
+        dataType: 'json',
+        success: function (data) {
+        	
+			$('.stickyioSubscriptionResponse').addClass(data.success ? 'stickyiosubmansuccess' : 'stickyiosubmanerror').text(data.message).show();
+        }
+    });
+});
+
+$('.stickyPaymentForm').on('submit', function (e) {
+	e.preventDefault();
+	
+    $.ajax({
+        url: $(this).attr('action'),
+        method: 'POST',
+        data     : $(this).serialize(),
+        dataType: 'json',
+        success: function (data) {
+        	
+			$('.stickyioPaymentResponse').addClass(data.success ? 'stickyiosubmansuccess' : 'stickyiosubmanerror').text(data.message).show();
+        }
+    });
+});
+
 $(document).ready(function () {
     if ($('.subscriptionmanagement', $('body')).length > 0) {
         processInclude(require('./stickyioQuickView'));
@@ -98,6 +140,7 @@ $(document).ready(function () {
         if ($('.stickyiosubscriptionresponse').text()) {
             $('.stickyiosubscriptionresponse').addClass('stickyiosubmansuccess').show();
         }
+        cleave.handleCreditCardNumber('.cardNumber', '#cardType'); 
         bindClose();
     }
 });

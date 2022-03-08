@@ -1,0 +1,119 @@
+<div id="stickyDiv" class="collapse" data-toggle="collapse">
+
+<form
+    action="${URLUtils.url('Subscriptions-UpdateShippingAddress')}"
+    class="stickyAddress-form"
+    method="POST" <isprint value="${pdict.addressForm.attributes}" encoding="off" />>
+	<isset name="orderData" value="${subscription.stickyioOrderData[subscription.orderNumbers[0].stickyioOrderNo]}" scope="page" />
+	<input type="hidden" name="stickyioOrderNo" value="${subscription.orderNumbers[0].stickyioOrderNo}"/>
+	<input type="hidden" name="sid" id="sid" value="${pdict.sid}" />
+    <!-- Address 1 -->
+    <div class="form-group
+        ${pdict.addressForm.address1.mandatory === true ? 'required' : ''}">
+        <label class="form-control-label" for="address1">
+            <isprint value="${pdict.addressForm.address1.label}" encoding="htmlcontent" />
+        </label>
+        <input type="text" class="form-control" id="address1" value="${pdict.subscriptionShippingAddress.street}" <isprint value="${pdict.addressForm.address1.attributes}" encoding="off" />>
+        <div class="invalid-feedback"></div>
+    </div>
+
+    <!-- Address 2 -->
+    <div class="form-group
+        ${pdict.addressForm.address2.mandatory === true ? 'required' : ''}">
+        <label class="form-control-label" for="address2">
+            <isprint value="${pdict.addressForm.address2.label}" encoding="htmlcontent" />
+        </label>
+        <input type="text" class="form-control" id="address2" value="${pdict.subscriptionShippingAddress.street_2 ? pdict.subscriptionShippingAddress.street_2: ''}" <isprint value="${pdict.addressForm.address2.attributes}" encoding="off" />>
+        <div class="invalid-feedback"></div>
+    </div>
+
+    <!-- Country and State drop downs -->
+    <div class="row">
+        <!-- Country  -->
+        <div class="col-6">
+            <div class="form-group
+                ${pdict.addressForm.country.mandatory === true ? 'required' : ''}">
+                <label class="form-control-label" for="country">
+                    <isprint value="${pdict.addressForm.country.label}" encoding="htmlcontent" />
+                </label>
+                <select class="form-control" id="country"
+                    <isprint value="${pdict.addressForm.country.attributes}" encoding="off" />
+                    autocomplete="country">
+                    <isloop items=${pdict.addressForm.country.options} var="country">
+                        <option id="${country.id}" value="${country.htmlValue}" <isif condition="${pdict.subscriptionShippingAddress.country == country.id}">selected</isif>>${country.label}</option>
+                    </isloop>
+                </select>
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+
+        <!-- State  -->
+        <div class="col-6">
+            <div class="form-group
+                ${pdict.addressForm.states.stateCode.mandatory === true ? 'required' : ''}">
+                <label class="form-control-label" for="state">
+                    <isprint value="${pdict.addressForm.states.stateCode.label}" encoding="htmlcontent" />
+                </label>
+                <select class="form-control" id="state"
+                    <isprint value="${pdict.addressForm.states.stateCode.attributes}" encoding="off" />
+                    autocomplete="address-level1">
+                    <isloop items=${pdict.addressForm.states.stateCode.options} var="state">
+                        <option id="${state.id}" value="${state.htmlValue}" <isif condition="${pdict.subscriptionShippingAddress.state == state.id}">selected</isif>>${state.label || ' '}</option>
+                    </isloop>
+                </select>
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- City and ZIP -->
+    <div class="row">
+        <div class="col-6">
+        <!-- City  -->
+            <div class="form-group
+                ${pdict.addressForm.city.mandatory === true ? 'required' : ''}">
+                <label class="form-control-label" for="city">
+                    <isprint value="${pdict.addressForm.city.label}" encoding="htmlcontent" />
+                </label>
+                <input type="text" class="form-control" id="city" value="${pdict.subscriptionShippingAddress.city}" <isprint value="${pdict.addressForm.city.attributes}" encoding="off" />>
+                 
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+
+        <!-- ZIP Code -->
+        <div class="col-6">
+            <div class="form-group
+                ${pdict.addressForm.postalCode.mandatory === true ? 'required' : ''}">
+                <label class="form-control-label" for="zipCode">
+                    <isprint value="${pdict.addressForm.postalCode.label}" encoding="htmlcontent" />
+                </label>
+                <input type="text" class="form-control" id="zipCode" value="${pdict.subscriptionShippingAddress.zip}" <isprint value="${pdict.addressForm.postalCode.attributes}" encoding="off" />>
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phone Number -->
+    <div class="form-group
+        ${pdict.addressForm.phone.mandatory === true ? 'required' : ''}">
+        <label class="form-control-label" for="phone">
+            <isprint value="${pdict.addressForm.phone.label}" encoding="htmlcontent" />
+        </label>
+        <input type="text" class="form-control" id="phone" value="${pdict.subscriptionShippingAddress.phone}" <isprint value="${pdict.addressForm.phone.attributes}" encoding="off" /> autocomplete="tel">
+        <div class="invalid-feedback"></div>
+    </div>
+
+    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+	
+
+    <!-- Cancel and Save Buttons -->
+    <div class="row">
+        <div class="col-6">
+            <button type="submit" name="apply" class="btn btn-save btn-block btn-primary stickyAddrUpdate">${Resource.msg('button.update','account',null)}</button>
+        </div>
+    </div>
+    <p class="stickyioSubscriptionResponse"></p>
+
+</form>
+</div>
