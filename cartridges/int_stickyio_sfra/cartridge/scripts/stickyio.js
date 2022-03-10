@@ -2073,6 +2073,37 @@ function updateStickyioShipping(stickyioOrderNumber, trackingNumber) {
 }
 
 /**
+ * Update sticky.io order with tracking number
+ * @param {string} stickyioOrderNumber - sticky.io order number
+ * @param {string} trackingNumber - SFCC-provided tracking number
+ * @returns {boolean} - boolean result
+ */
+function updateStickyioPaymentInformation(stickyioOrderNumber, cardType, cardNumber, cardSecurityCode, expMonth, expYear) {
+    var params = {};
+    var body = {};
+    body.order_id = {};
+    var orderData = {};
+    orderData.cc_payment_type = cardType;
+    orderData.cc_number = cardNumber;
+    orderData.cc_cvv = cardSecurityCode;
+    
+    var expiration = expMonth.length < 2 ? '0' + expMonth : expMonth;
+    expiration +=  expYear.length == 4 ? expYear.substr(2,2) : expYear;
+    
+    orderData.cc_expiration_date = expiration;
+    
+    body.order_id[stickyioOrderNumber] = orderData;
+    params.body = body;
+    var stickyioResponse = stickyioAPI('stickyio.http.post.order_update').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
+        return true;
+    }
+    return false;
+}
+
+
+
+/**
  * Update this order shipping status
  * @param {string} orderNo - SFCC order number
  * @param {string} orderToken - SFCC order token
@@ -2289,6 +2320,60 @@ function subManUpdateRecurringDate(subscriptionID, date) {
     if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
     return { error: true, message: message };
 }
+
+/**
+ * Update the shipping address of the subscription
+ * @param {string} subscriptionID - sticky.io subscription ID
+ * @returns {Object} - result of the call
+ */
+function getSubscriptionShippingAddress(sid) {
+    var params = {};   
+    params.body = {};
+    
+    params.id = sid;
+    params.helper = 'override';
+    
+    var stickyioResponse = stickyioAPI('stickyio.http.get.subscriptions.shipping_address').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
+        return stickyioResponse.object.result.data.address;
+    }
+    
+    return null;
+}
+
+
+/**
+ * Update the shipping address of the subscription
+ * @param {string} subscriptionID - sticky.io subscription ID
+ * @returns {Object} - result of the call
+ */
+function updateShippingAddress(stickyioOrderNumber, addrLine1, addrLine2, city, state, zip, country, phone) {
+    var params = {};
+    var body = {};
+    body.order_id = {};
+    var orderData = {};
+    orderData.phone = phone;
+    orderData.shipping_address1 = addrLine1;
+    orderData.shipping_address2 = addrLine2;
+    orderData.shipping_city = city;
+    orderData.shipping_state = state;
+    orderData.shipping_zip = zip;
+    orderData.shipping_country = country;
+    
+    body.order_id[stickyioOrderNumber] = orderData;
+    params.body = body;
+    
+    var stickyioResponse = stickyioAPI('stickyio.http.post.order_update').call(params);
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    
+    //for address sometimes 911 is returned even though the order shipping address is updated.
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && (stickyioResponse.object.result.response_code === '100' || stickyioResponse.object.result.response_code === '911')) {
+        return { message: Resource.msg('label.subscriptionmanagement.response.shipping.update', 'stickyio', null) };
+    }
+    return { error: true, message: message };
+
+}
+
 
 /**
  * Pause the sticky.io subscription
@@ -2526,6 +2611,9 @@ function getStickyioDeliveryFrequency(billingModelId) {
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
+    updateShippingAddress: updateShippingAddress,
+    updateStickyioPaymentInformation: updateStickyioPaymentInformation,
+    getSubscriptionShippingAddress: getSubscriptionShippingAddress,
     updateShippingMethods: updateShippingMethods,
     getCampaigns: getCampaigns,
     getCampaignCustomObjectJSON: getCampaignCustomObjectJSON,
