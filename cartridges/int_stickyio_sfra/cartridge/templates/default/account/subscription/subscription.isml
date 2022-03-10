@@ -64,6 +64,10 @@
                                     ${subscription.recurring_date}
                                 </isif>
                             </p>
+                            <p><a href="#stickyDiv" class="stickyAddressShow" data-toggle="collapse">Edit Shipping Address</a></p>
+                            <isinclude template="account/subscription/subscriptionAddress"/>
+                            <p><a href="#stickyDivCreditCard" class="stickyCreditCardShow" data-toggle="collapse">Edit Payment</a></p>
+                            <isinclude template="account/subscription/subscriptionCreditCard"/>
                         </isif>
                         <isif condition="${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + subscription.subscriptionID).value}">
                             <p class="stickyiosubscriptionresponse">${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + subscription.subscriptionID).value}</p>
