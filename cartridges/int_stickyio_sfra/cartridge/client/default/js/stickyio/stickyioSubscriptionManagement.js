@@ -77,7 +77,7 @@ $('body').on('click', '.stickyioconfirmbutton', function () {
 });
 
 $('body').on('click', '.stickyAddressShow', function () {
-	$('.stickyioSubscriptionResponse').removeClass('stickyiosubmansuccess','stickyiosubmanerror').text('').hide();
+    $('.stickyioSubscriptionResponse').removeClass('stickyiosubmansuccess','stickyiosubmanerror').text('').hide();
 });
 $('body').on('click', '.stickyCreditCardShow', function () {
     $('.stickyioPaymentResponse').removeClass('stickyiosubmansuccess','stickyiosubmanerror').text('').hide();

@@ -2338,7 +2338,7 @@ function getSubscriptionShippingAddress(sid) {
         return stickyioResponse.object.result.data.address;
     }
     
-	return null;
+    return null;
 }
 
 
