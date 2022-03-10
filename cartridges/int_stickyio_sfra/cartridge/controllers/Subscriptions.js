@@ -104,12 +104,15 @@ if (stickyioEnabled) {
             var order;
             var subscription;
             var currentCustomerNo;
+            
+            var sid = req.querystring.sid;
             var subscriptions = ordersResult.subscriptions;
             if (subscriptions.length > 0) {
                 subscription = Object.assign(subscriptions[0], stickyio.getSubscriptionData(subscriptions[0].orderNumbers[0].stickyioOrderNo, subscriptions[0].subscriptionID));
                 order = OrderMgr.getOrder(subscription.orderNumbers[0].sfccOrderNo, subscription.orderNumbers[0].sfccOrderToken);
                 currentCustomerNo = order.customer.profile.customerNo;
             }
+           
             var orderCustomerNo = req.currentCustomer.profile.customerNo;
             var breadcrumbs = [
                 {
@@ -125,21 +128,39 @@ if (stickyioEnabled) {
                     url: URLUtils.url('Subscriptions-List').toString()
                 }
             ];
-
+            var currentYear = new Date().getFullYear();
+            var creditCardExpirationYears = [];
+		
+            for (var i = 0; i < 10; i++) {
+                creditCardExpirationYears.push((currentYear + i).toString());
+            }
+		    
             var exitLinkText = Resource.msg('label.subscriptionmanagement.orderheader', 'stickyio', null);
             var exitLinkUrl = URLUtils.https('Subscriptions-List', 'orderFilter', req.querystring.orderFilter);
-
+            var addressForm = server.forms.getForm('stickyAddress');
+            addressForm.clear();
+            var creditCardForm = server.forms.getForm('creditCard');
+            creditCardForm.clear();
+ 	        
             if (order && orderCustomerNo === currentCustomerNo) { // additional check
                 // make our productModelOption data easier to deal with
                 res.render('account/subscriptionDetails', {
+                    sid : sid,
                     subscription: subscription,
+                    addressForm: addressForm,
+                    creditCardForm: creditCardForm,
+                    expirationYears : creditCardExpirationYears,
                     exitLinkText: exitLinkText,
                     exitLinkUrl: exitLinkUrl,
                     breadcrumbs: breadcrumbs
                 });
             } else if (subscriptions.length === 0) {
                 res.render('account/subscriptionDetails', {
+                    sid : sid,
                     subscription: null,
+                    addressForm: addressForm,
+                    creditCardForm: creditCardForm,
+                    expirationYears : creditCardExpirationYears,
                     exitLinkText: exitLinkText,
                     exitLinkUrl: exitLinkUrl,
                     breadcrumbs: breadcrumbs
@@ -255,6 +276,88 @@ if (stickyioEnabled) {
             }
             next();
         }
+    );
+    
+    server.post('UpdateShippingAddress',
+        server.middleware.https,
+        csrfProtection.generateToken,
+        userLoggedIn.validateLoggedInAjax,
+        function (req, res, next) {
+            var success = true;
+            var sid = req.form.sid;
+            var stickyOrderNo = req.form.stickyioOrderNo;
+            
+            var form = server.forms.getForm('stickyAddress');
+            var addrLine1 = form.address1.value;
+            var addrLine2 = form.address2.value;
+            var city = form.city.value;
+            var state = form.states.stateCode.value;
+            var country = form.country.value; 
+            var phone = form.phone.value;
+            var postalCode = form.postalCode.value;
+ 
+            var stickyioResponse = stickyio.updateShippingAddress(stickyOrderNo, addrLine1, addrLine2, city, state, postalCode, country, phone);     	
+            if (stickyioResponse.error) {
+                success = false;
+            }
+            res.json({
+                success: success,
+                message : stickyioResponse.message
+            });
+            next();		
+    	}
+    );
+    
+    server.post('UpdatePaymentInformation',
+        server.middleware.https,
+        csrfProtection.generateToken,
+        userLoggedIn.validateLoggedInAjax,
+        function (req, res, next) {
+            var PaymentMgr = require('dw/order/PaymentMgr');
+            var queryString = req.querystring;
+            var success = true;
+            var sid = req.form.sid;
+            var stickyOrderNo = req.form.stickyioOrderNo;
+            var form = server.forms.getForm('creditCard');
+            
+            var cardType = form.cardType.value;
+            var cardNumber = form.cardNumber.value.replace(/\s/g, '');
+            
+            var expirationMonth = form.expirationMonth.value.toString();
+            var expirationYear = form.expirationYear.value.toString();
+            var cardSecurityCode = form.securityCode.value;
+            var creditCardStatus;
+            var message;
+            
+            var paymentCard = PaymentMgr.getPaymentCard(cardType);
+						
+            if (paymentCard) {
+                creditCardStatus = paymentCard.verify(expirationMonth,expirationYear,cardNumber,cardSecurityCode);
+            } else {
+                success = false;
+                message =  Resource.msg('error.invalid.card.number', 'creditCard', null);
+            }
+       		      		
+            if (creditCardStatus.error) {
+                success = false;
+                message = Resource.msg('error.card.information.error', 'creditCard', null);
+            }
+            if (success) {            
+                var stickyioResponse = stickyio.updateStickyioPaymentInformation(stickyOrderNo, cardType, cardNumber,cardSecurityCode,expirationMonth,expirationYear);     	
+                if (stickyioResponse.error) {
+                    success = false;
+                    message = Resource.msg('error.card.information.error', 'creditCard', null);
+                } else {
+                    message = Resource.msg('label.subscriptionmanagement.response.payment.update', 'stickyio', null);
+                }
+            }
+
+            res.json({
+                success: success,
+                message : message
+            });
+            next();		
+    	}
     );
 }
 
