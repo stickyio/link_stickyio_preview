@@ -26,11 +26,12 @@ if (stickyioEnabled) {
                 res.json();
                 return next();
             }
-
+            var billingModels = stickyio.getBillingModelsFromStickyio(1, {});
             var ordersResult = SubscriptionHelpers.getSubscriptions(
                 req.currentCustomer,
                 req.querystring,
-                req.locale.id
+                req.locale.id,
+                billingModels
             );
             var subscriptions = ordersResult.subscriptions;
             var filterValues = ordersResult.filterValues;
@@ -52,11 +53,13 @@ if (stickyioEnabled) {
         userLoggedIn.validateLoggedIn,
         function (req, res, next) {
             var SubscriptionHelpers = require('~/cartridge/scripts/subscription/subscriptionHelpers');
-
+            var billingModels = stickyio.getBillingModelsFromStickyio(1, {});
+            
             var ordersResult = SubscriptionHelpers.getSubscriptions(
                 req.currentCustomer,
                 req.querystring,
-                req.locale.id
+                req.locale.id,
+                billingModels
             );
             var subscriptions = ordersResult.subscriptions;
             var filterValues = ordersResult.filterValues;
@@ -95,10 +98,13 @@ if (stickyioEnabled) {
             // and maintains security by only allowing the customer that is currently logged view a subscription if it is owned by an order belonging to that customer
             var SubscriptionHelpers = require('~/cartridge/scripts/subscription/subscriptionHelpers');
 
+            var billingModels = stickyio.getBillingModelsFromStickyio(1, {});
+            
             var ordersResult = SubscriptionHelpers.getSubscriptions(
                 req.currentCustomer,
                 req.querystring,
-                req.locale.id
+                req.locale.id,
+                billingModels
             );
 
             var order;
@@ -106,7 +112,7 @@ if (stickyioEnabled) {
             var currentCustomerNo;
             var subscriptions = ordersResult.subscriptions;
             if (subscriptions.length > 0) {
-                subscription = Object.assign(subscriptions[0], stickyio.getSubscriptionData(subscriptions[0].orderNumbers[0].stickyioOrderNo, subscriptions[0].subscriptionID));
+                subscription = Object.assign(subscriptions[0], stickyio.getSubscriptionData(subscriptions[0].orderNumbers[0].stickyioOrderNo, subscriptions[0].subscriptionID, billingModels));
                 order = OrderMgr.getOrder(subscription.orderNumbers[0].sfccOrderNo, subscription.orderNumbers[0].sfccOrderToken);
                 currentCustomerNo = order.customer.profile.customerNo;
             }
