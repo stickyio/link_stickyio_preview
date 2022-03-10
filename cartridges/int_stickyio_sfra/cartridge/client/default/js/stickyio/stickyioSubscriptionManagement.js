@@ -83,7 +83,7 @@ $('body').on('click', '.stickyCreditCardShow', function () {
     $('.stickyioPaymentResponse').removeClass('stickyiosubmansuccess','stickyiosubmanerror').text('').hide();
 });
 
-$('.stickyAddress-form').on('submit', function (e) {
+$('.stickyAddressForm').on('submit', function (e) {
     e.preventDefault();
 	
     $.ajax({

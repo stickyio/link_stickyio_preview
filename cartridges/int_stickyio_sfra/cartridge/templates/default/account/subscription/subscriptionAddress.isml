@@ -1,7 +1,7 @@
 <div id="stickyDiv" class="collapse" data-toggle="collapse">
 <form
     action="${URLUtils.url('Subscriptions-UpdateShippingAddress')}"
-    class="stickyAddress-form"
+    class="stickyAddressForm"
     method="POST" <isprint value="${pdict.addressForm.attributes}" encoding="off" />>
     <isset name="orderData" value="${subscription.stickyioOrderData[subscription.orderNumbers[0].stickyioOrderNo]}" scope="page" />
     <input type="hidden" name="stickyioOrderNo" value="${subscription.orderNumbers[0].stickyioOrderNo}"/>
