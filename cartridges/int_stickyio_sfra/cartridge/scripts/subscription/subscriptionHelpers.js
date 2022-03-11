@@ -57,7 +57,7 @@ function getCustomerID(stickyioCustomFields) {
 * @param {string} locale - the current request's locale id
 * @returns {Object} - orderModel of the current dw order object
 * */
-function getSubscriptions(currentCustomer, querystring, locale) {
+function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
     // get all subscription orders for this user
     var customerID;
     var customerNo = currentCustomer.profile.customerNo;
@@ -212,8 +212,13 @@ function getSubscriptions(currentCustomer, querystring, locale) {
                     var thisProduct = thisStickyOrderData.products[j];
                     var thisProductSubscriptionID = thisProduct.subscription_id;
                     if (assertSubscriptionID(thisProductSubscriptionID, thisStickyioOrderNo) && customerID === getCustomerID(thisStickyOrderData.custom_fields)) { // make sure this stickyOrderNumber is under the subscriptionID key and belongs to the current customer. If not, toss the entire subscriptionID from subscriptions (old order in SFCC from testing sharing same order number as new order)
+                        var billingModel;
+                        if (billingModels) {
+                            billingModel = stickyio.getBillingModelFromModels(thisProduct.billing_model.id, billingModels);
+                        }
+                        
                         validSubscriptionIDs[thisProductSubscriptionID] = {
-                            nextRecurring: stickyio.getNextDeliveryDate(thisStickyOrderData, thisProduct, thisProduct.recurring_date),
+                            nextRecurring: stickyio.getNextDeliveryDate(thisStickyOrderData, thisProduct, thisProduct.recurring_date, billingModel),
                             statusText: Resource.msg('label.subscriptionmanagement.active', 'stickyio', null),
                             status: 'active'
                         };
