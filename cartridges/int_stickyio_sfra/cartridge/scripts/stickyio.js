@@ -2228,7 +2228,7 @@ function updateSubscriptionDetails(orderView) {
  * @param {string} subscriptionID - sticky.io subscriptionID
  * @returns {Object} - Updated orderView object
  */
-function getSubscriptionData(stickyioOrderNumber, subscriptionID) {
+function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels) {
     var i;
     var j;
     var stickyioOrderData = {};
@@ -2247,7 +2247,11 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID) {
                     stickyioOrderData.hold_date = thisProduct.hold_date;
                     stickyioOrderData.recurring_date = Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null) + ' ' + stickyioOrderData.hold_date;
                 } else { 
-                    stickyioOrderData.recurring_date = getNextDeliveryDate(stickyioOrderData.stickyioOrderData[thisOrder], thisProduct, thisProduct.recurring_date); 
+                    var billingModel;
+                    if (billingModels) {
+                        billingModel = getBillingModelFromModels(thisProduct.billing_model.id, billingModels);                      
+                    }
+                    stickyioOrderData.recurring_date = getNextDeliveryDate(stickyioOrderData.stickyioOrderData[thisOrder], thisProduct, thisProduct.recurring_date, billingModel); 
                 }
                 stickyioOrderData.billingModels = thisProduct.billing_models;
                 break;
@@ -2539,6 +2543,29 @@ function getStickyioCustomField(customFields, token) {
 
     return customField;
 }
+/**
+ * Get billing model by ID
+ * @param {number} billingModelId - the billing model id to look for
+ * @returns {Object} - the billing model
+ */
+ function getBillingModelFromModels(billingModelId, billingModels) {
+    var model;
+    
+    if (billingModels){
+        var keys = [];
+        keys = Object.keys(billingModels);
+        
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            var thisModel = billingModels[key];
+            if (billingModelId == thisModel.id) {
+                model = thisModel;
+                break;
+            }
+        }
+    }
+    return model;
+}
 
 /**
  * Get sticky's billing model by ID
@@ -2564,20 +2591,29 @@ function getStickyioCustomField(customFields, token) {
  * @param {number} billingModelId - the id of the billing model
  * @returns {number} - the delivery frequency (in days)
  */
-function getStickyioDeliveryFrequency(billingModelId) {
-    let billingModel = getBillingModelById(billingModelId);
+function getStickyioDeliveryFrequency(billingModelId, billingModel) {
     let frequency = 0;
-
-    if (billingModel) {
-        switch (Number(billingModel.bill_by_type_id)) {
+    if (!billingModel) {
+        //Retrieve individual option if it is not found in the list
+        billingModel = getBillingModelById(billingModelId);
+        if (billingModel) {
+            switch (Number(billingModel.bill_by_type_id)) {
+                case BILLING_MODEL_TYPE_BY_CYCLE:
+                    frequency = Number(billingModel.bill_by_days);
+                    break;
+                default:
+                    frequency = 0;
+            }
+        }
+    } else {
+        switch (Number(billingModel.type.id)) {
             case BILLING_MODEL_TYPE_BY_CYCLE:
-                frequency = Number(billingModel.bill_by_days);
+                frequency = billingModel.frequency;
                 break;
             default:
                 frequency = 0;
         }
     }
-
     return frequency;
 }
 
@@ -2588,7 +2624,7 @@ function getStickyioDeliveryFrequency(billingModelId) {
  * @param {Object} currentDeliveryDate - the current delivery date
  * @returns {string} - the next delivery date
  */
- function getNextDeliveryDate(stickyOrderData, currentProduct, currentDeliveryDate) {
+ function getNextDeliveryDate(stickyOrderData, currentProduct, currentDeliveryDate, billingModel) {
     let nextDeliveryDate = currentDeliveryDate;
     let customerDeliveryDate = getStickyioCustomField(stickyOrderData.custom_fields, 'sfcc_customer_delivery_date');
     let currentCycle = getStickyioCustomField(stickyOrderData.custom_fields, 'sfcc_current_cycle');
@@ -2596,7 +2632,7 @@ function getStickyioDeliveryFrequency(billingModelId) {
     if (customerDeliveryDate && currentCycle) {
         let customerDeliveryDateValue = customerDeliveryDate.values[0].value;
         let currentCycleValue = parseInt(currentCycle.values[0].value, 10);
-        let deliveryFrequency = getStickyioDeliveryFrequency(currentProduct.billing_model.id);
+        let deliveryFrequency = getStickyioDeliveryFrequency(currentProduct.billing_model.id, billingModel);
 
         if (customerDeliveryDateValue.length > 0 && currentCycleValue >= 1 && deliveryFrequency > 0) {
             let date = new Date(customerDeliveryDateValue);
@@ -2645,5 +2681,7 @@ module.exports = {
     getStickyioCustomField: getStickyioCustomField,
     getStickyioDeliveryFrequency: getStickyioDeliveryFrequency,
     getNextDeliveryDate: getNextDeliveryDate,
-    getBillingModelById: getBillingModelById
+    getBillingModelById: getBillingModelById,
+    getBillingModelFromModels: getBillingModelFromModels,
+    getBillingModelsFromStickyio : getBillingModelsFromStickyio
 };
