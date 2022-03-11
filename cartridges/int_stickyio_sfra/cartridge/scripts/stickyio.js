@@ -2479,7 +2479,7 @@ function getStickyioCustomField(customFields, token) {
             }
         }
     }
-    return  model;
+    return model;
 }
 
 /**
