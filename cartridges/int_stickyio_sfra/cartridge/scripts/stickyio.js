@@ -2636,8 +2636,10 @@ function getStickyioDeliveryFrequency(billingModelId, billingModel) {
 
         if (customerDeliveryDateValue.length > 0 && currentCycleValue >= 1 && deliveryFrequency > 0) {
             let date = new Date(customerDeliveryDateValue);
-            date.setDate(date.getDate() + ((currentCycleValue-1) * deliveryFrequency));
-            nextDeliveryDate = date.toISOString().substring(0, 10);
+            if (!isNaN(date.getTime())){
+                date.setDate(date.getDate() + ((currentCycleValue-1) * deliveryFrequency));
+                nextDeliveryDate = date.toISOString().substring(0, 10);
+            }
         }
     }
 
