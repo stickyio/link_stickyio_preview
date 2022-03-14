@@ -31,6 +31,12 @@
                 "resource_id": "/orders/*",
                 "methods": ["get"],
                 "read_attributes": "(**)"
+            },
+            {
+                "resource_id": "/baskets/*/coupons",
+                "methods": ["post"],
+                "read_attributes": "(**)",
+                "write_attributes": "(**)"
             }
         ]
     }]
