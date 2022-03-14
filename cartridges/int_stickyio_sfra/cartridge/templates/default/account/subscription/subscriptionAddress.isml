@@ -109,7 +109,7 @@
     <!-- Cancel and Save Buttons -->
     <div class="row">
         <div class="col-6">
-            <button type="submit" name="apply" class="btn btn-save btn-block btn-primary stickyAddrUpdate">${Resource.msg('button.update','account',null)}</button>
+            <button type="submit" name="apply" class="btn btn-save btn-block btn-primary stickyAddrUpdate">${Resource.msg('button.subscriptionmanagement.update','stickyio',null)}</button>
         </div>
     </div>
     <p class="stickyioSubscriptionResponse"></p>
