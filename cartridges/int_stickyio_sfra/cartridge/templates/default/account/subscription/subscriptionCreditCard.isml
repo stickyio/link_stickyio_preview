@@ -81,7 +81,7 @@
 	
     <div class="row">
         <div class="col-6">
-            <button type="submit" name="apply" class="btn btn-save btn-block btn-primary stickyPaymentUpdate">${Resource.msg('button.update','account',null)}</button>
+            <button type="submit" name="apply" class="btn btn-save btn-block btn-primary stickyPaymentUpdate">${Resource.msg('button.subscriptionmanagement.update','stickyio',null)}</button>
        </div>
     </div>
     <p class="stickyioPaymentResponse"></p>
