@@ -2605,7 +2605,7 @@ function getStickyioDeliveryFrequency(billingModelId, billingModel) {
                     frequency = 0;
             }
         }
-    } else {
+    } else if (billingModel.type) {
         switch (Number(billingModel.type.id)) {
             case BILLING_MODEL_TYPE_BY_CYCLE:
                 frequency = billingModel.frequency;
