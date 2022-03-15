@@ -33,7 +33,6 @@
 				<isset name="offerSelected" value="true" scope="page" />
 			</isif>
 			<isif condition="${stickyio.stickyioOneTimePurchase}">
-				<form>
 				<li data-oid="1">
 					<input class="subscriptionselect" type="radio" name="subscriptionSelect" id="${radioID}_1" value="Straight Sale" ${!stickyio.stickyioOID || stickyio.stickyioOID === '1' && stickyio.stickyioBMID === '2' ? 'checked' : ''} />
 					<label class="stickyioproductbillingmodeldetails" for="${radioID}_1">${Resource.msg('productdetail.label.straightsalebillingmodel', 'stickyio', null)}</label>
@@ -42,7 +41,6 @@
 						<option value="${stickyio.stickyioBaseURL + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioOfferOptions=1&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioBillingModelOptions=2&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioTermOptions=0'}">2</option>
 					</select>
 				</li>
-				</form>
 			</isif>
 			<isloop items="${Object.keys(stickyio.offers)}" var="offer" status="offerStatus">
 				<isset name="prepaid" value="false" scope="page" />
@@ -50,7 +48,6 @@
 					<isset name="prepaid" value="true" scope="page" />
 				</isif>
 				<li data-oid="${offer}">
-					<form>
 					<isif condition="${!stickyio.stickyioBillingModelConsumerSelectable || stickyio.offers[offer].billingModels.length === 1}">
 						<isset name="noSelectBMID" value="${stickyio.offers[offer].billingModels[0].id}" scope="page" />
 					</isif>
@@ -104,7 +101,6 @@
 							<p class="nomargin"><span class="stickyioproductbillingmodeldetails">${Resource.msg('productdetail.label.terms_' + stickyio.offers[offer].terms[0].id, 'stickyio', stickyio.offers[offer].terms[0].description)}</span></p>
 						</isif>
 					</isif>
-					</form>
 				</li>
 			</isloop>
 			</ul>
