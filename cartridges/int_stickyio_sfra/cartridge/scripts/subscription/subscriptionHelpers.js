@@ -1,5 +1,7 @@
 'use strict';
 
+const HOLD_TYPE_CANCEL = 'user';
+
 var OrderMgr = require('dw/order/OrderMgr');
 var Order = require('dw/order/Order');
 var Resource = require('dw/web/Resource');
@@ -223,8 +225,13 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
                             status: 'active'
                         };
                         if (thisProduct.on_hold === '1') {
-                            validSubscriptionIDs[thisProductSubscriptionID].statusText = Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null);
-                            validSubscriptionIDs[thisProductSubscriptionID].status = 'hold';
+                            if (thisProduct.hold_type.toLowerCase() == HOLD_TYPE_CANCEL) {
+                                validSubscriptionIDs[thisProductSubscriptionID].statusText = Resource.msg('label.subscriptionmanagement.canceled', 'stickyio', null);
+                                validSubscriptionIDs[thisProductSubscriptionID].status = 'canceled';
+                            } else {
+                                validSubscriptionIDs[thisProductSubscriptionID].statusText = Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null);
+                                validSubscriptionIDs[thisProductSubscriptionID].status = 'hold';
+                            }
                         }
                         if (thisProduct.on_hold === '0' && thisProduct.is_recurring === '0') { // logic to determine if subscription is complete
                             delete (validSubscriptionIDs[thisProductSubscriptionID].nextRecurring);
