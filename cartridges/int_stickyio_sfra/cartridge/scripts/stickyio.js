@@ -2270,6 +2270,7 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels)
     stickyioOrderData.stickyioAllowBillNow = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowBillNow');
     stickyioOrderData.stickyioAllowPause = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowPause');
     stickyioOrderData.stickyioAllowTerminateNext = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowTerminateNext');
+    stickyioOrderData.stickyioAllowStop = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowStop');
 
     if (stickyioOrderData.stickyioAllowReset !== true
         && stickyioOrderData.stickyioAllowBillNow !== true
@@ -2378,6 +2379,24 @@ function updateShippingAddress(stickyioOrderNumber, addrLine1, addrLine2, city, 
 
 }
 
+/**
+ * Cancel the sticky.io subscription
+ * @param {string} subscriptionID - sticky.io subscription ID
+ * @returns {Object} - result of the call
+ */
+function subManCancel(subscriptionID) {
+    var params = {};
+    params.id = subscriptionID;
+    params.helper = 'stop';
+    var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.stop').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
+        return { message: Resource.msg('label.subscriptionmanagement.response.cancel', 'stickyio', null) };
+    }
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
+    return { error: true, message: message };
+}
+
 
 /**
  * Pause the sticky.io subscription
@@ -2387,8 +2406,8 @@ function updateShippingAddress(stickyioOrderNumber, addrLine1, addrLine2, city, 
 function subManPause(subscriptionID) {
     var params = {};
     params.id = subscriptionID;
-    params.helper = 'stop';
-    var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.stop').call(params);
+    params.helper = 'pause';
+    var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.pause').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.pause', 'stickyio', null) };
     }
@@ -2501,6 +2520,7 @@ function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date)
         return subManUpdateRecurringDate(subscriptionID, date);
     }
     if (action === 'pause') { return subManPause(subscriptionID); }
+    if (action === 'cancel') { return subManCancel(subscriptionID); }
     if (action === 'terminate_next') { return subManTerminateNext(subscriptionID); }
     if (action === 'reset') { return subManReset(subscriptionID); }
     if (action === 'bill_now') { return subManBillNow(orderNo, orderToken, subscriptionID); }
