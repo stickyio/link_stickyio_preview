@@ -482,7 +482,7 @@
         <credential-id>sticky.io</credential-id>
     </service>
     
-	<service service-id="stickyio.http.put.subscriptions.pause">
+    <service service-id="stickyio.http.put.subscriptions.pause">
         <service-type>HTTP</service-type>
         <enabled>true</enabled>
         <log-prefix>stickyio</log-prefix>
