@@ -15,7 +15,7 @@
                     </isif>
                     <isif condition="${subscription.stickyioAllowSubManStartOptions}">
                         <optgroup label="${Resource.msg('label.subscriptionmanagement.resumelabel', 'stickyio', null)}">
-                            <isif condition="${subscription.stickyioAllowReset}"><option value="reset" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'reset', 'sid',subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" ${!subscription.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.reset', 'stickyio', null)}</option></isif>
+                            <isif condition="${subscription.stickyioAllowReset}"><option value="reset" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'reset', 'sid',subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" ${!subscription.on_hold || subscription.orderData.status == "canceled" ?'disabled':''}>${Resource.msg('label.subscriptionmanagement.reset', 'stickyio', null)}</option></isif>
                         </optgroup>
                     </isif>
                     <isif condition="${subscription.stickyioAllowBillNow}"><option value="bill_now" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'bill_now', 'sid',subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" ${subscription.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.bill_now', 'stickyio', null)}</option></isif>
