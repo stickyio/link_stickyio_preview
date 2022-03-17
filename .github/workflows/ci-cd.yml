@@ -29,5 +29,6 @@ jobs:
       with:
         repository: SalesforceCommerceCloud/storefront-reference-architecture
         ref: 5.3.0
+        token: ${{ secrets.CI_CD }}
     - run: ls
     - run: npm test:unit
