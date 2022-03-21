@@ -46,6 +46,7 @@ jobs:
       run: |
         npm run compile:js
         npm run compile:scss
+        npm run compile:fonts
       working-directory: ./link_stickyio_preview
     - name: Run unit tests
       run: npm run test:unit
