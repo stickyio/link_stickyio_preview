@@ -39,4 +39,10 @@ jobs:
     - name: Install sfcc-ci
       run: npm install -g sfcc-ci
     - name: Setup environment variables
-      run: export SFCC_OAUTH_CLIENT_ID=test
+      run: |
+        export SFCC_OAUTH_CLIENT_ID=${{ secrets.SFCC_CLIENT_ID }}
+        export SFCC_OAUTH_CLIENT_SECRET=${{ secrets.SFCC_CLIENT_SECRET }}
+        export SFCC_OAUTH_USER_NAME=${{ secrets.SFCC_USER_NAME }}
+        export SFCC_OAUTH_USER_PASSWORD=${{ secrets.SFCC_USER_PASSWORD }}
+    - name: Auth sfcc-ci
+      run: sfcc-ci auth:login
