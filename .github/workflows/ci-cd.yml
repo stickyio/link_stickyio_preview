@@ -27,11 +27,9 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: 11.15
-    - run: ls link_stickyio_preview/cartridges
-    - name: Set working dir to link_stickyio_preview
-      run: cd link_stickyio_preview
     - name: Install link_stickyio_preview dependencies
       run: npm install
-    - run: ls
+      working-directory: ./link_stickyio_preview
     - name: Run unit tests
       run: npm run test:unit
+      working-directory: ./link_stickyio_preview
