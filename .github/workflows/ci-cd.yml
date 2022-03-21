@@ -21,7 +21,7 @@ jobs:
     - name: Checkout sticky's cartridge
       uses: actions/checkout@v3
       with:
-        path: main
+        path: link_stickyio_preview
     - name: Checkout SFRA
       uses: actions/checkout@v3
       with:
@@ -36,4 +36,5 @@ jobs:
 #        cache: 'npm'
     - run: ls ./..
     - run: ls
+    - run: ls link_stickyio_preview/cartridges
 #    - run: npm test:unit
