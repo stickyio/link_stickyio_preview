@@ -2,7 +2,7 @@ name: CI-CD
 
 on:
   pull_request:
-    branches: [ pre-release, release, master ]
+    branches: [ pre-release, release ]
 #    types:
 #      - closed
 
@@ -17,6 +17,13 @@ jobs:
 
     steps:
     - run: echo ${{ github.base_ref }}
+    - name: Set ODS instance to deploy
+      run: |
+        if [[ ${{ github.base_ref }} == master ]]; then
+          echo "SFCC_ODS_INSTANCE=002" >> $GITHUB_ENV
+        else
+          echo "SFCC_ODS_INSTANCE=003" >> $GITHUB_ENV
+        fi
     - name: Checkout sticky's cartridge
       uses: actions/checkout@v3
       with:
@@ -66,4 +73,4 @@ jobs:
     - name: Compress folder for deploy
       run: zip -r test-cicd.zip test-cicd
     - name: Deploy to SFCC ODS
-      run: sfcc-ci code:deploy test-cicd.zip -i zzvg-002.sandbox.us01.dx.commercecloud.salesforce.com
+      run: sfcc-ci code:deploy test-cicd.zip -i zzvg-${{ secrets.SFCC_ODS_INSTANCE }}.sandbox.us01.dx.commercecloud.salesforce.com
