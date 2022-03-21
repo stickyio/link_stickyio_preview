@@ -48,4 +48,5 @@ jobs:
       run: cp -a link_stickyio_preview/. test-cicd
     - name: Compress folder for deploy
       run: zip -r test-cicd.zip test-cicd
-    - run: ls
+    - name: Deploy to SFCC ODS
+      run: sfcc-ci code:deploy test-cicd.zip -i zzvg-002.sandbox.us01.dx.commercecloud.salesforce.com
