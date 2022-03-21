@@ -38,3 +38,5 @@ jobs:
 #      working-directory: ./link_stickyio_preview
     - name: Install sfcc-ci
       run: npm install -g sfcc-ci
+    - name: Setup environment variables
+      run: export SFCC_OAUTH_CLIENT_ID=test
