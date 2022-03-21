@@ -72,4 +72,4 @@ jobs:
     - name: Compress folder for deploy
       run: zip -r ${{ github.run_id }}.zip ${{ github.run_id }}
     - name: Deploy ${{ github.run_id }}.zip to SFCC ODS
-      run: sfcc-ci code:deploy ${{ github.run_id }}.zip -i zzvg-${{ env.SFCC_ODS_INSTANCE }}.sandbox.us01.dx.commercecloud.salesforce.com
+      run: sfcc-ci code:deploy ${{ github.run_id }}.zip -i zzvg-${{ env.SFCC_ODS_INSTANCE }}.sandbox.us01.dx.commercecloud.salesforce.com -a
