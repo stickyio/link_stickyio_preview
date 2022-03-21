@@ -44,3 +44,8 @@ jobs:
       run: npm install -g sfcc-ci
     - name: Auth sfcc-ci
       run: sfcc-ci client:auth
+    - name: Creating folder for deploy
+      run: cp -a link_stickyio_preview/. test-cicd
+    - name: Compress folder for deploy
+      run: zip test-cicd
+    - run: ls
