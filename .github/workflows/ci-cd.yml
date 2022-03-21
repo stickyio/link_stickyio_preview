@@ -36,6 +36,6 @@ jobs:
 #        cache: 'npm'
     - run: ls ./..
     - run: ls
-    - run: cp storefront-reference-architecture/cartridges/. link_stickyio_preview/cartridges
+    - run: cp -a storefront-reference-architecture/cartridges/. link_stickyio_preview/cartridges
     - run: ls link_stickyio_preview/cartridges
 #    - run: npm test:unit
