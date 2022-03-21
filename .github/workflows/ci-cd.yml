@@ -73,4 +73,4 @@ jobs:
     - name: Compress folder for deploy
       run: zip -r test-cicd.zip test-cicd
     - name: Deploy to SFCC ODS
-      run: sfcc-ci code:deploy test-cicd.zip -i zzvg-${{ github.SFCC_ODS_INSTANCE }}.sandbox.us01.dx.commercecloud.salesforce.com
+      run: sfcc-ci code:deploy test-cicd.zip -i zzvg-${{ env.SFCC_ODS_INSTANCE }}.sandbox.us01.dx.commercecloud.salesforce.com
