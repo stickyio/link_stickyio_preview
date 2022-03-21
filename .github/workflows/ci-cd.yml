@@ -36,6 +36,7 @@ jobs:
       run: |
         npm run compile:js
         npm run compile:scss
+        npm run compile:fonts
       working-directory: ./storefront-reference-architecture
     - name: Copy base cartridges from SFRA to link_stickyio_preview
       run: cp -a storefront-reference-architecture/cartridges/. link_stickyio_preview/cartridges
@@ -46,7 +47,6 @@ jobs:
       run: |
         npm run compile:js
         npm run compile:scss
-        npm run compile:fonts
       working-directory: ./link_stickyio_preview
     - name: Run unit tests
       run: npm run test:unit
