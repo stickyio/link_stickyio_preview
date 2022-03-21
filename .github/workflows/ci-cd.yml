@@ -45,4 +45,4 @@ jobs:
     - name: Install sfcc-ci
       run: npm install -g sfcc-ci
     - name: Auth sfcc-ci
-      run: sfcc-ci auth:login
+      run: sfcc-ci client:auth
