@@ -28,4 +28,9 @@ jobs:
       with:
         node-version: 11.15
     - run: ls link_stickyio_preview/cartridges
-#    - run: npm test:unit
+    - name: Set working dir to link_stickyio_preview
+      run: cd link_stickyio_preview
+    - name: Install link_stickyio_preview dependencies
+      run: npm install
+    - name: Run unit tests
+      run: npm test:unit
