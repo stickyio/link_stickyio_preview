@@ -18,18 +18,21 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
+    - name: Checkout sticky's cartridge
+      uses: actions/checkout@v3
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        path: link_stickyio_preview
     - name: Checkout SFRA
       uses: actions/checkout@v3
       with:
         repository: stickyio/storefront-reference-architecture
         ref: 'v5.3.0'
         ssh-key: ${{ secrets.SFRA_REPO_KEY }}
-        path: './..'
+        path: storefront-reference-architecture
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
     - run: ls ./..
     - run: npm test:unit
