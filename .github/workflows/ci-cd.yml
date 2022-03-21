@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - run: echo ${{ github.base_ref }}
     - name: Set ODS instance to deploy
       run: |
         if [[ ${{ github.base_ref }} == pre-release ]]; then
@@ -69,8 +68,8 @@ jobs:
     - name: Auth sfcc-ci
       run: sfcc-ci client:auth
     - name: Creating folder for deploy
-      run: cp -a link_stickyio_preview/cartridges/. test-cicd
+      run: cp -a link_stickyio_preview/cartridges/. ${{ github.run_id }}
     - name: Compress folder for deploy
-      run: zip -r test-cicd.zip test-cicd
-    - name: Deploy to SFCC ODS
-      run: sfcc-ci code:deploy test-cicd.zip -i zzvg-${{ env.SFCC_ODS_INSTANCE }}.sandbox.us01.dx.commercecloud.salesforce.com
+      run: zip -r ${{ github.run_id }}.zip ${{ github.run_id }}
+    - name: Deploy ${{ github.run_id }}.zip to SFCC ODS
+      run: sfcc-ci code:deploy ${{ github.run_id }}.zip -i zzvg-${{ env.SFCC_ODS_INSTANCE }}.sandbox.us01.dx.commercecloud.salesforce.com
