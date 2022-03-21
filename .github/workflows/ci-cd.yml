@@ -40,11 +40,11 @@ jobs:
     - name: Install storefront-reference-architecture dependencies
       run: npm install
       working-directory: ./storefront-reference-architecture
-             - name: Compiling link_stickyio_preview assets
-        run: |
-        npm run compile:js
-        npm run compile:scss
-        working-directory: ./storefront-reference-architecture
+   - name: Compiling link_stickyio_preview assets
+      run: |
+      npm run compile:js
+      npm run compile:scss
+      working-directory: ./storefront-reference-architecture
     - name: Copy base cartridges from SFRA to link_stickyio_preview
       run: cp -a storefront-reference-architecture/cartridges/. link_stickyio_preview/cartridges
     - name: Run unit tests
