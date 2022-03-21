@@ -3,8 +3,8 @@ name: CI-CD
 on:
   pull_request:
     branches: [ pre-release, release ]
-#    types:
-#      - closed
+    types:
+      - closed
 
 env:
   SFCC_OAUTH_CLIENT_ID: ${{ secrets.SFCC_CLIENT_ID }}
@@ -12,7 +12,7 @@ env:
 
 jobs:
   build-and-deploy:
-#    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
