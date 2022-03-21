@@ -1,19 +1,22 @@
-name: CI
+name: CI-CD
 
 on:
   pull_request:
     branches: [ pre-release, release, master ]
+#    types:
+#      - closed
 
 env:
   SFCC_OAUTH_CLIENT_ID: ${{ secrets.SFCC_CLIENT_ID }}
   SFCC_OAUTH_CLIENT_SECRET: ${{ secrets.SFCC_CLIENT_SECRET }}
 
 jobs:
-  build:
-
+  build-and-deploy:
+#    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
+    - run: echo ${{ github.base_ref }}
     - name: Checkout sticky's cartridge
       uses: actions/checkout@v3
       with:
