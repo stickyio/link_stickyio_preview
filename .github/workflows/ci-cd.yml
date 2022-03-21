@@ -45,7 +45,7 @@ jobs:
     - name: Auth sfcc-ci
       run: sfcc-ci client:auth
     - name: Creating folder for deploy
-      run: cp -a link_stickyio_preview/. test-cicd
+      run: cp -a link_stickyio_preview/cartridges/. test-cicd
     - name: Compress folder for deploy
       run: zip -r test-cicd.zip test-cicd
     - name: Deploy to SFCC ODS
