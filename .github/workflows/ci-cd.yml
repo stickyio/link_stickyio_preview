@@ -34,6 +34,11 @@ jobs:
     - name: Install link_stickyio_preview dependencies
       run: npm install
       working-directory: ./link_stickyio_preview
+    - name: Compiling link_stickyio_preview assets
+      run: |
+        npm run compile:js
+        npm run compile:scss
+      working-directory: ./link_stickyio_preview
     - name: Run unit tests
       run: npm run test:unit
       working-directory: ./link_stickyio_preview
