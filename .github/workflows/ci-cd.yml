@@ -47,5 +47,5 @@ jobs:
     - name: Creating folder for deploy
       run: cp -a link_stickyio_preview/. test-cicd
     - name: Compress folder for deploy
-      run: zip test-cicd
+      run: zip -r test-cicd.zip test-cicd
     - run: ls
