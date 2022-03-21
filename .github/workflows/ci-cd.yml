@@ -30,5 +30,6 @@ jobs:
         repository: stickyio/storefront-reference-architecture
         ref: 'v5.3.0'
         ssh-key: ${{ secrets.SFRA_REPO_KEY }}
+        path: './..'
     - run: ls ./..
     - run: npm test:unit
