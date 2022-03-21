@@ -28,7 +28,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: stickyio/storefront-reference-architecture
-        ref: 5.3.0
+        #ref: 5.3.0
         ssh-key: ${{ secrets.SFRA_REPO_KEY }}
     - run: ls
     - run: npm test:unit
