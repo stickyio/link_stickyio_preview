@@ -33,4 +33,4 @@ jobs:
     - name: Install link_stickyio_preview dependencies
       run: npm install
     - name: Run unit tests
-      run: npm test:unit
+      run: npm run test:unit
