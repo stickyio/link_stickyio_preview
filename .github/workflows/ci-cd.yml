@@ -33,3 +33,6 @@ jobs:
     - name: Run unit tests
       run: npm run test:unit
       working-directory: ./link_stickyio_preview
+    - name: Run integration tests
+      run: npm run test:integration
+      working-directory: ./link_stickyio_preview
