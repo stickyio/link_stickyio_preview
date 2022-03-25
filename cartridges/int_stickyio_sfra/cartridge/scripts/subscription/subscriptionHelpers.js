@@ -140,7 +140,7 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
             orders.push(orderModel);
         }
     }
-
+    
     var sortedSubscriptions = [];
     var validSubscriptions = {};
     var i;
@@ -153,6 +153,7 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
         var thisOrder = OrderMgr.getOrder(orders[i].orderNumber, orders[i].orderToken);
         customerID = thisOrder.getCustomer().ID; // this gets overwritten every time, but that's ok
         var orderShipments = thisOrder.getShipments();
+        orderModel = orders[i];    
         for (j = 0; j < orderShipments.length; j++) {
             var thisShipment = orderShipments[j];
             var thisShipmentOrderNumbers = {
