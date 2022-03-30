@@ -51,24 +51,6 @@
         </custom-attribute-definitions>
     </type-extension>
 
-    <type-extension type-id="PaymentMethod">
-       <custom-attribute-definitions>
-            <attribute-definition attribute-id="stickyioSubscriptionEnabled">
-                <display-name xml:lang="x-default">Subscription Enabled</display-name>
-                <description xml:lang="x-default">Payment method is certified to process subscription orders</description>
-                <type>boolean</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>false</externally-managed-flag>
-            </attribute-definition>
-        </custom-attribute-definitions>
-        <group-definitions>
-            <attribute-group group-id="settings">
-                <display-name xml:lang="x-default">Subscription Settings</display-name>
-                <attribute attribute-id="stickyioSubscriptionEnabled"/>
-            </attribute-group>
-        </group-definitions>
-    </type-extension>
-    
     <type-extension type-id="Product">
         <custom-attribute-definitions>
             <attribute-definition attribute-id="stickyioBillingModelConsumerSelectable">
