@@ -118,72 +118,7 @@ if (stickyioEnabled) {
                 order = OrderMgr.getOrder(subscription.orderNumbers[0].sfccOrderNo, subscription.orderNumbers[0].sfccOrderToken);
                 currentCustomerNo = order.customer.profile.customerNo;
             }
-            var emailHelpers = require('*/cartridge/scripts/helpers/emailHelpers');
-                 
-            /*
-            
-                 
-            var objectForEmail = {
-                firstName: "Ken",
-                lastName: "Collins",
-                recurringDate: "04/01/2022",
-                recurringAmt: "$12.44",
-                orderTotal: 1123.44,
-                declineReason: "Your credit card has expired",
-                subscriptionId : "1ad2928f78479f238b9183b0cad9525f"
-            };
-                                 
-            var emailObj = {
-                to: "kcollins@sticky.io",
-                subject: Resource.msg('email.reminder.title','stickyio',null),
-                from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com',
-                type: emailHelpers.emailTypes.stickyReminder
-            };
-            emailHelpers.sendEmail(emailObj, 'stickyio/email/stickySubscriptionReminder', objectForEmail);
-
-            var emailObj = {
-                to: "kcollins@sticky.io",
-                subject: Resource.msg('email.cancel.title','stickyio',null),
-                from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com',
-                type: emailHelpers.emailTypes.stickyCancel
-            };
-            emailHelpers.sendEmail(emailObj, 'stickyio/email/stickySubscriptionCancel', objectForEmail);
-            
-            var emailObj = {
-                to: "kcollins@sticky.io",
-                subject: Resource.msg('email.rebill.decline.title','stickyio',null),
-                from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com',
-                type: emailHelpers.emailTypes.stickyRebillDecline
-            };
-            emailHelpers.sendEmail(emailObj, 'stickyio/email/stickySubscriptionRebillDecline', objectForEmail);
-            
-            var emailObj = {
-                to: "kcollins@sticky.io",
-                subject: Resource.msg('email.pause.title','stickyio',null),
-                from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com',
-                type: emailHelpers.emailTypes.stickyPause
-            };
-            emailHelpers.sendEmail(emailObj, 'stickyio/email/stickySubscriptionPause', objectForEmail);
-  
-     
-            var emailObj = {
-                to: "kcollins@sticky.io",
-                subject: Resource.msg('email.expired.card.title','stickyio',null),
-                from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com',
-                type: emailHelpers.emailTypes.stickyExpiredCard
-            };
-            emailHelpers.sendEmail(emailObj, 'stickyio/email/stickySubscriptionExpiredCard', objectForEmail);
-        
-
-            var emailObj = {
-                to: "kcollins@sticky.io",
-                subject: Resource.msg('email.out.stock.title','stickyio',null),
-                from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com',
-                type: emailHelpers.emailTypes.stickyOutOfStock
-            };
-            emailHelpers.sendEmail(emailObj, 'stickyio/email/stickySubscriptionOutStock', objectForEmail);
-        */
-            
+           
             var orderCustomerNo = req.currentCustomer.profile.customerNo;
             var breadcrumbs = [
                 {
@@ -201,18 +136,18 @@ if (stickyioEnabled) {
             ];
             var currentYear = new Date().getFullYear();
             var creditCardExpirationYears = [];
-		
+        
             for (var i = 0; i < 10; i++) {
                 creditCardExpirationYears.push((currentYear + i).toString());
             }
-		    
+            
             var exitLinkText = Resource.msg('label.subscriptionmanagement.orderheader', 'stickyio', null);
             var exitLinkUrl = URLUtils.https('Subscriptions-List', 'orderFilter', req.querystring.orderFilter);
             var addressForm = server.forms.getForm('stickyAddress');
             addressForm.clear();
             var creditCardForm = server.forms.getForm('creditCard');
             creditCardForm.clear();
- 	        
+            
             if (order && orderCustomerNo === currentCustomerNo) { // additional check
                 // make our productModelOption data easier to deal with
                 res.render('account/subscriptionDetails', {
@@ -367,7 +302,7 @@ if (stickyioEnabled) {
             var phone = form.phone.value;
             var postalCode = form.postalCode.value;
  
-            var stickyioResponse = stickyio.updateShippingAddress(stickyOrderNo, addrLine1, addrLine2, city, state, postalCode, country, phone);     	
+            var stickyioResponse = stickyio.updateShippingAddress(stickyOrderNo, addrLine1, addrLine2, city, state, postalCode, country, phone);        
             if (stickyioResponse.error) {
                 success = false;
             }
@@ -375,8 +310,8 @@ if (stickyioEnabled) {
                 success: success,
                 message : stickyioResponse.message
             });
-            next();		
-    	}
+            next();     
+        }
     );
     
     server.post('UpdatePaymentInformation',
@@ -401,20 +336,20 @@ if (stickyioEnabled) {
             var message;
             
             var paymentCard = PaymentMgr.getPaymentCard(cardType);
-						
+                        
             if (paymentCard) {
                 creditCardStatus = paymentCard.verify(expirationMonth,expirationYear,cardNumber,cardSecurityCode);
             } else {
                 success = false;
                 message =  Resource.msg('error.invalid.card.number', 'creditCard', null);
             }
-       		      		
+                        
             if (creditCardStatus.error) {
                 success = false;
                 message = Resource.msg('error.card.information.error', 'creditCard', null);
             }
             if (success) {            
-                var stickyioResponse = stickyio.updateStickyioPaymentInformation(stickyOrderNo, cardType, cardNumber,cardSecurityCode,expirationMonth,expirationYear);     	
+                var stickyioResponse = stickyio.updateStickyioPaymentInformation(stickyOrderNo, cardType, cardNumber,cardSecurityCode,expirationMonth,expirationYear);      
                 if (stickyioResponse.error) {
                     success = false;
                     message = Resource.msg('error.card.information.error', 'creditCard', null);
@@ -427,8 +362,8 @@ if (stickyioEnabled) {
                 success: success,
                 message : message
             });
-            next();		
-    	}
+            next();     
+        }
     );
 }
 
