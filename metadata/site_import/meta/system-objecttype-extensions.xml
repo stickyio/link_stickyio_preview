@@ -63,7 +63,7 @@
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="settings">
-                <display-name xml:lang="x-default">Subscription Settings</display-name>
+                <display-name xml:lang="x-default">Subscription Setting</display-name>
                 <attribute attribute-id="stickyioSubscriptionEnabled"/>
             </attribute-group>
         </group-definitions>
