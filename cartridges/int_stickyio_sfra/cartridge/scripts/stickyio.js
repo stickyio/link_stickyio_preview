@@ -346,7 +346,7 @@ function getAllStickyioVariantProducts(masterProducts) {
     for (i = 0; i < Object.keys(returnProducts).length; i++) {
         var thisMasterProduct = returnProducts[Object.keys(returnProducts)[i]];
         var stickyioResponse = getVariants(thisMasterProduct.stickyioProductID, true);
-        if (stickyioResponse && stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data) {
+        if (stickyioResponse && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data) {
             var j;
             for (j = 0; j < Object.keys(stickyioResponse.object.result.data).length; j++) {
                 var variant = Object.keys(stickyioResponse.object.result.data)[j];
@@ -803,7 +803,7 @@ function getCatalogIDs() {
     params.body = body;
     params.helper = 'sfccbridge';
     var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
-    if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && !stickyioResponse.object.result.data.statusCode)) {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && !stickyioResponse.object.result.data.statusCode)) {
         var i;
         for (i = 0; i < stickyioResponse.object.result.data.data.length; i++) {
             catalogIDs.push(stickyioResponse.object.result.data.data[i].id);
@@ -834,7 +834,7 @@ function bindSharedProductOptions(sharedProductOptionsToBind) {
             params.body = body;
             params.helper = 'sfccbridge';
             var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
-            if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode)) {
+            if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode)) {
                 return false;
             }
         }
@@ -866,7 +866,7 @@ function checkSharedProductOptions(catalogIDs) {
             params.body = body;
             params.helper = 'sfccbridge';
             var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
-            if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode === 404)) { // sharedProductOption is not bound to this catalog
+            if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode === 404)) { // sharedProductOption is not bound to this catalog
                 if (!sharedProductOptionsToBind[thisCatalogID]) { sharedProductOptionsToBind[thisCatalogID] = []; }
                 sharedProductOptionsToBind[thisCatalogID].push(thisSharedProductOption);
             }
@@ -920,7 +920,7 @@ function addSharedProductOptionValues(catalogIDs, sharedOptionValueObject) {
                 params.body = body;
                 params.helper = 'sfccbridge';
                 var stickyioResponse = stickyioAPI('stickyio.http.post.providers.sfccbridge').call(params);
-                if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode)) {
+                if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && (stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.statusCode)) {
                     return false;
                 }
             }
@@ -1521,7 +1521,7 @@ function updateSFCCVariantAttributes(product, stickyioData, resetProducts, persi
  */
 function updateSFCCProductAttributes(product, stickyioResponse, productChange, newProduct, vertical) {
     var thisProduct = product;
-    if (stickyioResponse && !stickyioResponse.error && ((stickyioResponse.object.result.response_code === '100') || (stickyioResponse.object.result.response_code === '911' && productChange))) {
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && ((stickyioResponse.object.result.response_code === '100') || (stickyioResponse.object.result.response_code === '911' && productChange))) {
         try {
             Transaction.wrap(function () {
                 if (newProduct) {
@@ -1675,7 +1675,7 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
     }
     if (product.isMaster()) {
         var stickyioResponse = getAttributes(product.custom.stickyioProductID);
-        if (stickyioResponse || (typeof (stickyioResponse) === 'object' && stickyioResponse.object.result.status === 'SUCCESS')) {
+        if (stickyioResponse || (typeof (stickyioResponse) === 'object' && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS')) {
             if (stickyioResponse === true) { // this is a new master product with no variants/attributes yet
                 stickyioResponse = addVariantAttributes(product);
                 if (stickyioResponse && stickyioResponse.object.result.status === 'SUCCESS') {
@@ -1689,7 +1689,7 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
             }
             // let's make sure prices and SKUs and such match
             stickyioResponse = getVariants(product.custom.stickyioProductID, true);
-            if (stickyioResponse && stickyioResponse.object.result.status === 'SUCCESS') {
+            if (stickyioResponse && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
                 updateSFCCVariantAttributes(product, stickyioResponse.object.result.data, resetProductVariants, persistStickyIDs);
             }
         }
@@ -1932,7 +1932,7 @@ function createStraightSaleProduct() {
         body.product_id = existingStraightSaleID;
         params.body = body;
         stickyioResponse = stickyioAPI('stickyio.http.post.product_index').call(params);
-        if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.response_code === '100')) {
+        if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && (stickyioResponse.object.result.response_code === '100')) {
             if (stickyioResponse.object.result.products[existingStraightSaleID].product_sku !== 'stickyioStraightSale') { // this stickyioProductID we have stored doesn't match the straightSale product
                 reset = true; // reset it
             }
@@ -1949,7 +1949,7 @@ function createStraightSaleProduct() {
         body.shippable = false;
         params.body = body;
         stickyioResponse = stickyioAPI('stickyio.http.post.product_create').call(params);
-        if (stickyioResponse && !stickyioResponse.error && (stickyioResponse.object.result.response_code === '100' && stickyioResponse.object.result.new_product_id)) {
+        if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && (stickyioResponse.object.result.response_code === '100' && stickyioResponse.object.result.new_product_id)) {
             try {
                 Transaction.wrap(function () { Site.getCurrent().setCustomPreferenceValue('stickyioStraightSaleProductID', parseInt(stickyioResponse.object.result.new_product_id, 10)); });
             } catch (e) {
@@ -2270,6 +2270,7 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels)
     stickyioOrderData.stickyioAllowBillNow = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowBillNow');
     stickyioOrderData.stickyioAllowPause = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowPause');
     stickyioOrderData.stickyioAllowTerminateNext = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowTerminateNext');
+    stickyioOrderData.stickyioAllowStop = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowStop');
 
     if (stickyioOrderData.stickyioAllowReset !== true
         && stickyioOrderData.stickyioAllowBillNow !== true
@@ -2378,6 +2379,24 @@ function updateShippingAddress(stickyioOrderNumber, addrLine1, addrLine2, city, 
 
 }
 
+/**
+ * Cancel the sticky.io subscription
+ * @param {string} subscriptionID - sticky.io subscription ID
+ * @returns {Object} - result of the call
+ */
+function subManCancel(subscriptionID) {
+    var params = {};
+    params.id = subscriptionID;
+    params.helper = 'stop';
+    var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.stop').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
+        return { message: Resource.msg('label.subscriptionmanagement.response.cancel', 'stickyio', null) };
+    }
+    var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+    if (stickyioResponse && stickyioResponse.errorMessage) { message = JSON.parse(stickyioResponse.errorMessage); }
+    return { error: true, message: message };
+}
+
 
 /**
  * Pause the sticky.io subscription
@@ -2387,8 +2406,8 @@ function updateShippingAddress(stickyioOrderNumber, addrLine1, addrLine2, city, 
 function subManPause(subscriptionID) {
     var params = {};
     params.id = subscriptionID;
-    params.helper = 'stop';
-    var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.stop').call(params);
+    params.helper = 'pause';
+    var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.pause').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.pause', 'stickyio', null) };
     }
@@ -2501,6 +2520,7 @@ function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date)
         return subManUpdateRecurringDate(subscriptionID, date);
     }
     if (action === 'pause') { return subManPause(subscriptionID); }
+    if (action === 'cancel') { return subManCancel(subscriptionID); }
     if (action === 'terminate_next') { return subManTerminateNext(subscriptionID); }
     if (action === 'reset') { return subManReset(subscriptionID); }
     if (action === 'bill_now') { return subManBillNow(orderNo, orderToken, subscriptionID); }
