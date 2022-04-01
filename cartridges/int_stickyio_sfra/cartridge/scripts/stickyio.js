@@ -2072,6 +2072,29 @@ function updateStickyioShipping(stickyioOrderNumber, trackingNumber) {
     return false;
 }
 
+
+/**
+ * Update sticky.io notification with current date/time 
+ * @param {string} notificationId - notificationId
+ * @returns {boolean} - boolean result
+ */
+function updateNotification(notificationId) {
+ 
+    var params = {};
+    params.id = notificationId;
+    var body = {};
+    var today;
+    body.sent_at = new Date();
+    params.body = body;
+    
+    var stickyioResponse = stickyioAPI('stickyio.http.post.notification_queue').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
+        return true;
+    }
+    return false;
+}
+
+
 /**
  * Update sticky.io order with tracking number
  * @param {string} stickyioOrderNumber - sticky.io order number
@@ -2693,6 +2716,7 @@ module.exports = {
     orderShippingUpdate: orderShippingUpdate,
     shipmentUpdate: shipmentUpdate,
     getSubscriptionData: getSubscriptionData,
+    updateNotification: updateNotification,
     updateSubscriptionDetails: updateSubscriptionDetails,
     updateStickyioCustomField: updateStickyioCustomField,
     voidStickyioOrder: voidStickyioOrder,
