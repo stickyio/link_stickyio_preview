@@ -19,7 +19,7 @@
                         </optgroup>
                     </isif>
                     <isif condition="${subscription.stickyioAllowBillNow}"><option value="bill_now" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'bill_now', 'sid',subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" ${subscription.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.bill_now', 'stickyio', null)}</option></isif>
-                    <isif condition="${subscription.stickyioAllowStop}"><option value="cancel" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'cancel', 'sid',subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" ${subscription.orderData.status == "canceled" ?'disabled':''} >${Resource.msg('label.subscriptionmanagement.stop', 'stickyio', null)}</option></isif>
+                    <isif condition="${subscription.stickyioAllowStop}"><option value="cancel" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'cancel', 'sid',subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" ${subscription.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.stop', 'stickyio', null)}</option></isif>
                 </select>
             </isif>
         </div>
