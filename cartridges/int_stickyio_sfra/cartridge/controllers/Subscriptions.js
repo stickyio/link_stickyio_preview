@@ -453,9 +453,6 @@ if (stickyioEnabled) {
                 }
                 if (sendEmail) { 
                     emailHelpers.sendEmail(emailObj, template, objectForEmail);
-                    //call stickyio
-                     var stickyio = require('~/cartridge/scripts/stickyio');
-                     stickyio.updateNotification(data.notificationId);
                 }
                   
             }
