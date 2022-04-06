@@ -403,46 +403,61 @@ if (stickyioEnabled) {
                     from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com'
                 };
                 var template;   
-                var sendEmail = true;
+                var sendEmail = false;
+                var enabled = true;
                 switch (emailType) {
                     case 6: //Cancel
-                        emailObj.type = emailHelpers.emailTypes.stickyCancel;
-                        emailObj.subject = Resource.msg('email.cancel.title','stickyio',null);
-                        template = 'stickyio/email/stickySubscriptionCancel';
+                        enabled = Site.current.getCustomPreferenceValue('stickyioCancelEmailEnabled');
+                        if (enabled) {
+                        	sendEmail = true;
+                            emailObj.type = emailHelpers.emailTypes.stickyCancel;
+                            emailObj.subject = Resource.msg('email.cancel.title','stickyio',null);
+                            template = 'stickyio/email/stickySubscriptionCancel';
+                        }
                         break;
                    case 14: //Subscription Reminder
-                        emailObj.type = emailHelpers.emailTypes.stickyReminder;
-                        emailObj.subject = Resource.msg('email.reminder.title','stickyio',null);
-                        objectForEmail.recurringDate = data.recurringDate;
-                        objectForEmail.recurringAmt = data.recurringAmt;
-                        objectForEmail.subscriptionId = data.subscriptionId;
-                        template = 'stickyio/email/stickySubscriptionReminder';
+                        enabled = Site.current.getCustomPreferenceValue('stickyioReminderEmailEnabled');
+                        if (enabled) {
+                        	sendEmail = true;
+                            emailObj.type = emailHelpers.emailTypes.stickyReminder;
+                            emailObj.subject = Resource.msg('email.reminder.title','stickyio',null);
+                            objectForEmail.recurringDate = data.recurringDate;
+                            objectForEmail.recurringAmt = data.recurringAmt;
+                            objectForEmail.subscriptionId = data.subscriptionId;
+                            template = 'stickyio/email/stickySubscriptionReminder';
+                        }
                         break;
                     case 20: //Decline
-                        emailObj.type = emailHelpers.emailTypes.stickyRebillDecline;
-                        emailObj.subject = Resource.msg('email.rebill.decline.title','stickyio',null);
-                        objectForEmail.declineReason = data.declineReason;
-                        objectForEmail.orderTotal = data.orderTotal;
-                        objectForEmail.subscriptionId = data.subscriptionId;
-                        template = 'stickyio/email/stickySubscriptionRebillDecline';
+                        enabled = Site.current.getCustomPreferenceValue('stickyioDeclineEmailEnabled');
+                        if (enabled) {
+                        	sendEmail = true;
+                            emailObj.type = emailHelpers.emailTypes.stickyRebillDecline;
+                            emailObj.subject = Resource.msg('email.rebill.decline.title','stickyio',null);
+                            objectForEmail.declineReason = data.declineReason;
+                            objectForEmail.orderTotal = data.orderTotal;
+                            objectForEmail.subscriptionId = data.subscriptionId;
+                            template = 'stickyio/email/stickySubscriptionRebillDecline';
+                        }
                         break;
                     case 22: //Expired
-                        emailObj.type = emailHelpers.emailTypes.stickyExpiredCard;
-                        emailObj.subject = Resource.msg('email.expired.card.title','stickyio',null);
-                        objectForEmail.subscriptionId = data.subscriptionId;
-                        template = 'stickyio/email/stickySubscriptionExpiredCard';
+                        enabled = Site.current.getCustomPreferenceValue('stickyioExpiredCardEmailEnabled');
+                        if (enabled) {
+                        	sendEmail = true;
+                            emailObj.type = emailHelpers.emailTypes.stickyExpiredCard;
+                            emailObj.subject = Resource.msg('email.expired.card.title','stickyio',null);
+                            objectForEmail.subscriptionId = data.subscriptionId;
+                            template = 'stickyio/email/stickySubscriptionExpiredCard';
+                        }
                         break;
                     case 27: //Pause Confirmation
-                        //Currently not supported but template was created, remove setting of sendEmailFlag to false to make available for email
-                        sendEmail = false;
+                        //Currently not supported on CRM but template was created
                         emailObj.type = emailHelpers.emailTypes.stickyPause;
                         emailObj.subject = Resource.msg('email.pause.title','stickyio',null);
                         objectForEmail.subscriptionId = data.subscriptionId;
                         template = 'stickyio/email/stickySubscriptionPause';
                         break;
                     case 28: //out of stock
-                        //Currently not supported but template was created, remove setting of sendEmailFlag to false to make available for email
-                        sendEmail = false;
+                        //Currently not supported on CRM but template was created, 
                         emailObj.type = emailHelpers.emailTypes.stickyOutOfStock;
                         emailObj.subject = Resource.msg('email.out.stock.title','stickyio',null);
                         objectForEmail.subscriptionId = data.subscriptionId;
