@@ -206,7 +206,7 @@
         <profile-id>stickyio.http.post.v1</profile-id>
         <credential-id>sticky.io</credential-id>
     </service>
-
+    
     <service service-id="stickyio.http.post.order_total.calculate">
         <service-type>HTTP</service-type>
         <enabled>true</enabled>
