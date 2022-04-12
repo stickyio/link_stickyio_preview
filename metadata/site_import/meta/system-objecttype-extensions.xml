@@ -679,6 +679,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowStop">
+                <display-name xml:lang="x-default">Allow Stop</display-name>
+                <description xml:lang="x-default">Allow the consumer to stop their subscription - usually not a consumer-facing function</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioSubManAllowTerminateNext">
                 <display-name xml:lang="x-default">Allow Terminate Next</display-name>
                 <description xml:lang="x-default">Allow the consumer to stop their subscription after the next rebill</description>
@@ -747,7 +755,6 @@
                 <attribute attribute-id="stickyioSubManAllowPause"/>
                 <attribute attribute-id="stickyioSubManAllowStop"/>
                 <attribute attribute-id="stickyioSubManAllowTerminateNext"/>
-                <attribute attribute-id="stickyioSubManAllowResume"/>
                 <attribute attribute-id="stickyioSubManAllowReset"/>
                 <attribute attribute-id="stickyioSubManAllowBillNow"/>
             </attribute-group>
