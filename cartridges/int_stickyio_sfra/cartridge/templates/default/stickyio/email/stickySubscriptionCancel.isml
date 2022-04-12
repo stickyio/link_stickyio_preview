@@ -1,0 +1,6 @@
+<body>
+    <p>${Resource.msg('email.dear','stickyio',null)} ${pdict.firstName}  ${pdict.lastName}</p>
+    <p>${Resource.msg('email.cancel.text1','stickyio',null)}</p>
+    <p>${Resource.msg('email.cancel.text2','stickyio',null)}</p>
+    <p><a href="${URLUtils.https('Home-Show')}"> ${URLUtils.https('Home-Show')} </a> </p>
+</body>
