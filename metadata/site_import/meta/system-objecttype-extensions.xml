@@ -606,6 +606,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioSFCCVersion60">
+                <display-name xml:lang="x-default">SFCC Version 6.0</display-name>
+                <description xml:lang="x-default">The version of SFCC is 6.0 or greater - supports 1 page checkout</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>            
             <attribute-definition attribute-id="stickyioStraightSaleProductID">
                 <display-name xml:lang="x-default">sticky.io Straight-Sale Product ID</display-name>
                 <description xml:lang="x-default">Universal product ID to represent all straight-sale items in sticky.io</description>
@@ -666,6 +674,7 @@
             <attribute-group group-id="STICKYIO">
                 <display-name xml:lang="x-default">sticky.io Configurations</display-name>
                 <attribute attribute-id="stickyioEnabled"/>
+                <attribute attribute-id="stickyioSFCCVersion60"/>
                 <attribute attribute-id="stickyioAPIURL"/>
                 <attribute attribute-id="stickyioGatewayID"/>
                 <attribute attribute-id="stickyioKountMerchantID"/>

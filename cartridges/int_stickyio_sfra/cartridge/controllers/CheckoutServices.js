@@ -23,17 +23,20 @@ if (stickyioEnabled) {
         server.middleware.https,
         csrfProtection.validateAjaxRequest,
         function (req, res, next) {
+        	var BasketMgr = require('dw/order/BasketMgr');
             var PaymentManager = require('dw/order/PaymentMgr');
             var HookManager = require('dw/system/HookMgr');
             var Resource = require('dw/web/Resource');
             var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
-
+    		var currentBasket = BasketMgr.getCurrentBasket();
             var stickyioOrder = stickyio.hasSubscriptionProducts();
 
             if (!stickyioOrder) { return next(); }
 
             var viewData = {};
             var paymentForm = server.forms.getForm('billing');
+
+			var sfccVersion60 = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioSFCCVersion60');
 
             // verify billing form data
             var billingFormErrors = COHelpers.validateBillingForm(paymentForm.addressFields);
@@ -60,8 +63,12 @@ if (stickyioEnabled) {
 
             if (Object.keys(contactInfoFormErrors).length) {
                 formFieldErrors.push(contactInfoFormErrors);
-            } else {
-                viewData.email = { value: paymentForm.contactInfoFields.email.value };
+            } else {           
+            	if (!sfccVersion60) {
+             		viewData.email = { value: paymentForm.contactInfoFields.email.value };
+				} else {
+                	viewData.email = { value: currentBasket.customerEmail};
+            	}    
                 viewData.phone = { value: paymentForm.contactInfoFields.phone.value };
             }
 
@@ -191,7 +198,9 @@ if (stickyioEnabled) {
                     currentBasket.setCustomerEmail(req.currentCustomer.profile.email);
                 } else {
                     billingAddress.setPhone(billingData.phone.value);
-                    currentBasket.setCustomerEmail(billingData.email.value);
+                   	if (!sfccVersion60) {
+       					currentBasket.setCustomerEmail(billingData.email.value);
+       				}             
                 }
             });
 
@@ -314,9 +323,12 @@ if (stickyioEnabled) {
                 req.session.privacyCache.set('usingMultiShipping', false);
                 usingMultiShipping = false;
             }
-
-            hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, paymentForm.contactInfoFields.email.htmlValue], function () {});
-
+            
+            if (!sfccVersion60) {
+            	hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, paymentForm.contactInfoFields.email.htmlValue], function () {});
+			} else {	
+            	hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, currentBasket.customerEmail], function () {});
+			}
             var currentLocale = Locale.getLocale(req.locale.id);
 
             var basketModel = new OrderModel(
