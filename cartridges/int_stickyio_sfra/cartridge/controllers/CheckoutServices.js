@@ -326,7 +326,7 @@ if (stickyioEnabled) {
             
             if (!sfccVersion60) {
                 hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, paymentForm.contactInfoFields.email.htmlValue], function () {});
-			} else {
+            } else {
                 hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, currentBasket.customerEmail], function () {});
 			}
             var currentLocale = Locale.getLocale(req.locale.id);

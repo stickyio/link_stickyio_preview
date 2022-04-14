@@ -20,20 +20,18 @@ if (stickyioEnabled) {
 	                checkoutView.stickyioForceRegisteredCheckout = stickyioForceRegisteredCheckout;
 	                checkoutView.stickyioOrder = true;
 	            }
-	            res.setViewData(checkoutView);
-	
+	            res.setViewData(checkoutView);	
 	            return next();
 	        }
-	    );
-	    
+	    );	    
     }
     
     server.append(
         'Begin',
         function (req, res, next) {
             var URLUtils = require('dw/web/URLUtils');
+            
             if (!sfccVersion60 && stickyioForceRegisteredCheckout && !req.currentCustomer.profile) { res.redirect(URLUtils.url('Checkout-Login')); }
-
 			
             var checkoutView = res.getViewData();
             checkoutView.sfccVersion60 = sfccVersion60;
@@ -49,14 +47,11 @@ if (stickyioEnabled) {
                 checkoutView.customer.payment = null;
                 checkoutView.customer.customerPaymentInstruments = [];
                 checkoutView.stickyioForceRegisteredCheckout = stickyioForceRegisteredCheckout;
-                checkoutView.stickyioOrder = true;
-                
-                
+                checkoutView.stickyioOrder = true;               
             } else {
                 checkoutView.allowGuestCheckout = true;
             }
             res.setViewData(checkoutView);
-
             return next();
         }
     );
