@@ -11,19 +11,19 @@ var sfccVersion60 = require('dw/system/Site').getCurrent().getCustomPreferenceVa
 if (stickyioEnabled) {
     var stickyio = require('~/cartridge/scripts/stickyio');
     if (!sfccVersion60) {
-	    server.append(
-	        'Login',
-	        function (req, res, next) {
-	            var checkoutView = res.getViewData();
-	            checkoutView.allowGuestCheckout = true;
-	            if (stickyio.hasSubscriptionProducts() !== false) {
-	                checkoutView.stickyioForceRegisteredCheckout = stickyioForceRegisteredCheckout;
-	                checkoutView.stickyioOrder = true;
-	            }
-	            res.setViewData(checkoutView);	
-	            return next();
-	        }
-	    );	    
+        server.append(
+            'Login',
+            function (req, res, next) {
+                var checkoutView = res.getViewData();
+                checkoutView.allowGuestCheckout = true;
+                if (stickyio.hasSubscriptionProducts() !== false) {
+                    checkoutView.stickyioForceRegisteredCheckout = stickyioForceRegisteredCheckout;
+                    checkoutView.stickyioOrder = true;
+                }
+                res.setViewData(checkoutView);	
+                return next();
+            }
+        );	    
     }
     
     server.append(
