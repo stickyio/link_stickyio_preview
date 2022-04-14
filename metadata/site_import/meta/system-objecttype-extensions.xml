@@ -50,7 +50,25 @@
             </attribute-definition>
         </custom-attribute-definitions>
     </type-extension>
-
+    
+    <type-extension type-id="PaymentMethod">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="stickyioSubscriptionEnabled">
+                <display-name xml:lang="x-default">Subscription Enabled</display-name>
+                <description xml:lang="x-default">Payment method is certified to process subscription orders</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="settings">
+                <display-name xml:lang="x-default">Subscription Settings</display-name>
+                <attribute attribute-id="stickyioSubscriptionEnabled"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+    
     <type-extension type-id="Product">
         <custom-attribute-definitions>
             <attribute-definition attribute-id="stickyioBillingModelConsumerSelectable">
@@ -576,6 +594,22 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioClientId">
+                <display-name xml:lang="x-default">stickioClientID</display-name>
+                <description xml:lang="x-default">Used as part of authorization for Sticky notifications</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioClientPass">
+                <display-name xml:lang="x-default">Sticky Client Password</display-name>
+                <description xml:lang="x-default">Used as part of authorization for Sticky Notifications</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>            
             <attribute-definition attribute-id="stickyioEnabled">
                 <display-name xml:lang="x-default">Enable sticky.io</display-name>
                 <type>boolean</type>
@@ -645,6 +679,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowStop">
+                <display-name xml:lang="x-default">Allow Stop</display-name>
+                <description xml:lang="x-default">Allow the consumer to stop their subscription - usually not a consumer-facing function</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioSubManAllowTerminateNext">
                 <display-name xml:lang="x-default">Allow Terminate Next</display-name>
                 <description xml:lang="x-default">Allow the consumer to stop their subscription after the next rebill</description>
@@ -661,21 +703,58 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioCancelEmailEnabled">
+                <display-name xml:lang="x-default">Cancel Email Enabled</display-name>
+                <description xml:lang="x-default">Send customer email if subscription is canceled</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioDeclineEmailEnabled">
+                <display-name xml:lang="x-default">Decline Email Enabled</display-name>
+                <description xml:lang="x-default">Send customer email if rebill is declined.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioExpiredCardEmailEnabled">
+                <display-name xml:lang="x-default">Expired Card Email Enabled</display-name>
+                <description xml:lang="x-default">Send customer email if credit card associated with subscription is expired</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioReminderEmailEnabled">
+                <display-name xml:lang="x-default">Reminder Email Enabled</display-name>
+                <description xml:lang="x-default">Send customer subscription reminder email.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>                        
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="STICKYIO">
                 <display-name xml:lang="x-default">sticky.io Configurations</display-name>
                 <attribute attribute-id="stickyioEnabled"/>
                 <attribute attribute-id="stickyioAPIURL"/>
+                <attribute attribute-id="stickyioClientId"/>
+                <attribute attribute-id="stickyioClientPass"/>                
                 <attribute attribute-id="stickyioGatewayID"/>
                 <attribute attribute-id="stickyioKountMerchantID"/>
+                <attribute attribute-id="stickyioCancelEmailEnabled"/>
+                <attribute attribute-id="stickyioDeclineEmailEnabled"/>
+                <attribute attribute-id="stickyioExpiredCardEmailEnabled"/>
+                <attribute attribute-id="stickyioReminderEmailEnabled"/>
                 <attribute attribute-id="stickyioForceRegisteredCheckout"/>
                 <attribute attribute-id="stickyioSubManAllowRecurringDate"/>
                 <attribute attribute-id="stickyioSubManAllowUpdateBillingModel"/>
                 <attribute attribute-id="stickyioSubManAllowPause"/>
                 <attribute attribute-id="stickyioSubManAllowStop"/>
                 <attribute attribute-id="stickyioSubManAllowTerminateNext"/>
-                <attribute attribute-id="stickyioSubManAllowResume"/>
                 <attribute attribute-id="stickyioSubManAllowReset"/>
                 <attribute attribute-id="stickyioSubManAllowBillNow"/>
             </attribute-group>
