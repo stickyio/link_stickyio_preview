@@ -16,9 +16,9 @@
             </div>
 
             <div class="shipping-error"></div>
-			 <isif condition="${!!pdict.preventMultiShip === false}">
-            	<isinclude template="checkout/shipping/multiShipCheckbox" />
-			</isif>
+            <isif condition="${!!pdict.preventMultiShip === false}">
+                <isinclude template="checkout/shipping/multiShipCheckbox" />
+            </isif>
             <isinclude template="checkout/shipping/shipmentCard" />
         </div>
     </div>

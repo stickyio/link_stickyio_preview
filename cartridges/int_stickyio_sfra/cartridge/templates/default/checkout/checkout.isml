@@ -64,7 +64,7 @@
                     <p class="error-message-text"></p>
                 </div>	
               			
-				<isif condition="${pdict.sfccVersion60}">					
+                <isif condition="${pdict.sfccVersion60}">					
 	                <!-- Step 1: Customer -->
 	                <iscomment>We only allow edits for non-registered customers</iscomment>
 	                <isif condition="${!pdict.customer.registeredUser}">

@@ -38,11 +38,11 @@ if (stickyioEnabled) {
             var checkoutView = res.getViewData();
             checkoutView.sfccVersion60 = sfccVersion60;
             if (stickyio.hasSubscriptionProducts() !== false) {
-            	if (stickyioForceRegisteredCheckout) {
-            		checkoutView.allowGuestCheckout = false;
-            	} else {
-            		checkoutView.allowGuestCheckout = true;
-            	}
+                if (stickyioForceRegisteredCheckout) {
+                    checkoutView.allowGuestCheckout = false;
+                } else {
+                    checkoutView.allowGuestCheckout = true;
+                }
                 checkoutView.preventMultiShip = true;
                 // for the moment, force a consumer to re-enter any saved payment information
                 // eventually, we will move to accepting existing tokens and pass those along
@@ -53,7 +53,7 @@ if (stickyioEnabled) {
                 
                 
             } else {
-            	checkoutView.allowGuestCheckout = true;
+                checkoutView.allowGuestCheckout = true;
             }
             res.setViewData(checkoutView);
 
