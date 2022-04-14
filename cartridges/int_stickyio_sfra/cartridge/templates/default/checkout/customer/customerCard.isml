@@ -7,7 +7,7 @@
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="form-control-label">
-		                        ${Resource.msg('field.customer.email','checkout',null)}
+                                ${Resource.msg('field.customer.email','checkout',null)}
                             </label>
                             <input type="text" class="form-control email" id="email-guest"
                                     value="${(pdict.customer.registeredUser && pdict.customer.profile && pdict.customer.profile.email) ? pdict.customer.profile.email : ''}" <isprint value=${pdict.forms.guestCustomerForm.email.attributes} encoding="off"/>

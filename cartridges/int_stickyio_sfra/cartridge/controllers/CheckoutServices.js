@@ -23,7 +23,7 @@ if (stickyioEnabled) {
         server.middleware.https,
         csrfProtection.validateAjaxRequest,
         function (req, res, next) {
-        	var BasketMgr = require('dw/order/BasketMgr');
+            var BasketMgr = require('dw/order/BasketMgr');
             var PaymentManager = require('dw/order/PaymentMgr');
             var HookManager = require('dw/system/HookMgr');
             var Resource = require('dw/web/Resource');
@@ -328,7 +328,7 @@ if (stickyioEnabled) {
                 hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, paymentForm.contactInfoFields.email.htmlValue], function () {});
             } else {
                 hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, currentBasket.customerEmail], function () {});
-			}
+            }
             var currentLocale = Locale.getLocale(req.locale.id);
 
             var basketModel = new OrderModel(
