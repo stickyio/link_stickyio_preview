@@ -57,10 +57,10 @@
                             <button class="btn btn-primary btn-block submit-customer-login" type="submit" name="submit" value="submit-login">
                                 ${Resource.msg('button.customer.login', 'checkout', null)}
                             </button>
-                	        <isif condition="${pdict.allowGuestCheckout}">
-	                            <button class="btn btn-light btn-block js-cancel-login" name="submit" value="cancel-login">
-	                                ${Resource.msg('button.customer.login.cancel', 'checkout', null)}
-	                            </button>
+                            <isif condition="${pdict.allowGuestCheckout}">
+                                <button class="btn btn-light btn-block js-cancel-login" name="submit" value="cancel-login">
+                                    ${Resource.msg('button.customer.login.cancel', 'checkout', null)}
+                                </button>
                             </isif>
                         </div>
                     </div>
