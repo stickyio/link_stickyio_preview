@@ -1888,6 +1888,34 @@ function syncProduct(product, localAllStickyioProducts, reset, persist, recursed
 }
 
 /**
+ * Send the email prior days data to stickio
+ * @returns {void}
+ */
+function syncEmailPriorDays() {
+    var stickioEmailNotificationDays = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioReminderDaysOut');
+    var priorDays = '';
+    for (var i = 0; i < stickioEmailNotificationDays.length; i++) {
+        priorDays += stickioEmailNotificationDays[i];
+        if (stickioEmailNotificationDays.length > 0 && i+1 != stickioEmailNotificationDays.length) {
+            priorDays += ',';
+        }
+    }
+    if (priorDays) {
+        var params = {};
+        //params.id
+        //params.helper
+        var body = {};
+        body.priorDays = priorDays;
+        params.body = body;
+        //Placeholder as EndPoint has not been created yet
+    /*    var stickyioResponse = stickyioAPI('stickyio.http.post.prior_days').call(params);
+        if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
+            return true;
+        }
+    */
+    }
+}
+/**
  * Method to check if an order/basket has sticky.io subscription
  * products in it, and if so, pull a set of IDs to be used in subsequent
  * sticky.io API calls
@@ -2684,6 +2712,7 @@ module.exports = {
     getAllStickyioMasterProducts: getAllStickyioMasterProducts,
     syncOffers: syncOffers,
     syncProduct: syncProduct,
+    syncEmailPriorDays : syncEmailPriorDays,
     sendNotificationEmail: sendNotificationEmail,
     subscriptionProductsLog: subscriptionProductsLog,
     offerProductsLog: offerProductsLog,
