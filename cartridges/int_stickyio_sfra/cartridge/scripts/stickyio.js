@@ -1902,17 +1902,21 @@ function syncEmailPriorDays() {
     }
     if (priorDays) {
         var params = {};
-        //params.id
-        //params.helper
+        params.id = 23;
+        params.helper = 'update';
         var body = {};
-        body.priorDays = priorDays;
+        body.key = "notificationPiorDays";
+        body.value = priorDays;
         params.body = body;
-        //Placeholder as EndPoint has not been created yet
-    /*    var stickyioResponse = stickyioAPI('stickyio.http.post.prior_days').call(params);
-        if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
+
+        var stickyioResponse = stickyioAPI('stickyio.http.put.vas').call(params);
+        if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.data.success == '1') {
             return true;
+        } else {
+            Logger.error('Error while setting notification prior days');
+            return false;  
         }
-    */
+    
     }
 }
 /**
