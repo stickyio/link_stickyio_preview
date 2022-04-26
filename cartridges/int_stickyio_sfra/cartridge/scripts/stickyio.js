@@ -2264,7 +2264,7 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels)
 
     stickyioOrderData.stickyioAllowSubManSelect = true;
     stickyioOrderData.stickyioAllowSubManStartOptions = true;
-    stickyioOrderData.stickyioAllowSubManPauseOptions = true;
+    stickyioOrderData.stickyioAllowSubManStopOptions = true;
 
     stickyioOrderData.stickyioAllowReset = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowReset');
     stickyioOrderData.stickyioAllowBillNow = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowBillNow');
@@ -2275,10 +2275,10 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels)
     if (stickyioOrderData.stickyioAllowReset !== true
         && stickyioOrderData.stickyioAllowBillNow !== true
     ) { stickyioOrderData.stickyioAllowSubManStartOptions = false; }
-    if (stickyioOrderData.stickyioAllowPause !== true
+    if (stickyioOrderData.stickyioAllowStop !== true
         && stickyioOrderData.stickyioAllowTerminateNext !== true
-    ) { stickyioOrderData.stickyioAllowSubManPauseOptions = false; }
-    if (!stickyioOrderData.stickyioAllowSubManStartOptions && !stickyioOrderData.stickyioAllowSubManPauseOptions) { stickyioOrderData.stickyioAllowSubManSelect = false; }
+    ) { stickyioOrderData.stickyioAllowSubManStopOptions = false; }
+    if (!stickyioOrderData.stickyioAllowSubManStartOptions && !stickyioOrderData.stickyioAllowSubManStopOptions) { stickyioOrderData.stickyioAllowSubManSelect = false; }
     return stickyioOrderData;
 }
 
