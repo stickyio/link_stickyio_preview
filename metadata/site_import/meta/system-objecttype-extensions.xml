@@ -703,6 +703,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioPauseEmailEnabled">
+                <display-name xml:lang="x-default">Pause Email Enabled</display-name>
+                <description xml:lang="x-default">Send customer email if subscription is paused</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioCancelEmailEnabled">
                 <display-name xml:lang="x-default">Cancel Email Enabled</display-name>
                 <description xml:lang="x-default">Send customer email if subscription is canceled</description>
@@ -748,6 +756,7 @@
                 <attribute attribute-id="stickyioCancelEmailEnabled"/>
                 <attribute attribute-id="stickyioDeclineEmailEnabled"/>
                 <attribute attribute-id="stickyioExpiredCardEmailEnabled"/>
+                <attribute attribute-id="stickyioPauseEmailEnabled"/>
                 <attribute attribute-id="stickyioReminderEmailEnabled"/>
                 <attribute attribute-id="stickyioForceRegisteredCheckout"/>
                 <attribute attribute-id="stickyioSubManAllowRecurringDate"/>

@@ -2403,12 +2403,28 @@ function subManCancel(subscriptionID) {
  * @param {string} subscriptionID - sticky.io subscription ID
  * @returns {Object} - result of the call
  */
-function subManPause(subscriptionID) {
+function subManPause(subscriptionID, firstName, lastName, email) {
     var params = {};
     params.id = subscriptionID;
     params.helper = 'pause';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.pause').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
+        
+        if (Site.current.getCustomPreferenceValue('stickyioPauseEmailEnabled')) {
+            var emailHelpers = require('*/cartridge/scripts/helpers/emailHelpers');       
+            var objectForEmail = {
+                firstName: firstName,
+                lastName: lastName,
+                subscriptionId: subscriptionID
+            };
+            var emailObj = {
+                to: email,
+                from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com',
+                type: emailHelpers.emailTypes.stickyPause,
+                subject: Resource.msg('email.pause.title','stickyio',null)
+            };       
+            emailHelpers.sendEmail(emailObj, 'stickyio/email/stickySubscriptionPause', objectForEmail);  
+        }             
         return { message: Resource.msg('label.subscriptionmanagement.response.pause', 'stickyio', null) };
     }
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
@@ -2509,7 +2525,7 @@ function subManBillNow(orderNo, orderToken, subscriptionID) {
  * @param {string} date - Date to change to
  * @returns {Object} - result of the change
  */
-function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date) {
+function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date, profile) {
     if (!action || !subscriptionID) { return false; }
     if (action === 'billing_model') {
         if (!bmID) { return false; }
@@ -2519,7 +2535,7 @@ function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date)
         if (!date) { return false; }
         return subManUpdateRecurringDate(subscriptionID, date);
     }
-    if (action === 'pause') { return subManPause(subscriptionID); }
+    if (action === 'pause') { return subManPause(subscriptionID, profile.firstName, profile.lastName, profile.email); }
     if (action === 'cancel') { return subManCancel(subscriptionID); }
     if (action === 'terminate_next') { return subManTerminateNext(subscriptionID); }
     if (action === 'reset') { return subManReset(subscriptionID); }
