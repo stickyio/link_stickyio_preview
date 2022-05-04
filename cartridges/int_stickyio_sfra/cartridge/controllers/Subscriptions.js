@@ -244,10 +244,9 @@ if (stickyioEnabled) {
                 context,
                 template
             );
-
             if (!error) {
                 if (confirm) {
-                    var stickyioResponse = stickyio.stickyioSubMan(ID, token, sid, action, bmid, date);
+                    var stickyioResponse = stickyio.stickyioSubMan(ID, token, sid, action, bmid, date, req.currentCustomer.profile);
                     if (stickyioResponse.error) {
                         res.json({
                             error: stickyioResponse.error,

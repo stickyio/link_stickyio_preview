@@ -1888,6 +1888,38 @@ function syncProduct(product, localAllStickyioProducts, reset, persist, recursed
 }
 
 /**
+ * Send the email prior days data to stickio
+ * @returns {void}
+ */
+function syncEmailPriorDays() {
+    var stickioEmailNotificationDays = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioReminderDaysOut');
+    var priorDays = '';
+    for (var i = 0; i < stickioEmailNotificationDays.length; i++) {
+        priorDays += stickioEmailNotificationDays[i];
+        if (stickioEmailNotificationDays.length > 0 && i+1 != stickioEmailNotificationDays.length) {
+            priorDays += ',';
+        }
+    }
+    if (priorDays) {
+        var params = {};
+        params.id = 23;
+        params.helper = 'update';
+        var body = {};
+        body.key = "notificationPiorDays";
+        body.value = priorDays;
+        params.body = body;
+
+        var stickyioResponse = stickyioAPI('stickyio.http.put.vas').call(params);
+        if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.data.success == '1') {
+            return true;
+        } else {
+            Logger.error('Error while setting notification prior days');
+            return false;  
+        }
+    
+    }
+}
+/**
  * Method to check if an order/basket has sticky.io subscription
  * products in it, and if so, pull a set of IDs to be used in subsequent
  * sticky.io API calls
@@ -2264,7 +2296,7 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels)
 
     stickyioOrderData.stickyioAllowSubManSelect = true;
     stickyioOrderData.stickyioAllowSubManStartOptions = true;
-    stickyioOrderData.stickyioAllowSubManPauseOptions = true;
+    stickyioOrderData.stickyioAllowSubManStopOptions = true;
 
     stickyioOrderData.stickyioAllowReset = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowReset');
     stickyioOrderData.stickyioAllowBillNow = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowBillNow');
@@ -2275,10 +2307,10 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels)
     if (stickyioOrderData.stickyioAllowReset !== true
         && stickyioOrderData.stickyioAllowBillNow !== true
     ) { stickyioOrderData.stickyioAllowSubManStartOptions = false; }
-    if (stickyioOrderData.stickyioAllowPause !== true
+    if (stickyioOrderData.stickyioAllowStop !== true
         && stickyioOrderData.stickyioAllowTerminateNext !== true
-    ) { stickyioOrderData.stickyioAllowSubManPauseOptions = false; }
-    if (!stickyioOrderData.stickyioAllowSubManStartOptions && !stickyioOrderData.stickyioAllowSubManPauseOptions) { stickyioOrderData.stickyioAllowSubManSelect = false; }
+    ) { stickyioOrderData.stickyioAllowSubManStopOptions = false; }
+    if (!stickyioOrderData.stickyioAllowSubManStartOptions && !stickyioOrderData.stickyioAllowSubManStopOptions) { stickyioOrderData.stickyioAllowSubManSelect = false; }
     return stickyioOrderData;
 }
 
@@ -2403,12 +2435,28 @@ function subManCancel(subscriptionID) {
  * @param {string} subscriptionID - sticky.io subscription ID
  * @returns {Object} - result of the call
  */
-function subManPause(subscriptionID) {
+function subManPause(subscriptionID, firstName, lastName, email) {
     var params = {};
     params.id = subscriptionID;
     params.helper = 'pause';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.pause').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
+        
+        if (Site.current.getCustomPreferenceValue('stickyioPauseEmailEnabled')) {
+            var emailHelpers = require('*/cartridge/scripts/helpers/emailHelpers');       
+            var objectForEmail = {
+                firstName: firstName,
+                lastName: lastName,
+                subscriptionId: subscriptionID
+            };
+            var emailObj = {
+                to: email,
+                from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com',
+                type: emailHelpers.emailTypes.stickyPause,
+                subject: Resource.msg('email.pause.title','stickyio',null)
+            };       
+            emailHelpers.sendEmail(emailObj, 'stickyio/email/stickySubscriptionPause', objectForEmail);  
+        }             
         return { message: Resource.msg('label.subscriptionmanagement.response.pause', 'stickyio', null) };
     }
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
@@ -2509,7 +2557,7 @@ function subManBillNow(orderNo, orderToken, subscriptionID) {
  * @param {string} date - Date to change to
  * @returns {Object} - result of the change
  */
-function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date) {
+function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date, profile) {
     if (!action || !subscriptionID) { return false; }
     if (action === 'billing_model') {
         if (!bmID) { return false; }
@@ -2519,7 +2567,7 @@ function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date)
         if (!date) { return false; }
         return subManUpdateRecurringDate(subscriptionID, date);
     }
-    if (action === 'pause') { return subManPause(subscriptionID); }
+    if (action === 'pause') { return subManPause(subscriptionID, profile.firstName, profile.lastName, profile.email); }
     if (action === 'cancel') { return subManCancel(subscriptionID); }
     if (action === 'terminate_next') { return subManTerminateNext(subscriptionID); }
     if (action === 'reset') { return subManReset(subscriptionID); }
@@ -2684,6 +2732,7 @@ module.exports = {
     getAllStickyioMasterProducts: getAllStickyioMasterProducts,
     syncOffers: syncOffers,
     syncProduct: syncProduct,
+    syncEmailPriorDays : syncEmailPriorDays,
     sendNotificationEmail: sendNotificationEmail,
     subscriptionProductsLog: subscriptionProductsLog,
     offerProductsLog: offerProductsLog,

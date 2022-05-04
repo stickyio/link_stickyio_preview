@@ -703,6 +703,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioPauseEmailEnabled">
+                <display-name xml:lang="x-default">Pause Email Enabled</display-name>
+                <description xml:lang="x-default">Send customer email if subscription is paused</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioCancelEmailEnabled">
                 <display-name xml:lang="x-default">Cancel Email Enabled</display-name>
                 <description xml:lang="x-default">Send customer email if subscription is canceled</description>
@@ -727,6 +735,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioReminderDaysOut">
+                <display-name xml:lang="x-default">Reminder Email Days out</display-name>
+                <description xml:lang="x-default">Prior number of Days to send reminder email notifications (1 day out, 5 days out, 15 days out)</description>
+                <type>set-of-int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-value>1.0</min-value>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioReminderEmailEnabled">
                 <display-name xml:lang="x-default">Reminder Email Enabled</display-name>
                 <description xml:lang="x-default">Send customer subscription reminder email.</description>
@@ -748,7 +764,9 @@
                 <attribute attribute-id="stickyioCancelEmailEnabled"/>
                 <attribute attribute-id="stickyioDeclineEmailEnabled"/>
                 <attribute attribute-id="stickyioExpiredCardEmailEnabled"/>
+                <attribute attribute-id="stickyioPauseEmailEnabled"/>
                 <attribute attribute-id="stickyioReminderEmailEnabled"/>
+                <attribute attribute-id="stickyioReminderDaysOut"/>
                 <attribute attribute-id="stickyioForceRegisteredCheckout"/>
                 <attribute attribute-id="stickyioSubManAllowRecurringDate"/>
                 <attribute attribute-id="stickyioSubManAllowUpdateBillingModel"/>

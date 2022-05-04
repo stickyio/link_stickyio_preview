@@ -57,6 +57,32 @@
             }
         },
         {
+            "@type-id": "custom.stickyioReminderEmailDaysOutPush",
+            "@supports-parallel-execution": "true",
+            "@supports-site-context": "true",
+            "@supports-organization-context": "false",
+            "description": "Push sticky.io Reminder Email Notification Days out with SFCC site preference values",
+            "module": "bm_stickyio/cartridge/scripts/steps/emailReminderDays.js",
+            "function": "emailSync",
+            "transactional": "false",
+            "timeout-in-seconds": "900",
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "FINISHED",
+                        "description": "Used when the step finished successfully."
+                    },
+                    {
+                        "@code": "FINISHED_WITH_WARNINGS",
+                        "description": "Used when the step finished with warnings."
+                    }
+                ]
+            }
+        },
+        {
             "@type-id": "custom.stickyioCampaignSync",
             "@supports-parallel-execution": "true",
             "@supports-site-context": "true",
