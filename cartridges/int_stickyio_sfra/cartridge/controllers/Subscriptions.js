@@ -244,10 +244,9 @@ if (stickyioEnabled) {
                 context,
                 template
             );
-
             if (!error) {
                 if (confirm) {
-                    var stickyioResponse = stickyio.stickyioSubMan(ID, token, sid, action, bmid, date);
+                    var stickyioResponse = stickyio.stickyioSubMan(ID, token, sid, action, bmid, date, req.currentCustomer.profile);
                     if (stickyioResponse.error) {
                         res.json({
                             error: stickyioResponse.error,
@@ -365,6 +364,120 @@ if (stickyioEnabled) {
             next();		
     	}
     );
+    
+     server.post('Notification',
+        server.middleware.https,
+        function (req, res, next) {
+            var success = true;
+            
+            var dwCryptoMessageDigest = require('dw/crypto/MessageDigest');
+            var dwCryptoEncoding = require('dw/crypto/Encoding');
+            var dwUtilBytes = require('dw/util/Bytes');
+ 
+            var secret = Site.current.getCustomPreferenceValue('stickyioClientId');
+            var salt = Site.current.getCustomPreferenceValue('stickyioClientPass');
+            
+            var dwSecretBytes = new dwUtilBytes(secret + salt);
+            var dwDigestObj = new dwCryptoMessageDigest(dwCryptoMessageDigest['DIGEST_SHA_256']);
+            var hash = dwCryptoEncoding.toBase64(dwDigestObj.digestBytes(dwSecretBytes));
+
+           
+            var contentType = req.httpHeaders.get('Content-Type') || req.httpHeaders.get('content-type');              
+            var hashRequest = req.httpHeaders.get('X-Secret') || req.httpHeaders.get('x-secret');
+            
+            if (empty(hashRequest) || hashRequest !== hash){
+                success = false;
+            }
+            if (success){
+                var data = JSON.parse(req.httpParameterMap.requestBodyAsString);
+                var emailType = data.emailType;
+                var emailHelpers = require('*/cartridge/scripts/helpers/emailHelpers');
+                
+                var objectForEmail = {
+                    firstName: data.firstName,
+                    lastName: data.lastName
+                };
+                var emailObj = {
+                    to: data.customer,
+                    from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com'
+                };
+                var template;   
+                var sendEmail = false;
+                var enabled = true;
+                switch (emailType) {
+                    case 6: //Cancel
+                        enabled = Site.current.getCustomPreferenceValue('stickyioCancelEmailEnabled');
+                        if (enabled) {
+                        	sendEmail = true;
+                            emailObj.type = emailHelpers.emailTypes.stickyCancel;
+                            emailObj.subject = Resource.msg('email.cancel.title','stickyio',null);
+                            template = 'stickyio/email/stickySubscriptionCancel';
+                        }
+                        break;
+                   case 14: //Subscription Reminder
+                        enabled = Site.current.getCustomPreferenceValue('stickyioReminderEmailEnabled');
+                        if (enabled) {
+                        	sendEmail = true;
+                            emailObj.type = emailHelpers.emailTypes.stickyReminder;
+                            emailObj.subject = Resource.msg('email.reminder.title','stickyio',null);
+                            objectForEmail.recurringDate = data.recurringDate;
+                            objectForEmail.recurringAmt = data.recurringAmt;
+                            objectForEmail.subscriptionId = data.subscriptionId;
+                            template = 'stickyio/email/stickySubscriptionReminder';
+                        }
+                        break;
+                    case 20: //Decline
+                        enabled = Site.current.getCustomPreferenceValue('stickyioDeclineEmailEnabled');
+                        if (enabled) {
+                        	sendEmail = true;
+                            emailObj.type = emailHelpers.emailTypes.stickyRebillDecline;
+                            emailObj.subject = Resource.msg('email.rebill.decline.title','stickyio',null);
+                            objectForEmail.declineReason = data.declineReason;
+                            objectForEmail.orderTotal = data.orderTotal;
+                            objectForEmail.subscriptionId = data.subscriptionId;
+                            template = 'stickyio/email/stickySubscriptionRebillDecline';
+                        }
+                        break;
+                    case 22: //Expired
+                        enabled = Site.current.getCustomPreferenceValue('stickyioExpiredCardEmailEnabled');
+                        if (enabled) {
+                        	sendEmail = true;
+                            emailObj.type = emailHelpers.emailTypes.stickyExpiredCard;
+                            emailObj.subject = Resource.msg('email.expired.card.title','stickyio',null);
+                            objectForEmail.subscriptionId = data.subscriptionId;
+                            template = 'stickyio/email/stickySubscriptionExpiredCard';
+                        }
+                        break;
+                    case 27: //Pause Confirmation
+                        //Currently not supported on CRM but template was created
+                        emailObj.type = emailHelpers.emailTypes.stickyPause;
+                        emailObj.subject = Resource.msg('email.pause.title','stickyio',null);
+                        objectForEmail.subscriptionId = data.subscriptionId;
+                        template = 'stickyio/email/stickySubscriptionPause';
+                        break;
+                    case 28: //out of stock
+                        //Currently not supported on CRM but template was created, 
+                        emailObj.type = emailHelpers.emailTypes.stickyOutOfStock;
+                        emailObj.subject = Resource.msg('email.out.stock.title','stickyio',null);
+                        objectForEmail.subscriptionId = data.subscriptionId;
+                        template = 'stickyio/email/stickySubscriptionOutStock';
+                        break;
+                    default:
+                        sendEmail = false;
+                }
+                if (sendEmail) { 
+                    emailHelpers.sendEmail(emailObj, template, objectForEmail);
+                }
+                  
+            }
+            
+            res.json({
+                success: success
+            });
+            next();     
+        }
+    );
+    
 }
 
 module.exports = server.exports();

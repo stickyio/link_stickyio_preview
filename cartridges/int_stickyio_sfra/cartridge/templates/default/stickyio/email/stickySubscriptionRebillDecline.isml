@@ -1,0 +1,6 @@
+<body>    
+    <p>${Resource.msg('email.dear','stickyio',null)} ${pdict.firstName}  ${pdict.lastName}</p>
+    <p>${Resource.msgf('email.rebill.decline.text1','stickyio',null, pdict.orderTotal, pdict.declineReason)}</p>
+    <p>${Resource.msg('email.rebill.decline.text2','stickyio',null)}</p>
+    <p><a href="${URLUtils.https('Subscriptions-Details', 'sid', pdict.subscriptionId)}"> ${URLUtils.https('Subscriptions-Details', 'sid', pdict.subscriptionId)} </a> </p>
+</body>
