@@ -36,7 +36,7 @@ if (stickyioEnabled) {
             var viewData = {};
             var paymentForm = server.forms.getForm('billing');
 
-            var sfccVersion60 = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioSFCCVersion60');
+            var sfccVersion = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioMajorSFRAVersion');
 
             // verify billing form data
             var billingFormErrors = COHelpers.validateBillingForm(paymentForm.addressFields);
@@ -63,12 +63,12 @@ if (stickyioEnabled) {
 
             if (Object.keys(contactInfoFormErrors).length) {
                 formFieldErrors.push(contactInfoFormErrors);
-            } else {           
-                if (!sfccVersion60) {
+            } else {
+                if (sfccVersion < 6) {
                     viewData.email = { value: paymentForm.contactInfoFields.email.value };
                 } else {
                     viewData.email = { value: currentBasket.customerEmail};
-                } 
+                }
                 viewData.phone = { value: paymentForm.contactInfoFields.phone.value };
             }
 
@@ -198,9 +198,9 @@ if (stickyioEnabled) {
                     currentBasket.setCustomerEmail(req.currentCustomer.profile.email);
                 } else {
                     billingAddress.setPhone(billingData.phone.value);
-                    if (!sfccVersion60) {
+                    if (sfccVersion < 6) {
                         currentBasket.setCustomerEmail(billingData.email.value);
-                    }           
+                    }
                 }
             });
 
@@ -323,8 +323,8 @@ if (stickyioEnabled) {
                 req.session.privacyCache.set('usingMultiShipping', false);
                 usingMultiShipping = false;
             }
-            
-            if (!sfccVersion60) {
+
+            if (sfccVersion < 6) {
                 hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, paymentForm.contactInfoFields.email.htmlValue], function () {});
             } else {
                 hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, currentBasket.customerEmail], function () {});

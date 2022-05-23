@@ -62,9 +62,9 @@
 
                 <div class="alert alert-danger error-message" role="alert">
                     <p class="error-message-text"></p>
-                </div>	
-              			
-                <isif condition="${pdict.sfccVersion60}">					
+                </div>
+
+                <isif condition="${pdict.sfccVersion >= 6}">
 	                <!-- Step 1: Customer -->
 	                <iscomment>We only allow edits for non-registered customers</iscomment>
 	                <isif condition="${!pdict.customer.registeredUser}">
@@ -150,6 +150,6 @@
         </div>
     </div>
     <isinclude template="checkout/shipping/shippingAddressTemplate" />
-    
+
     <isif condition="${typeof(kount) !== 'undefined'}"><script>client.autoLoadEvents();</script></isif>
 </isdecorate>

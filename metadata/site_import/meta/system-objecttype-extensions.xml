@@ -50,7 +50,7 @@
             </attribute-definition>
         </custom-attribute-definitions>
     </type-extension>
-    
+
     <type-extension type-id="PaymentMethod">
         <custom-attribute-definitions>
             <attribute-definition attribute-id="stickyioSubscriptionEnabled">
@@ -68,7 +68,7 @@
             </attribute-group>
         </group-definitions>
     </type-extension>
-    
+
     <type-extension type-id="Product">
         <custom-attribute-definitions>
             <attribute-definition attribute-id="stickyioBillingModelConsumerSelectable">
@@ -609,7 +609,7 @@
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
-            </attribute-definition>            
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioEnabled">
                 <display-name xml:lang="x-default">Enable sticky.io</display-name>
                 <type>boolean</type>
@@ -640,14 +640,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
-            <attribute-definition attribute-id="stickyioSFCCVersion60">
-                <display-name xml:lang="x-default">SFCC Version 6.0</display-name>
-                <description xml:lang="x-default">The version of SFCC is 6.0 or greater - supports 1 page checkout</description>
-                <type>boolean</type>
-                <mandatory-flag>false</mandatory-flag>
+            <attribute-definition attribute-id="stickyioMajorSFRAVersion">
+                <display-name xml:lang="x-default">SFRA Major Version</display-name>
+                <description xml:lang="x-default">Provide your SFRA major version for keeping the cartridge compatible</description>
+                <type>int</type>
+                <mandatory-flag>true</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
-                <default-value>false</default-value>
-            </attribute-definition>            
+                <default-value>6</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioStraightSaleProductID">
                 <display-name xml:lang="x-default">sticky.io Straight-Sale Product ID</display-name>
                 <description xml:lang="x-default">Universal product ID to represent all straight-sale items in sticky.io</description>
@@ -758,16 +758,16 @@
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
-            </attribute-definition>                        
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="STICKYIO">
                 <display-name xml:lang="x-default">sticky.io Configurations</display-name>
                 <attribute attribute-id="stickyioEnabled"/>
-                <attribute attribute-id="stickyioSFCCVersion60"/>
+                <attribute attribute-id="stickyioMajorSFRAVersion"/>
                 <attribute attribute-id="stickyioAPIURL"/>
                 <attribute attribute-id="stickyioClientId"/>
-                <attribute attribute-id="stickyioClientPass"/>                
+                <attribute attribute-id="stickyioClientPass"/>
                 <attribute attribute-id="stickyioGatewayID"/>
                 <attribute attribute-id="stickyioKountMerchantID"/>
                 <attribute attribute-id="stickyioCancelEmailEnabled"/>

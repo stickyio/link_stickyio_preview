@@ -6,11 +6,11 @@ server.extend(Checkout);
 
 var stickyioEnabled = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioEnabled');
 var stickyioForceRegisteredCheckout = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioForceRegisteredCheckout');
-var sfccVersion60 = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioSFCCVersion60');
+var sfccVersion = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioMajorSFRAVersion');
 
 if (stickyioEnabled) {
     var stickyio = require('~/cartridge/scripts/stickyio');
-    if (!sfccVersion60) {
+    if (sfccVersion < 6) {
         server.append(
             'Login',
             function (req, res, next) {
@@ -20,21 +20,23 @@ if (stickyioEnabled) {
                     checkoutView.stickyioForceRegisteredCheckout = stickyioForceRegisteredCheckout;
                     checkoutView.stickyioOrder = true;
                 }
-                res.setViewData(checkoutView);	
+                res.setViewData(checkoutView);
                 return next();
             }
-        );	    
+        );
     }
-    
+
     server.append(
         'Begin',
         function (req, res, next) {
             var URLUtils = require('dw/web/URLUtils');
-            
-            if (!sfccVersion60 && stickyioForceRegisteredCheckout && !req.currentCustomer.profile) { res.redirect(URLUtils.url('Checkout-Login')); }
-			
+
+            if (sfccVersion < 6 && stickyioForceRegisteredCheckout && !req.currentCustomer.profile) {
+                res.redirect(URLUtils.url('Checkout-Login'));
+            }
+
             var checkoutView = res.getViewData();
-            checkoutView.sfccVersion60 = sfccVersion60;
+            checkoutView.sfccVersion = sfccVersion;
             if (stickyio.hasSubscriptionProducts() !== false) {
                 if (stickyioForceRegisteredCheckout) {
                     checkoutView.allowGuestCheckout = false;
@@ -47,7 +49,7 @@ if (stickyioEnabled) {
                 checkoutView.customer.payment = null;
                 checkoutView.customer.customerPaymentInstruments = [];
                 checkoutView.stickyioForceRegisteredCheckout = stickyioForceRegisteredCheckout;
-                checkoutView.stickyioOrder = true;               
+                checkoutView.stickyioOrder = true;
             } else {
                 checkoutView.allowGuestCheckout = true;
             }
@@ -62,7 +64,7 @@ else {
         function (req, res, next) {
             var checkoutView = res.getViewData();
             checkoutView.allowGuestCheckout = true;
-            checkoutView.sfccVersion60 = sfccVersion60;
+            checkoutView.sfccVersion = sfccVersion;
             res.setViewData(checkoutView);
             return next();
         }
