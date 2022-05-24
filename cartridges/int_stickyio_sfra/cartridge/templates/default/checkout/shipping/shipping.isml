@@ -1,9 +1,16 @@
-<div class="shipping-section">
+<isif condition="${pdict.sfccVersion >= 6}">
+    <div class="card ghost shipping">
+        <div class="card-header">
+            <h2 class="card-header-custom">${Resource.msg('heading.checkout.shipping', 'checkout', null)}</h2>
+        </div>
+    </div>
+</isif>
+<div class="<isif condition="${pdict.sfccVersion >= 6}">card </isif>shipping-section">
     <div class="single-shipping">
         <isset name="shippingModel" value="${pdict.order.shipping[0]}" scope="page" />
         <isset name="shipmentLoopState" value="${null}" scope="page" />
         <isset name="lineItem" value="${null}" scope="page" />
-        <div class="card" data-shipment-uuid="${shippingModel.UUID}">
+        <div  <isif condition="${!pdict.sfccVersion < 6}"> class="card" </isif> data-shipment-uuid="${shippingModel.UUID}">
             <div class="card-header">
                 <h2 class="card-header-custom">${Resource.msg('heading.checkout.shipping', 'checkout', null)}</h2>
             </div>
@@ -15,6 +22,7 @@
             <isinclude template="checkout/shipping/shipmentCard" />
         </div>
     </div>
+
     <isif condition="${!!pdict.preventMultiShip === false}">
         <div class="multi-shipping">
             <isloop items="${pdict.order.shipping}" var="shippingModel" status="shipmentLoopState">
@@ -23,7 +31,6 @@
                         <div class="card-header">
                             <isinclude template="checkout/productCard/productShippingCard" />
                         </div>
-
                         <isinclude template="checkout/shipping/shipmentCard" />
                     </div>
                 </isloop>
