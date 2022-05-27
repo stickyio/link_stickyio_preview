@@ -50,6 +50,17 @@
 		</sub-pipelines>
 		<icon>icons/logo.png</icon>
 	</menuaction>
+	<menuaction id="stickyio_id07" menupath="stickyio" position="599998" site="true">
+		<name xml:lang="x-default">Multi-Currency Settings</name>
+		<short_description xml:lang="x-default">Multi-Currency Settings</short_description>
+		<description xml:lang="x-default">Multi-Currency Settings</description>
+		<exec pipeline="Stickyio_bm" node="MultiCurrency" />
+		<sub-pipelines>
+			<pipeline name="Stickyio_bm-MultiCurrency" />
+			<pipeline name="Stickyio_bm-MultiCurrency-UpdatePreference" />
+		</sub-pipelines>
+		<icon>icons/logo.png</icon>
+	</menuaction>
 	<menuaction id="stickyio_id05" menupath="stickyio" position="599999" site="true">
 		<name xml:lang="x-default">Preferences</name>
 		<short_description xml:lang="x-default">Preferences</short_description>
