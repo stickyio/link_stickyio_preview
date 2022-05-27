@@ -4,24 +4,116 @@
     <isset name="TOP_URL" value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', pdict.CurrentHttpParameterMap.CurrentMenuItemId)}" scope="page"/>
     <isbreadcrumb name1="sticky.io" url1="${TOP_URL.toString()}" name2="${dw.web.Resource.msg('manage.' + pdict.type, 'stickyio', null)}"/>
     <link href="${URLUtils.staticURL('css/administration.css')}" rel="stylesheet" type="text/css" />
+    <link href="${URLUtils.staticURL('css/multicurrency.css')}" rel="stylesheet" type="text/css" />
     <hr/>
-    <h1>Hi There, I'm the new MC page :)</h1>
-    <h2>Current MC property value: <span id="mcvalue">${pdict.stickyioMultiCurrencyOptions}</span></h2>
-    <input type="text" placeholder="You can change the value here" id="mcinput">
-    <button onclick="sendData()">Do It</button>
+
+    <div style="margin-top: 25px">
+        <h1 style="margin-bottom: 0">Multi-Currency enabled</h1>
+        <div>
+            <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <button onclick="addInputsRow()" style="padding: 10px; margin: 0 10px 10px 0">Add</button>
+        <button onclick="saveData()" style="padding: 10px;">Save</button>
+        <div id="preferences"></div>
+    </div>
+
 </isdecorate>
 
 <script>
-    function sendData() {
-        let val = document.getElementById('mcinput').value;
-        let url = "${URLUtils.url('Stickyio_bm-MultiCurrency-UpdatePreference')}" + '?stickyioMultiCurrencyOptions=' + val;
+    loadData();
+
+    function sendData(preferences) {
+        let url = "${URLUtils.url('Stickyio_bm-MultiCurrency-UpdatePreference')}" + '?stickyioMultiCurrencyOptions=' + JSON.stringify(preferences);
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function () {
             let jsonResponse = JSON.parse(xhttp.responseText);
-            console.log(jsonResponse)
             document.getElementById('mcvalue').innerText = jsonResponse.stickyioMultiCurrencyOptions
         }
         xhttp.open('POST', url, true)
-        xhttp.send()
+        xhttp.send();
+    }
+
+    function addInputsRow(data = null) {
+        let preferencesElement = document.getElementById("preferences");
+        let newRow = document.createElement("div");
+        newRow.className = "mc-option";
+        let newLocaleSelectElement = document.createElement("select");
+        newLocaleSelectElement.className = "mc-locale-select";
+        let newCurrencySelectElement = document.createElement("select");
+        newCurrencySelectElement.className = "mc-currency-select";
+        let newGatewayIdInputElement = document.createElement("input");
+        newGatewayIdInputElement.className = "mc-gatewayid-input"
+
+        getAllowedLocales().forEach(locale => {
+            let newOptionElement = document.createElement("option");
+            newOptionElement.text = locale;
+            newOptionElement.value = locale;
+            if (data?.locale === locale) {
+                newOptionElement.selected = true;
+            }
+            newLocaleSelectElement.appendChild(newOptionElement);
+        })
+
+        getAllowedCurrencies().forEach(currency => {
+            let newOptionElement = document.createElement("option");
+            newOptionElement.text = currency;
+            newOptionElement.value = currency;
+            if (data?.currency === currency) {
+                newOptionElement.selected = true;
+            }
+            newCurrencySelectElement.appendChild(newOptionElement);
+        })
+
+        newGatewayIdInputElement.type = "number";
+        newGatewayIdInputElement.placeholder = "Gateway ID";
+        if (data?.gatewayId) {
+            newGatewayIdInputElement.value = data.gatewayId;
+        }
+
+        newRow.appendChild(newLocaleSelectElement);
+        newRow.appendChild(newCurrencySelectElement);
+        newRow.appendChild(newGatewayIdInputElement);
+        preferencesElement.appendChild(newRow);
+    }
+
+    function getAllowedLocales() {
+        return "${pdict.locales}".slice(1,-1).split(", ");
+    }
+
+    function getAllowedCurrencies() {
+        return "${pdict.currencies}".slice(1,-1).split(", ");
+    }
+
+    function constructDataObject() {
+        let preferencesElementChildren = Array.from(document.getElementById('preferences').children);
+        let preferences = [];
+        preferencesElementChildren.forEach(element => {
+            if (element.className !== 'mc-option') { return; }
+            let preference = {};
+            let inputs = Array.from(element.children);
+            inputs.forEach(input => {
+                switch (input.className) {
+                    case "mc-locale-select": preference.locale = input.value; break;
+                    case "mc-currency-select": preference.currency = input.value; break;
+                    case "mc-gatewayid-input": preference.gatewayId = input.value; break;
+                }
+            })
+            preferences.push(preference);
+        })
+        return preferences;
+    }
+
+    function loadData() {
+        let data = JSON.parse("${pdict.stickyioMultiCurrencyOptions}".replace(/&quot;/g,'"'));
+        data.forEach(element => {
+            addInputsRow(element);
+        })
+    }
+
+    function saveData() {
+        sendData(constructDataObject());
     }
 </script>
