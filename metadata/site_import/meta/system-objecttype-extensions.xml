@@ -50,7 +50,7 @@
             </attribute-definition>
         </custom-attribute-definitions>
     </type-extension>
-    
+
     <type-extension type-id="PaymentMethod">
         <custom-attribute-definitions>
             <attribute-definition attribute-id="stickyioSubscriptionEnabled">
@@ -68,7 +68,7 @@
             </attribute-group>
         </group-definitions>
     </type-extension>
-    
+
     <type-extension type-id="Product">
         <custom-attribute-definitions>
             <attribute-definition attribute-id="stickyioBillingModelConsumerSelectable">
@@ -609,7 +609,7 @@
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
-            </attribute-definition>            
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioEnabled">
                 <display-name xml:lang="x-default">Enable sticky.io</display-name>
                 <type>boolean</type>
@@ -750,7 +750,13 @@
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
-            </attribute-definition>                        
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioMultiCurrencyOptions">
+                <display-name xml:lang="x-default">MultiCurrency options</display-name>
+                <description xml:lang="x-default">Internal object to map different currencies with the proper sticky's gateways</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="STICKYIO">
@@ -758,7 +764,7 @@
                 <attribute attribute-id="stickyioEnabled"/>
                 <attribute attribute-id="stickyioAPIURL"/>
                 <attribute attribute-id="stickyioClientId"/>
-                <attribute attribute-id="stickyioClientPass"/>                
+                <attribute attribute-id="stickyioClientPass"/>
                 <attribute attribute-id="stickyioGatewayID"/>
                 <attribute attribute-id="stickyioKountMerchantID"/>
                 <attribute attribute-id="stickyioCancelEmailEnabled"/>
