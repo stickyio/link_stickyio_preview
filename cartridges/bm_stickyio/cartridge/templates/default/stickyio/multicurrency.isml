@@ -1,0 +1,27 @@
+<isdecorate template="application/MenuFrame">
+    <iscontent type="text/html" charset="UTF-8"/>
+    <isinclude template="inc/Modules"/>
+    <isset name="TOP_URL" value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', pdict.CurrentHttpParameterMap.CurrentMenuItemId)}" scope="page"/>
+    <isbreadcrumb name1="sticky.io" url1="${TOP_URL.toString()}" name2="${dw.web.Resource.msg('manage.' + pdict.type, 'stickyio', null)}"/>
+    <link href="${URLUtils.staticURL('css/administration.css')}" rel="stylesheet" type="text/css" />
+    <hr/>
+    <h1>Hi There, I'm the new MC page :)</h1>
+    <h2>Current MC property value: <span id="mcvalue">${pdict.stickyioMultiCurrencyOptions}</span></h2>
+    <input type="text" placeholder="You can change the value here" id="mcinput">
+    <button onclick="sendData()">Do It</button>
+</isdecorate>
+
+<script>
+    function sendData() {
+        let val = document.getElementById('mcinput').value;
+        let url = "${URLUtils.url('Stickyio_bm-MultiCurrency-UpdatePreference')}" + '?stickyioMultiCurrencyOptions=' + val;
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function () {
+            let jsonResponse = JSON.parse(xhttp.responseText);
+            console.log(jsonResponse)
+            document.getElementById('mcvalue').innerText = jsonResponse.stickyioMultiCurrencyOptions
+        }
+        xhttp.open('POST', url, true)
+        xhttp.send()
+    }
+</script>
