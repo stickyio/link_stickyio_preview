@@ -90,14 +90,13 @@ server.get('OrderNoteTemplates', function (req, res, next) {
 });
 
 server.get('MultiCurrency', function (req, res, next) {
-    var txn = require('dw/system/Transaction');
     var Site = require('dw/system/Site');
     var pdict = {};
     pdict.type = 'multiCurrencySettings';
 
-    txn.wrap(function () {
-        pdict.stickyioMultiCurrencyOptions = Site.getCurrent().getCustomPreferenceValue('stickyioMultiCurrencyOptions');
-    });
+    pdict.locales = Site.getCurrent().allowedLocales;
+    pdict.currencies = Site.getCurrent().allowedCurrencies;
+    pdict.stickyioMultiCurrencyOptions = Site.getCurrent().getCustomPreferenceValue('stickyioMultiCurrencyOptions');
 
     res.render('stickyio/multicurrency', pdict);
     next();
