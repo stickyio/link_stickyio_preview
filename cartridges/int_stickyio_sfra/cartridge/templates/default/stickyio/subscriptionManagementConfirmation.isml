@@ -1,6 +1,33 @@
 <isif condition="${!pdict.error}">
 	<div class="product-quickview stickyioconfirm">
 		<p>${pdict.message}</p>
+		<p id="warning_message" style="color:red;"></p>
+
+        <iscomment>Cancellation Notes</iscomment>
+        <isif condition="${pdict.notes && pdict.notes.length > 0}">
+            <div class="col-12">
+                <label style="width: 15%; text-align: right; margin-top: 25px; margin-right: 10px;">
+                    ${Resource.msg('label.subscriptionmanagement.note_type', 'stickyio', null)}
+                </label>
+
+                <select id="select_notetype_id" class="select-notetype" style="width: 60%;">
+                    <option id="0" value="0" selected>${Resource.msg('label.subscriptionmanagement.note_hint', 'stickyio', null)}</option>
+
+                    <isloop items=${pdict.notes} var="note">
+                        <option id="${note.id}" value="${note.editable}">${note.note}</option>
+                    </isloop>
+                </select>
+            </div>
+
+            <div class="col-12">
+                <label style="width: 15%; text-align: right; margin-right: 10px;">
+                    ${Resource.msg('label.subscriptionmanagement.note', 'stickyio', null)}
+                </label>
+
+                <input type="text" id="cancellation_note" value="${Resource.msg('label.subscriptionmanagement.note_hint', 'stickyio', null)}" style="width: 60%; margin-bottom: 25px; background-color: #D1D1D1;" readonly/>
+            </div>
+        </isif>
+
 		<p>
 			<button class="stickyioconfirmbutton"
 				data-href="${URLUtils.url("Subscriptions-Manage",
