@@ -2414,12 +2414,20 @@ function updateShippingAddress(stickyioOrderNumber, addrLine1, addrLine2, city, 
 /**
  * Cancel the sticky.io subscription
  * @param {string} subscriptionID - sticky.io subscription ID
+ * @param {string} noteId - Note id
+ * @param {string} noteText - Note text
  * @returns {Object} - result of the call
  */
-function subManCancel(subscriptionID) {
+function subManCancel(subscriptionID, noteId, noteText) {
     var params = {};
     params.id = subscriptionID;
     params.helper = 'stop';
+
+    let body = {};
+    body.cancellation_id = noteId;
+    body.cancellation_reason = noteText;
+    params.body = body;
+
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.stop').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.cancel', 'stickyio', null) };
@@ -2467,12 +2475,20 @@ function subManPause(subscriptionID, firstName, lastName, email) {
 /**
  * Terminate the sticky.io subscription after the next re-bill
  * @param {string} subscriptionID - sticky.io subscription ID
+ * @param {string} noteId - Note id
+ * @param {string} noteText - Note text
  * @returns {Object} - result of the call
  */
-function subManTerminateNext(subscriptionID) {
+function subManTerminateNext(subscriptionID, noteId, noteText) {
     var params = {};
     params.id = subscriptionID;
     params.helper = 'terminate_next';
+
+    let body = {};
+    body.cancellation_id = noteId;
+    body.cancellation_reason = noteText;
+    params.body = body;
+
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.terminate_next').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return { message: Resource.msg('label.subscriptionmanagement.response.terminate_next', 'stickyio', null) };
@@ -2555,9 +2571,11 @@ function subManBillNow(orderNo, orderToken, subscriptionID) {
  * @param {string} action - Subscription management action
  * @param {number} bmID - Billing Model ID to change to
  * @param {string} date - Date to change to
+ * @param {string} noteId - Note id
+ * @param {string} noteText - Note text
  * @returns {Object} - result of the change
  */
-function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date, profile) {
+function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date, profile, noteId, noteText) {
     if (!action || !subscriptionID) { return false; }
     if (action === 'billing_model') {
         if (!bmID) { return false; }
@@ -2568,8 +2586,8 @@ function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date,
         return subManUpdateRecurringDate(subscriptionID, date);
     }
     if (action === 'pause') { return subManPause(subscriptionID, profile.firstName, profile.lastName, profile.email); }
-    if (action === 'cancel') { return subManCancel(subscriptionID); }
-    if (action === 'terminate_next') { return subManTerminateNext(subscriptionID); }
+    if (action === 'cancel') { return subManCancel(subscriptionID, noteId, noteText); }
+    if (action === 'terminate_next') { return subManTerminateNext(subscriptionID, noteId, noteText); }
     if (action === 'reset') { return subManReset(subscriptionID); }
     if (action === 'bill_now') { return subManBillNow(orderNo, orderToken, subscriptionID); }
     return false;
@@ -2714,6 +2732,17 @@ function getStickyioDeliveryFrequency(billingModelId, billingModel) {
     return nextDeliveryDate;
 }
 
+/**
+ * Get Cancellation Note Templates from sticky.io
+ * @returns {Object} - The cancellation note templates
+ */
+ function getCancellationNoteTemplates() {
+    let params = {};
+    params.helper = 'histories/notes/templates/cancellation';
+
+    return stickyioAPI('stickyio.http.get.orders.cancellation_notes').call(params);
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2754,5 +2783,6 @@ module.exports = {
     getNextDeliveryDate: getNextDeliveryDate,
     getBillingModelById: getBillingModelById,
     getBillingModelFromModels: getBillingModelFromModels,
-    getBillingModelsFromStickyio : getBillingModelsFromStickyio
+    getBillingModelsFromStickyio : getBillingModelsFromStickyio,
+    getCancellationNoteTemplates: getCancellationNoteTemplates,
 };
