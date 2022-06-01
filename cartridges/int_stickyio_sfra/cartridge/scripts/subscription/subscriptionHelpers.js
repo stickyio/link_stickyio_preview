@@ -157,8 +157,8 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
             var thisShipment = orderShipments[j];
             var thisShipmentOrderNumbers = {
                 stickyioOrderNo: thisShipment.custom.stickyioOrderNo,
-                sfccOrderNo: orders[i].orderNumber,
-                sfccOrderToken: orders[i].orderToken
+                sfccOrderNo: orderModel.orderNumber,
+                sfccOrderToken: orderModel.orderToken
             };
             var thisShipmentPLIs = thisShipment.productLineItems;
             for (k = 0; k < thisShipmentPLIs.length; k++) {
@@ -174,8 +174,8 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
                         }
                     }
                     // extract options from the original orderModel, not the full API Order object
-                    for (y = 0; y < orders[i].shipping.length; y++) {
-                        var thisOrderModelShipping = orders[i].shipping[y];
+                    for (y = 0; y < orderModel.shipping.length; y++) {
+                        var thisOrderModelShipping = orderModel.shipping[y];
                         for (z = 0; z < thisOrderModelShipping.productLineItems.items.length; z++) {
                             var thisOrderModelShippingItem = thisOrderModelShipping.productLineItems.items[z];
                             if (thisOrderModelShippingItem.id === thisPLI.productID) {

@@ -56,24 +56,46 @@ $('body').on('quickview:show', function () {
 $('body').on('click', '.stickyiocancelbutton, .modal-backdrop', function () { $('#quickViewModal').modal('hide'); }); // possible thanks to CSS overrides for Bootstrap's .modal class
 
 $('body').on('click', '.stickyioconfirmbutton', function () {
-    $(this).attr('disabled', true);
-    $('.stickyiocancelbutton').attr('disabled', true);
-    $('.close').attr('disabled', true);
-    unbindClose();
-    $.ajax({
-        url: $(this).data('href'),
-        method: 'GET',
-        success: function (data) {
-            if (data.redirectURL) {
-                window.location = data.redirectURL;
-            } else {
-                $('.stickyiosubscriptionresponse').addClass(data.error ? 'stickyiosubmanerror' : 'stickyiosubmansuccess').text(data.message).show();
-                bindClose();
-                reset();
-                $('#quickViewModal').modal('hide');
-            }
+    const urlParams = new URLSearchParams($(this).data('href').split('?')[1]);
+    const action = urlParams.get('action');
+    const cancellationRequired = urlParams.get('cancellationRequired');
+
+    let noteText = '';
+    let noteId = '';
+    let isOk = true;
+
+    if (cancellationRequired === 'true' && (action === 'cancel' || action === 'terminate_next')) {
+        noteText = $('#cancellation_note').val();
+        noteId = $("#select_notetype_id option:selected").attr("id");
+
+        if (parseInt(noteId) === 0) {
+            $('#warning_message').text('Please select a Cancellation Reason');
+            isOk = false;
         }
-    });
+    }
+    
+    let url = $(this).data('href') + '&noteid=' + noteId + '&note=' + noteText;
+
+    if (isOk) {
+        $(this).attr('disabled', true);
+        $('.stickyiocancelbutton').attr('disabled', true);
+        $('.close').attr('disabled', true);
+        unbindClose();
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function (data) {
+                if (data.redirectURL) {
+                    window.location = data.redirectURL;
+                } else {
+                    $('.stickyiosubscriptionresponse').addClass(data.error ? 'stickyiosubmanerror' : 'stickyiosubmansuccess').text(data.message).show();
+                    bindClose();
+                    reset();
+                    $('#quickViewModal').modal('hide');
+                }
+            }
+        });
+    }
 });
 
 $('body').on('click', '.stickyAddressShow', function () {
@@ -141,4 +163,22 @@ $(document).ready(function () {
         cleave.handleCreditCardNumber('.cardNumber', '#cardType'); 
         bindClose();
     }
+});
+
+// Cancellation note selector
+$('body').on('change', '.select-notetype', function () {
+    let selectedNoteText = $(this).children(":selected").text();
+    let selectedNoteEditable = $(this).val();
+    $('#warning_message').text('');
+
+    $('#cancellation_note').val(selectedNoteText);
+
+    if (parseInt(selectedNoteEditable) == 0) {
+        $('#cancellation_note').css('background-color', '#D1D1D1');
+        $('#cancellation_note').prop('readonly', true);
+    } else {
+        $('#cancellation_note').css('background-color', '#FFFFFF');
+        $('#cancellation_note').prop('readonly', false);
+    }
+    
 });
