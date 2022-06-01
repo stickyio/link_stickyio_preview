@@ -247,8 +247,9 @@ if (stickyioEnabled) {
 
             // Cancellation notes
             let notes = [];
+            let cancellationRequired = stickyio.getCancellationRequiredConfig();
 
-            if (action === ACTION_CANCEL || action === ACTION_TERMINATE_NEXT) {
+            if (cancellationRequired && (action === ACTION_CANCEL || action === ACTION_TERMINATE_NEXT)) {
                 let stickyioResponse = stickyio.getCancellationNoteTemplates();
 
                 if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
