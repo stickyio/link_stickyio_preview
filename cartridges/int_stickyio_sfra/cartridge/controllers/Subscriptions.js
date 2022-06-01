@@ -248,7 +248,7 @@ if (stickyioEnabled) {
             let notes = [];
             let cancellationRequired = stickyio.getCancellationRequiredConfig();
 
-            if (cancellationRequired && (action === ACTION_CANCEL || action === ACTION_TERMINATE_NEXT)) {
+            if (action === ACTION_CANCEL || action === ACTION_TERMINATE_NEXT) {
                 let stickyioResponse = stickyio.getCancellationNoteTemplates();
 
                 if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
@@ -259,7 +259,7 @@ if (stickyioEnabled) {
                 }
             }
 
-            var context = { error: error, message: message, ID: ID, token: token, sid: sid, action: action, bmid: bmid, date: date, notes: notes };
+            var context = { error: error, message: message, ID: ID, token: token, sid: sid, action: action, bmid: bmid, date: date, notes: notes, cancellationRequired: cancellationRequired };
             var template = 'stickyio/subscriptionManagementConfirmation';
             renderedTemplate = renderTemplateHelper.getRenderedHtml(
                 context,
