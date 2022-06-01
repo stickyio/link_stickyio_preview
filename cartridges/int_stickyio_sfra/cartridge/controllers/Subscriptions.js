@@ -90,6 +90,7 @@ if (stickyioEnabled) {
 
     server.get(
         'Details',
+        csrfProtection.generateToken,
         consentTracking.consent,
         server.middleware.https,
         userLoggedIn.validateLoggedIn,
