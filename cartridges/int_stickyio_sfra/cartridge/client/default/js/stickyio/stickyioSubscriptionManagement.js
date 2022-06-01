@@ -57,13 +57,14 @@ $('body').on('click', '.stickyiocancelbutton, .modal-backdrop', function () { $(
 
 $('body').on('click', '.stickyioconfirmbutton', function () {
     const urlParams = new URLSearchParams($(this).data('href').split('?')[1]);
-    const action = urlParams.get('action')
+    const action = urlParams.get('action');
+    const cancellationRequired = urlParams.get('cancellationRequired');
 
     let noteText = '';
     let noteId = '';
     let isOk = true;
 
-    if (action === 'cancel' || action === 'terminate_next') {
+    if (cancellationRequired === 'true' && (action === 'cancel' || action === 'terminate_next')) {
         noteText = $('#cancellation_note').val();
         noteId = $("#select_notetype_id option:selected").attr("id");
 

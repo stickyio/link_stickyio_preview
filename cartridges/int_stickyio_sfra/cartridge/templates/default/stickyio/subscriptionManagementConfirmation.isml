@@ -8,6 +8,9 @@
             <div class="col-12">
                 <label style="width: 15%; text-align: right; margin-top: 25px; margin-right: 10px;">
                     ${Resource.msg('label.subscriptionmanagement.note_type', 'stickyio', null)}
+                    <isif condition="${pdict.cancellationRequired}">
+                       <span style="color:red;">*</span>
+                    </isif>
                 </label>
 
                 <select id="select_notetype_id" class="select-notetype" style="width: 60%;">
@@ -22,6 +25,9 @@
             <div class="col-12">
                 <label style="width: 15%; text-align: right; margin-right: 10px;">
                     ${Resource.msg('label.subscriptionmanagement.note', 'stickyio', null)}
+                    <isif condition="${pdict.cancellationRequired}">
+                        <span style="color:red;">*</span>
+                    </isif>
                 </label>
 
                 <input type="text" id="cancellation_note" value="${Resource.msg('label.subscriptionmanagement.note_hint', 'stickyio', null)}" style="width: 60%; margin-bottom: 25px; background-color: #D1D1D1;" readonly/>
@@ -37,7 +43,8 @@
 					'sid', pdict.sid,
 					pdict.bmid ? 'bmid' : '', pdict.bmid ? pdict.bmid : '', 
 					pdict.date ? 'date' : '', pdict.date ? pdict.date : '', 
-					'confirm', 1
+					'confirm', 1,
+					'cancellationRequired', pdict.cancellationRequired
 				)}"
 			>
 			${Resource.msg('button.subscriptionmanagement.confirm', 'stickyio', null)}
