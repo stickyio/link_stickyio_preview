@@ -2423,10 +2423,12 @@ function subManCancel(subscriptionID, noteId, noteText) {
     params.id = subscriptionID;
     params.helper = 'stop';
 
-    let body = {};
-    body.cancellation_id = noteId;
-    body.cancellation_reason = noteText;
-    params.body = body;
+    if (noteId !== 'undefined' && noteText !== 'undefined') {
+        let body = {};
+        body.cancellation_id = noteId;
+        body.cancellation_reason = noteText;
+        params.body = body;
+    }
 
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscriptions.stop').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
@@ -2484,10 +2486,12 @@ function subManTerminateNext(subscriptionID, noteId, noteText) {
     params.id = subscriptionID;
     params.helper = 'terminate_next';
 
-    let body = {};
-    body.cancellation_id = noteId;
-    body.cancellation_reason = noteText;
-    params.body = body;
+    if (noteId !== 'undefined' && noteText !== 'undefined') {
+        let body = {};
+        body.cancellation_id = noteId;
+        body.cancellation_reason = noteText;
+        params.body = body;
+    }
 
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.terminate_next').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
@@ -2743,6 +2747,25 @@ function getStickyioDeliveryFrequency(billingModelId, billingModel) {
     return stickyioAPI('stickyio.http.get.orders.cancellation_notes').call(params);
 }
 
+/**
+ * Get 'Cancellation Required' configuration from sticky.io
+ * @returns {boolean} - true or false
+ */
+ function getCancellationRequiredConfig() {
+    let params = {};
+    params.helper = '109';
+
+    let stickyioResponse =  stickyioAPI('stickyio.http.get.config_settings').call(params);
+
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && typeof(stickyioResponse.object.result.data) !== 'undefined') {
+        if (parseInt(stickyioResponse.object.result.data[0].value) === 1) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2785,4 +2808,5 @@ module.exports = {
     getBillingModelFromModels: getBillingModelFromModels,
     getBillingModelsFromStickyio : getBillingModelsFromStickyio,
     getCancellationNoteTemplates: getCancellationNoteTemplates,
+    getCancellationRequiredConfig: getCancellationRequiredConfig,
 };

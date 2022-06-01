@@ -68,7 +68,7 @@ $('body').on('click', '.stickyioconfirmbutton', function () {
         noteId = $("#select_notetype_id option:selected").attr("id");
 
         if (parseInt(noteId) === 0) {
-            $('#warning_message').text('Please select a note type');
+            $('#warning_message').text('Please select a Cancellation Reason');
             isOk = false;
         }
     }
