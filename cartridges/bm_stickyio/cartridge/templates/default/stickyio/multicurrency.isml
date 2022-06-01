@@ -11,41 +11,61 @@
         <h1 style="margin-bottom: 0">Multi-Currency enabled</h1>
         <div>
             <label class="switch">
-                <input type="checkbox" checked>
+                <input type="checkbox" id="mc-enabled-switch" onclick="mcSwitchStateChanged(event)">
                 <span class="slider round"></span>
             </label>
         </div>
-        <button onclick="addInputsRow()" style="padding: 10px; margin: 0 10px 10px 0">Add</button>
-        <button onclick="saveData()" style="padding: 10px;">Save</button>
+        <h2 class="mc-unsaved-changes" id="mc-unsaved-changes" style="display: none">You have unsaved changes</h2>
         <div id="preferences"></div>
+        <button class="mc-add-button" id="mc-add-button" onclick="addInputsRow(null, true)" style="padding: 10px; margin: 0 10px 10px 0">Add</button>
+        <button class="mc-save-button" id="mc-save-button" onclick="saveData()" style="padding: 10px;">Save</button>
     </div>
 
+    <div id="mc-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="mc-close-modal" onclick="setModalState(false)">&times;</span>
+            <p>Disabling Multi-Currency will erase your current configuration</p>
+            <button id="mc-modal-accept-button" onclick="deleteData()">Accept</button>
+            <button id="mc-modal-cancel-button" onclick="setModalState(false)">Cancel</button>
+        </div>
+    </div>
 </isdecorate>
 
 <script>
     loadData();
+    setAddButtonState();
+    setSaveButtonState();
 
     function sendData(preferences) {
         let url = "${URLUtils.url('Stickyio_bm-MultiCurrency-UpdatePreference')}" + '?stickyioMultiCurrencyOptions=' + JSON.stringify(preferences);
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function () {
-            let jsonResponse = JSON.parse(xhttp.responseText);
-            document.getElementById('mcvalue').innerText = jsonResponse.stickyioMultiCurrencyOptions
+            // let jsonResponse = JSON.parse(xhttp.responseText);
         }
         xhttp.open('POST', url, true)
         xhttp.send();
     }
 
-    function addInputsRow(data = null) {
+    function addInputsRow(data = null, isAddingNewRow) {
+        let nextRowId = (getInputsRows().length + 1).toString()
         let preferencesElement = document.getElementById("preferences");
         let newRow = document.createElement("div");
         newRow.className = "mc-option";
+        newRow.id = "mc-option-" + nextRowId;
         let newLocaleSelectElement = document.createElement("select");
         newLocaleSelectElement.className = "mc-locale-select";
+        newLocaleSelectElement.addEventListener("change", unsavedChangesMessage);
         let newCurrencySelectElement = document.createElement("select");
         newCurrencySelectElement.className = "mc-currency-select";
+        newCurrencySelectElement.addEventListener("change", unsavedChangesMessage);
         let newGatewayIdInputElement = document.createElement("input");
-        newGatewayIdInputElement.className = "mc-gatewayid-input"
+        newGatewayIdInputElement.className = "mc-gatewayid-input";
+        newGatewayIdInputElement.addEventListener("change", unsavedChangesMessage);
+        let newDeleteRowButtonElement = document.createElement("button");
+        newDeleteRowButtonElement.className = "mc-delete-row-button";
+        newDeleteRowButtonElement.id = "mc-delete-row-button" + nextRowId;
+        newDeleteRowButtonElement.textContent = 'Delete';
+        newDeleteRowButtonElement.addEventListener("click", deleteInputRow);
 
         getAllowedLocales().forEach(locale => {
             let newOptionElement = document.createElement("option");
@@ -76,7 +96,9 @@
         newRow.appendChild(newLocaleSelectElement);
         newRow.appendChild(newCurrencySelectElement);
         newRow.appendChild(newGatewayIdInputElement);
+        newRow.appendChild(newDeleteRowButtonElement);
         preferencesElement.appendChild(newRow);
+        if (isAddingNewRow) { unsavedChangesMessage(true); }
     }
 
     function getAllowedLocales() {
@@ -108,6 +130,8 @@
 
     function loadData() {
         let data = JSON.parse("${pdict.stickyioMultiCurrencyOptions}".replace(/&quot;/g,'"'));
+        if (Object.keys(data).length === 0) { return; }
+        document.getElementById("mc-enabled-switch").checked = 'checked';
         data.forEach(element => {
             addInputsRow(element);
         })
@@ -115,5 +139,77 @@
 
     function saveData() {
         sendData(constructDataObject());
+        unsavedChangesMessage(false);
+    }
+
+    function mcSwitchStateChanged(event) {
+        let switchElement = document.getElementById("mc-enabled-switch");
+        if (switchElement.checked === true) {
+            addInputsRow();
+            setAddButtonState();
+            return;
+        }
+        event.preventDefault();
+        setModalState(true);
+    }
+
+    function getInputsRows() {
+        let preferencesElement = document.getElementById("preferences");
+        return Array.from(preferencesElement.children);
+    }
+
+    function getInputRow(id) {
+        let inputRows = getInputsRows();
+        for (let inputRow of inputRows) {
+            if (inputRow.id === "mc-option-"+id) {
+                return inputRow;
+            }
+        }
+    }
+
+    function deleteInputRow(event) {
+        event.target.parentElement.remove();
+        unsavedChangesMessage(true);
+    }
+
+    function unsavedChangesMessage(show) {
+        let unsavedChangesElement = document.getElementById("mc-unsaved-changes");
+        if (typeof show !== 'boolean') { show = true; }
+        unsavedChangesElement.style.display = show ? "block" : "none";
+        setSaveButtonState();
+    }
+
+    function setModalState(state) {
+        document.getElementById('mc-modal').style.display= state === true ? "block" : "none";
+    }
+
+    function deleteData() {
+        getInputsRows().forEach(inputRow => {
+            inputRow.remove();
+        })
+        sendData({});
+        document.getElementById("mc-enabled-switch").checked = false;
+        setModalState(false);
+        setAddButtonState();
+        unsavedChangesMessage(false);
+    }
+
+    function isMCEnabled() {
+        return document.getElementById("mc-enabled-switch").checked;
+    }
+
+    function setAddButtonState() {
+        let addButtonElement = document.getElementById("mc-add-button");
+        addButtonElement.disabled = !isMCEnabled();
+    }
+
+    function setSaveButtonState() {
+        let saveButtonElement = document.getElementById("mc-save-button");
+        let unsavedChangesElement = document.getElementById("mc-unsaved-changes");
+        if(unsavedChangesElement.style.display === "block") {
+            saveButtonElement.disabled = false;
+            return;
+        }
+        saveButtonElement.disabled = true;
     }
 </script>
