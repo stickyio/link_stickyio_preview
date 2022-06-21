@@ -640,6 +640,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioMajorSFRAVersion">
+                <display-name xml:lang="x-default">SFRA Major Version</display-name>
+                <description xml:lang="x-default">Provide your SFRA major version for keeping the cartridge compatible</description>
+                <type>int</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>6</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioStraightSaleProductID">
                 <display-name xml:lang="x-default">sticky.io Straight-Sale Product ID</display-name>
                 <description xml:lang="x-default">Universal product ID to represent all straight-sale items in sticky.io</description>
@@ -762,6 +770,7 @@
             <attribute-group group-id="STICKYIO">
                 <display-name xml:lang="x-default">sticky.io Configurations</display-name>
                 <attribute attribute-id="stickyioEnabled"/>
+                <attribute attribute-id="stickyioMajorSFRAVersion"/>
                 <attribute attribute-id="stickyioAPIURL"/>
                 <attribute attribute-id="stickyioClientId"/>
                 <attribute attribute-id="stickyioClientPass"/>

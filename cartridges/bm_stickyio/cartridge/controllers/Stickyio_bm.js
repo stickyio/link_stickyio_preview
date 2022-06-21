@@ -80,6 +80,19 @@ server.get('Prefs', function (req, res, next) {
  * sticky.io order note templates iframe
  * @returns {void}
  */
+ server.get('OrderNoteTemplates', function (req, res, next) {
+    var url = stickyio.sso('notes/index.php', 'ConfigUser');
+    var pdict = {};
+    pdict.url = url;
+    pdict.type = 'orderNoteTemplates';
+    res.render('stickyio/manage', pdict);
+    next();
+});
+
+/**
+ * sticky.io order note templates iframe
+ * @returns {void}
+ */
 server.get('OrderNoteTemplates', function (req, res, next) {
     var url = stickyio.sso('notes/index.php', 'ConfigUser');
     var pdict = {};

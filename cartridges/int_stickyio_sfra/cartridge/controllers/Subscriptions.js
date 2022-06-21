@@ -1,5 +1,8 @@
 'use strict';
 
+const ACTION_CANCEL = 'cancel';
+const ACTION_TERMINATE_NEXT = 'terminate_next';
+
 var server = require('server');
 var Site = require('dw/system/Site');
 var stickyioEnabled = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioEnabled');
@@ -87,6 +90,7 @@ if (stickyioEnabled) {
 
     server.get(
         'Details',
+        csrfProtection.generateToken,
         consentTracking.consent,
         server.middleware.https,
         userLoggedIn.validateLoggedIn,
@@ -201,6 +205,9 @@ if (stickyioEnabled) {
             var token = req.querystring.token ? req.querystring.token : null;
             var order = OrderMgr.getOrder(ID, token);
 
+            let noteId = req.querystring.noteid;
+            let noteText = req.querystring.note;
+
             if (!order
                 || !token
                 || token !== order.orderToken
@@ -238,7 +245,22 @@ if (stickyioEnabled) {
                 quickViewFullDetailMsg = Resource.msg('label.subscriptionmanagement.error', 'stickyio', null);
             }
 
-            var context = { error: error, message: message, ID: ID, token: token, sid: sid, action: action, bmid: bmid, date: date };
+            // Cancellation notes
+            let notes = [];
+            let cancellationRequired = stickyio.getCancellationRequiredConfig();
+
+            if (action === ACTION_CANCEL || action === ACTION_TERMINATE_NEXT) {
+                let stickyioResponse = stickyio.getCancellationNoteTemplates();
+
+                if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
+                    for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {    
+                        let note = stickyioResponse.object.result.data[i];
+                        notes[i] = {'id': note.id, 'note': note.name, 'editable': note.is_editable};
+                    }
+                }
+            }
+
+            var context = { error: error, message: message, ID: ID, token: token, sid: sid, action: action, bmid: bmid, date: date, notes: notes, cancellationRequired: cancellationRequired };
             var template = 'stickyio/subscriptionManagementConfirmation';
             renderedTemplate = renderTemplateHelper.getRenderedHtml(
                 context,
@@ -246,7 +268,7 @@ if (stickyioEnabled) {
             );
             if (!error) {
                 if (confirm) {
-                    var stickyioResponse = stickyio.stickyioSubMan(ID, token, sid, action, bmid, date, req.currentCustomer.profile);
+                    var stickyioResponse = stickyio.stickyioSubMan(ID, token, sid, action, bmid, date, req.currentCustomer.profile, noteId, noteText);
                     if (stickyioResponse.error) {
                         res.json({
                             error: stickyioResponse.error,

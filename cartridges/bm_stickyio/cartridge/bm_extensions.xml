@@ -50,6 +50,18 @@
 		</sub-pipelines>
 		<icon>icons/logo.png</icon>
 	</menuaction>
+	<menuaction id="stickyio_id06" menupath="stickyio" position="599999" site="true">
+		<name xml:lang="x-default">Order Note Templates</name>
+		<short_description xml:lang="x-default">Order Note Templates</short_description>
+		<description xml:lang="x-default">Order Note Templates</description>
+		<exec pipeline="Stickyio_bm" node="OrderNoteTemplates" />
+		<sub-pipelines>
+			<pipeline name="Stickyio_bm-OrderNoteTemplates" />
+			<pipeline name="Stickyio_bm-sso" />
+		</sub-pipelines>
+		<icon>icons/logo.png</icon>
+	</menuaction>
+	<menuaction id="stickyio_id05" menupath="stickyio" position="699999" site="true">
 	<menuaction id="stickyio_id07" menupath="stickyio" position="599998" site="true">
 		<name xml:lang="x-default">Multi-Currency Settings</name>
 		<short_description xml:lang="x-default">Multi-Currency Settings</short_description>
