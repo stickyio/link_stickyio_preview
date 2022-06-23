@@ -123,6 +123,7 @@ server.post('UpdatePreference-GatewayId', function (req, res, next) {
     var pdict = {};
 
     txn.wrap(function () {
+        // eslint-disable-next-line radix
         Site.getCurrent().setCustomPreferenceValue('stickyioGatewayID', parseInt(req.querystring.stickyioGatewayID));
         pdict.stickyioGatewayID = Site.getCurrent().getCustomPreferenceValue('stickyioGatewayID');
     });

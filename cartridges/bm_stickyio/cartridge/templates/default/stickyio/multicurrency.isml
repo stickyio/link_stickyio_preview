@@ -5,6 +5,7 @@
     <isbreadcrumb name1="sticky.io" url1="${TOP_URL.toString()}" name2="${dw.web.Resource.msg('manage.' + pdict.type, 'stickyio', null)}"/>
     <link href="${URLUtils.staticURL('css/administration.css')}" rel="stylesheet" type="text/css" />
     <link href="${URLUtils.staticURL('css/multicurrency.css')}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <hr/>
 
     <div class="main-content">
@@ -25,22 +26,29 @@
                 Defined Gateways
                 <span class="mc-unsaved-changes" id="mc-unsaved-changes" style="display: none">You have unsaved changes</span>
             </h2>
-            <div style="margin-bottom: 3px">
-                <button class="mc-add-button" id="mc-add-button" onclick="addInputsRow(null, true)">ADD</button>
-                <button class="mc-save-button" id="mc-save-button" onclick="saveData()">SAVE</button>
-            </div>
             <table style="width: 100%;">
                 <thead>
                 <tr class="table-headings">
-                    <th style="width: 30%; padding: 3px 0">Locale</th>
-                    <th style="width: 30%; padding: 3px 0">Currency</th>
-                    <th style="width: 30%; padding: 3px 0">Gateway ID</th>
-                    <th style="width: 10%; padding: 3px 0">Action</th>
+                    <th style="width: 30%; padding: 6px">Locale</th>
+                    <th style="width: 30%; padding: 6px">Currency</th>
+                    <th style="width: 30%; padding: 6px">Gateway ID</th>
+                    <th style="width: 10%; padding: 6px">Action</th>
                 </tr>
                 </thead>
                 <tbody id="table-body">
                 </tbody>
             </table>
+            <div style="overflow: hidden; margin-top: 10px">
+                <button class="mc-add-button" id="mc-add-button" onclick="addInputsRow(null, true)">ADD</button>
+            </div>
+            <div style="margin-top: 20px; overflow: hidden;">
+                <div style="float: right">
+                    <button class="mc-cancel-button" id="mc-cancel-button">
+                        <a href="" id="mc-cancel-button-link">CANCEL</a>
+                    </button>
+                    <button class="mc-save-button" id="mc-save-button" onclick="saveData()">SAVE</button>
+                </div>
+            </div>
         </div>
         <div id="mc-disabled-section">
             <h2 class="section-subtitle">
@@ -71,6 +79,7 @@
     setAddButtonState();
     setSaveButtonState();
     showGatewaysSection();
+    setStickyMenuUrl();
 
     function sendData(preferences) {
         let url = "${URLUtils.url('Stickyio_bm-MultiCurrency-UpdatePreference')}" + '?stickyioMultiCurrencyOptions=' + JSON.stringify(preferences);
@@ -88,6 +97,9 @@
         let newRow = document.createElement("tr");
         newRow.className = "mc-option";
         newRow.id = "mc-option-" + nextRowId;
+        if (parseInt(nextRowId) % 2 === 0) {
+            newRow.style.backgroundColor = "#f8f8f8";
+        }
         let newLocaleSelectElement = document.createElement("select");
         newLocaleSelectElement.className = "mc-locale-select";
         newLocaleSelectElement.id = "mc-locale-select-" + nextRowId;
@@ -106,13 +118,13 @@
         newGatewayIdInputElement.addEventListener("keydown", unsavedChangesMessage);
         let newGatewayIdTD = document.createElement("td");
         newGatewayIdTD.appendChild(newGatewayIdInputElement);
-        let newDeleteRowButtonElement = document.createElement("button");
-        newDeleteRowButtonElement.className = "mc-delete-row-button";
+        let newDeleteRowButtonElement = document.createElement("span");
+        newDeleteRowButtonElement.innerText = "delete";
+        newDeleteRowButtonElement.className = "mc-delete-row-button material-symbols-outlined";
         newDeleteRowButtonElement.id = "mc-delete-row-button" + nextRowId;
         newDeleteRowButtonElement.textContent = 'Delete';
         newDeleteRowButtonElement.addEventListener("click", deleteInputRow);
         let newDeleteTD = document.createElement("td");
-        newDeleteTD.style.textAlign = "center";
         newDeleteTD.appendChild(newDeleteRowButtonElement);
 
         getAllowedLocales().forEach(locale => {
@@ -169,7 +181,15 @@
                 switch (input.className) {
                     case "mc-locale-select": preference.locale = input.value; break;
                     case "mc-currency-select": preference.currency = input.value; break;
-                    case "mc-gatewayid-input": preference.gatewayId = input.value; break;
+                    case "mc-gatewayid-input":
+                        preference.gatewayId = input.value;
+                        if (preference.gatewayId === "") {
+                            input.style.borderColor = "red";
+                            input.style.borderStyle = "solid";
+                        } else {
+                            input.style.border = "none";
+                        }
+                        break;
                 }
             })
             preferences.push(preference);
@@ -187,7 +207,18 @@
     }
 
     function saveData() {
-        sendData(constructDataObject());
+        let data = constructDataObject();
+        let error = false;
+        data.forEach(preference => {
+            if (preference.gatewayId === "") {
+                error = true;
+            }
+        })
+        if (error === true) {
+            toast("Changes not saved. Gateway ID can not be empty.", true);
+            return;
+        }
+        sendData(data);
         unsavedChangesMessage(false);
         toast();
     }
@@ -268,10 +299,16 @@
         saveButtonElement.disabled = true;
     }
 
-    function toast() {
-        var x = document.getElementById("snackbar");
-        x.className = "show";
-        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    function toast(message = "Saved", error = false) {
+        let toast = document.getElementById("snackbar");
+        toast.className = "show";
+        toast.innerText = message;
+        if (error) {
+            toast.style.backgroundColor = "red";
+        } else {
+            toast.style.backgroundColor = "#40b4e2"
+        }
+        setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
     }
 
     function saveDefaultGatewayId() {
@@ -296,5 +333,20 @@
             mcSection.style.display = "none";
             defaultGwSection.style.display = "block";
         }
+    }
+
+    function deleteTbody() {
+        document.getElementById("table-body").innerHTML = "";
+    }
+
+    function cancelChanges() {
+        deleteTbody();
+        unsavedChangesMessage(false);
+        loadData();
+    }
+
+    function setStickyMenuUrl() {
+        let url = "${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview')}" + "?CurrentMenuItemId=stickyio&itemType=Site";
+        document.getElementById("mc-cancel-button-link").href = url;
     }
 </script>
