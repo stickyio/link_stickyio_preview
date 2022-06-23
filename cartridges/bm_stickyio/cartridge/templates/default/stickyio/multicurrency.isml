@@ -7,34 +7,70 @@
     <link href="${URLUtils.staticURL('css/multicurrency.css')}" rel="stylesheet" type="text/css" />
     <hr/>
 
-    <div style="margin-top: 25px">
-        <h1 style="margin-bottom: 0">Multi-Currency enabled</h1>
+    <div class="main-content">
+        <div class="header-title">
+            <h1>Multi-Currency</h1>
+        </div>
         <div>
-            <label class="switch">
-                <input type="checkbox" id="mc-enabled-switch" onclick="mcSwitchStateChanged(event)">
-                <span class="slider round"></span>
+            <label class="mc-enabled-label">
+                Enabled
+                <select class="mc-enabled" id="mc-enabled" onchange="mcSwitchStateChanged(event)">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
             </label>
         </div>
-        <h2 class="mc-unsaved-changes" id="mc-unsaved-changes" style="display: none">You have unsaved changes</h2>
-        <div id="preferences"></div>
-        <button class="mc-add-button" id="mc-add-button" onclick="addInputsRow(null, true)" style="padding: 10px; margin: 0 10px 10px 0">Add</button>
-        <button class="mc-save-button" id="mc-save-button" onclick="saveData()" style="padding: 10px;">Save</button>
+        <div id="mc-enabled-section">
+            <h2 class="section-subtitle">
+                Defined Gateways
+                <span class="mc-unsaved-changes" id="mc-unsaved-changes" style="display: none">You have unsaved changes</span>
+            </h2>
+            <div style="margin-bottom: 3px">
+                <button class="mc-add-button" id="mc-add-button" onclick="addInputsRow(null, true)">ADD</button>
+                <button class="mc-save-button" id="mc-save-button" onclick="saveData()">SAVE</button>
+            </div>
+            <table style="width: 100%;">
+                <thead>
+                <tr class="table-headings">
+                    <th style="width: 30%; padding: 3px 0">Locale</th>
+                    <th style="width: 30%; padding: 3px 0">Currency</th>
+                    <th style="width: 30%; padding: 3px 0">Gateway ID</th>
+                    <th style="width: 10%; padding: 3px 0">Action</th>
+                </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
+        </div>
+        <div id="mc-disabled-section">
+            <h2 class="section-subtitle">
+                Default Gateway
+            </h2>
+            <label>
+                Gateway ID
+                <input id="default-gw-input" type="number" value="${pdict.stickyioGatewayID}">
+                <button class="default-gw-save" onclick="saveDefaultGatewayId()">SAVE</button>
+            </label>
+        </div>
     </div>
 
     <div id="mc-modal" class="modal">
         <div class="modal-content">
             <span class="close" id="mc-close-modal" onclick="setModalState(false)">&times;</span>
             <p>Disabling Multi-Currency will erase your current configuration</p>
-            <button id="mc-modal-accept-button" onclick="deleteData()">Accept</button>
-            <button id="mc-modal-cancel-button" onclick="setModalState(false)">Cancel</button>
+            <button class="mc-modal-accept-button" id="mc-modal-accept-button" onclick="deleteData()">Accept</button>
+            <button class="mc-modal-cancel-button" id="mc-modal-cancel-button" onclick="setModalState(false)">Cancel</button>
         </div>
     </div>
+
+    <div id="snackbar">Saved</div>
 </isdecorate>
 
 <script>
     loadData();
     setAddButtonState();
     setSaveButtonState();
+    showGatewaysSection();
 
     function sendData(preferences) {
         let url = "${URLUtils.url('Stickyio_bm-MultiCurrency-UpdatePreference')}" + '?stickyioMultiCurrencyOptions=' + JSON.stringify(preferences);
@@ -47,25 +83,37 @@
     }
 
     function addInputsRow(data = null, isAddingNewRow) {
-        let nextRowId = (getInputsRows().length + 1).toString()
-        let preferencesElement = document.getElementById("preferences");
-        let newRow = document.createElement("div");
+        let nextRowId = (getInputsRows().length + 1).toString();
+        let tableBody = document.getElementById("table-body");
+        let newRow = document.createElement("tr");
         newRow.className = "mc-option";
         newRow.id = "mc-option-" + nextRowId;
         let newLocaleSelectElement = document.createElement("select");
         newLocaleSelectElement.className = "mc-locale-select";
+        newLocaleSelectElement.id = "mc-locale-select-" + nextRowId;
         newLocaleSelectElement.addEventListener("change", unsavedChangesMessage);
+        let newLocaleTD = document.createElement("td");
+        newLocaleTD.appendChild(newLocaleSelectElement);
         let newCurrencySelectElement = document.createElement("select");
         newCurrencySelectElement.className = "mc-currency-select";
+        newCurrencySelectElement.id = "mc-locale-currency-" + nextRowId;
         newCurrencySelectElement.addEventListener("change", unsavedChangesMessage);
+        let newCurrencyTD = document.createElement("td");
+        newCurrencyTD.appendChild(newCurrencySelectElement);
         let newGatewayIdInputElement = document.createElement("input");
         newGatewayIdInputElement.className = "mc-gatewayid-input";
-        newGatewayIdInputElement.addEventListener("change", unsavedChangesMessage);
+        newGatewayIdInputElement.id = "mc-locale-gatewayid-" + nextRowId;
+        newGatewayIdInputElement.addEventListener("keydown", unsavedChangesMessage);
+        let newGatewayIdTD = document.createElement("td");
+        newGatewayIdTD.appendChild(newGatewayIdInputElement);
         let newDeleteRowButtonElement = document.createElement("button");
         newDeleteRowButtonElement.className = "mc-delete-row-button";
         newDeleteRowButtonElement.id = "mc-delete-row-button" + nextRowId;
         newDeleteRowButtonElement.textContent = 'Delete';
         newDeleteRowButtonElement.addEventListener("click", deleteInputRow);
+        let newDeleteTD = document.createElement("td");
+        newDeleteTD.style.textAlign = "center";
+        newDeleteTD.appendChild(newDeleteRowButtonElement);
 
         getAllowedLocales().forEach(locale => {
             let newOptionElement = document.createElement("option");
@@ -93,11 +141,11 @@
             newGatewayIdInputElement.value = data.gatewayId;
         }
 
-        newRow.appendChild(newLocaleSelectElement);
-        newRow.appendChild(newCurrencySelectElement);
-        newRow.appendChild(newGatewayIdInputElement);
-        newRow.appendChild(newDeleteRowButtonElement);
-        preferencesElement.appendChild(newRow);
+        newRow.appendChild(newLocaleTD);
+        newRow.appendChild(newCurrencyTD);
+        newRow.appendChild(newGatewayIdTD);
+        newRow.appendChild(newDeleteTD);
+        tableBody.appendChild(newRow);
         if (isAddingNewRow) { unsavedChangesMessage(true); }
     }
 
@@ -110,13 +158,14 @@
     }
 
     function constructDataObject() {
-        let preferencesElementChildren = Array.from(document.getElementById('preferences').children);
+        let tableRows = Array.from(document.getElementById('table-body').children);
         let preferences = [];
-        preferencesElementChildren.forEach(element => {
+        tableRows.forEach(element => {
             if (element.className !== 'mc-option') { return; }
+            let rowElements = Array.from(element.children);
             let preference = {};
-            let inputs = Array.from(element.children);
-            inputs.forEach(input => {
+            rowElements.forEach(rowElement => {
+                let input = Array.from(rowElement.children)[0];
                 switch (input.className) {
                     case "mc-locale-select": preference.locale = input.value; break;
                     case "mc-currency-select": preference.currency = input.value; break;
@@ -131,7 +180,7 @@
     function loadData() {
         let data = JSON.parse("${pdict.stickyioMultiCurrencyOptions}".replace(/&quot;/g,'"'));
         if (Object.keys(data).length === 0) { return; }
-        document.getElementById("mc-enabled-switch").checked = 'checked';
+        document.getElementById("mc-enabled").value = "true";
         data.forEach(element => {
             addInputsRow(element);
         })
@@ -140,11 +189,13 @@
     function saveData() {
         sendData(constructDataObject());
         unsavedChangesMessage(false);
+        toast();
     }
 
     function mcSwitchStateChanged(event) {
-        let switchElement = document.getElementById("mc-enabled-switch");
-        if (switchElement.checked === true) {
+        let mcEnabled = isMCEnabled();
+        if (mcEnabled === true) {
+            showGatewaysSection();
             addInputsRow();
             setAddButtonState();
             return;
@@ -154,7 +205,7 @@
     }
 
     function getInputsRows() {
-        let preferencesElement = document.getElementById("preferences");
+        let preferencesElement = document.getElementById("table-body");
         return Array.from(preferencesElement.children);
     }
 
@@ -168,19 +219,22 @@
     }
 
     function deleteInputRow(event) {
-        event.target.parentElement.remove();
+        event.target.parentElement.parentElement.remove();
         unsavedChangesMessage(true);
     }
 
     function unsavedChangesMessage(show) {
         let unsavedChangesElement = document.getElementById("mc-unsaved-changes");
         if (typeof show !== 'boolean') { show = true; }
-        unsavedChangesElement.style.display = show ? "block" : "none";
+        unsavedChangesElement.style.display = show ? "inline" : "none";
         setSaveButtonState();
     }
 
     function setModalState(state) {
-        document.getElementById('mc-modal').style.display= state === true ? "block" : "none";
+        if (state !== false) {
+            document.getElementById("mc-enabled").value = "true";
+        }
+        document.getElementById("mc-modal").style.display= state === true ? "block" : "none";
     }
 
     function deleteData() {
@@ -188,14 +242,15 @@
             inputRow.remove();
         })
         sendData({});
-        document.getElementById("mc-enabled-switch").checked = false;
+        document.getElementById("mc-enabled").value = "false";
         setModalState(false);
         setAddButtonState();
         unsavedChangesMessage(false);
+        showGatewaysSection();
     }
 
     function isMCEnabled() {
-        return document.getElementById("mc-enabled-switch").checked;
+        return document.getElementById("mc-enabled").value === "true";
     }
 
     function setAddButtonState() {
@@ -206,10 +261,40 @@
     function setSaveButtonState() {
         let saveButtonElement = document.getElementById("mc-save-button");
         let unsavedChangesElement = document.getElementById("mc-unsaved-changes");
-        if(unsavedChangesElement.style.display === "block") {
+        if(unsavedChangesElement.style.display === "inline") {
             saveButtonElement.disabled = false;
             return;
         }
         saveButtonElement.disabled = true;
+    }
+
+    function toast() {
+        var x = document.getElementById("snackbar");
+        x.className = "show";
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
+
+    function saveDefaultGatewayId() {
+        let gatewayId = document.getElementById("default-gw-input").value;
+        let url = "${URLUtils.url('Stickyio_bm-UpdatePreference-GatewayId')}" + '?stickyioGatewayID=' + gatewayId;
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function () {
+            toast();
+        }
+        xhttp.open('POST', url, true)
+        xhttp.send();
+    }
+
+    function showGatewaysSection() {
+        let mcSection = document.getElementById("mc-enabled-section");
+        let defaultGwSection = document.getElementById("mc-disabled-section");
+        if (isMCEnabled()) {
+            mcSection.style.display = "block";
+            defaultGwSection.style.display = "none";
+        }
+        else {
+            mcSection.style.display = "none";
+            defaultGwSection.style.display = "block";
+        }
     }
 </script>

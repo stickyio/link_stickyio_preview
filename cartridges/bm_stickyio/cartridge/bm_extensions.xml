@@ -61,7 +61,16 @@
 		</sub-pipelines>
 		<icon>icons/logo.png</icon>
 	</menuaction>
-	<menuaction id="stickyio_id05" menupath="stickyio" position="699999" site="true">
+	<menuaction id="stickyio_id05" menupath="stickyio" position="599999" site="true">
+		<name xml:lang="x-default">Preferences</name>
+		<short_description xml:lang="x-default">Preferences</short_description>
+		<description xml:lang="x-default">Preferences</description>
+		<exec pipeline="Stickyio_bm" node="Prefs" />
+		<sub-pipelines>
+			<pipeline name="Stickyio_bm-Prefs" />
+		</sub-pipelines>
+		<icon>icons/logo.png</icon>
+	</menuaction>
 	<menuaction id="stickyio_id07" menupath="stickyio" position="599998" site="true">
 		<name xml:lang="x-default">Multi-Currency Settings</name>
 		<short_description xml:lang="x-default">Multi-Currency Settings</short_description>
@@ -70,16 +79,7 @@
 		<sub-pipelines>
 			<pipeline name="Stickyio_bm-MultiCurrency" />
 			<pipeline name="Stickyio_bm-MultiCurrency-UpdatePreference" />
-		</sub-pipelines>
-		<icon>icons/logo.png</icon>
-	</menuaction>
-	<menuaction id="stickyio_id05" menupath="stickyio" position="599999" site="true">
-		<name xml:lang="x-default">Preferences</name>
-		<short_description xml:lang="x-default">Preferences</short_description>
-		<description xml:lang="x-default">Preferences</description>
-		<exec pipeline="Stickyio_bm" node="Prefs" />
-		<sub-pipelines>
-			<pipeline name="Stickyio_bm-Prefs" />
+			<pipeline name="Stickyio_bm-UpdatePreference-GatewayId" />
 		</sub-pipelines>
 		<icon>icons/logo.png</icon>
 	</menuaction>
