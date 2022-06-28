@@ -17,6 +17,7 @@ var ShippingMgr = require('dw/order/ShippingMgr');
 var Calendar = require('dw/util/Calendar');
 var Shipment = require('dw/order/Shipment');
 var Order = require('dw/order/Order');
+var Currency = require('dw/util/Currency');
 var OCAPI_VERSION = 'v19_10';
 var subscriptionProductsLog = {};
 var offerProductsLog = [];
@@ -243,43 +244,48 @@ function updateShippingMethod(shippingMethod, stickyioShippingMethodID) {
 function updateShippingMethods(parameters) {
     var updatedShippingMethods = [];
     var stickyioShippingMethodIDs = [];
-    var shippingMethods = ShippingMgr.getAllShippingMethods();
     var stickyioShippingMethods = getShippingMethods(null, {});
-    var i;
-    for (i = 0; i < shippingMethods.length; i++) {
-        var thisShippingMethod = shippingMethods[i];
-        var skip = false;
-        if (stickyioShippingMethods && thisShippingMethod.custom.stickyioShippingID && stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID]) { // shipping method exists
-            if (thisShippingMethod.displayName === stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID].name && thisShippingMethod.description === stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID].description) {
-                skip = true;
-            } else {
-                var updatedShippingMethod = updateShippingMethod(thisShippingMethod, thisShippingMethod.custom.stickyioShippingID);
-                if (updatedShippingMethod) { updatedShippingMethods.push('Updated sticky.io Shipping Method ' + thisShippingMethod.displayName + ' (' + updatedShippingMethod + ')'); }
+    var allowedCurrencies = Site.getCurrent().getAllowedCurrencies();
+    Object.keys(allowedCurrencies).map((key) => [Number(key), allowedCurrencies[key]]).forEach(currencyCode => {
+        var currency = Currency.getCurrency(currencyCode[1]);
+        session.setCurrency(currency);
+        var shippingMethods = ShippingMgr.getAllShippingMethods();
+        var i;
+        for (i = 0; i < shippingMethods.length; i++) {
+            var thisShippingMethod = shippingMethods[i];
+            var skip = false;
+            if (stickyioShippingMethods && thisShippingMethod.custom.stickyioShippingID && stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID]) { // shipping method exists
+                if (thisShippingMethod.displayName === stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID].name && thisShippingMethod.description === stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID].description) {
+                    skip = true;
+                } else {
+                    var updatedShippingMethod = updateShippingMethod(thisShippingMethod, thisShippingMethod.custom.stickyioShippingID);
+                    if (updatedShippingMethod) { updatedShippingMethods.push('Updated sticky.io Shipping Method ' + thisShippingMethod.displayName + ' (' + updatedShippingMethod + ')'); }
+                }
+            } else { // this is a new shipping method
+                var newShippingMethod = createShippingMethod(thisShippingMethod);
+                if (newShippingMethod) { updatedShippingMethods.push('Created sticky.io Shipping Method ' + thisShippingMethod.displayName + ' (' + newShippingMethod + ')'); }
             }
-        } else { // this is a new shipping method
-            var newShippingMethod = createShippingMethod(thisShippingMethod);
-            if (newShippingMethod) { updatedShippingMethods.push('Created sticky.io Shipping Method ' + thisShippingMethod.displayName + ' (' + newShippingMethod + ')'); }
+            if (!skip && thisShippingMethod.custom.stickyioShippingID) { stickyioShippingMethodIDs.push(thisShippingMethod.custom.stickyioShippingID); }
         }
-        if (!skip && thisShippingMethod.custom.stickyioShippingID) { stickyioShippingMethodIDs.push(thisShippingMethod.custom.stickyioShippingID); }
-    }
 
-    if (stickyioShippingMethodIDs.length > 0) { // update the master sticky.io campaign to include these shipping methods
-        var params = {};
-        params.id = 1; // Master Campaign ID
-        params.body = {};
-        params.body.shipping_profiles = stickyioShippingMethodIDs;
-        stickyioAPI('stickyio.http.put.campaigns').call(params);
-        // no response from this necessary
-    }
-
-    var content = '';
-    if (updatedShippingMethods.length > 0) {
-        content = updatedShippingMethods.length + ' Created/Updated Shipping Methods\n';
-        content += JSON.stringify(updatedShippingMethods, null, '\t');
-        if (parameters['Email Log'] && parameters['Email Address'] !== '') {
-            sendNotificationEmail(parameters['Email Address'].toString(), content, 'Shipping Method Update Log');
+        if (stickyioShippingMethodIDs.length > 0) { // update the master sticky.io campaign to include these shipping methods
+            var params = {};
+            params.id = 1; // Master Campaign ID
+            params.body = {};
+            params.body.shipping_profiles = stickyioShippingMethodIDs;
+            stickyioAPI('stickyio.http.put.campaigns').call(params);
+            // no response from this necessary
         }
-    }
+
+        var content = '';
+        if (updatedShippingMethods.length > 0) {
+            content = updatedShippingMethods.length + ' Created/Updated Shipping Methods\n';
+            content += JSON.stringify(updatedShippingMethods, null, '\t');
+            if (parameters['Email Log'] && parameters['Email Address'] !== '') {
+                sendNotificationEmail(parameters['Email Address'].toString(), content, 'Shipping Method Update Log');
+            }
+        }
+    });
 }
 
 /**
@@ -1914,9 +1920,9 @@ function syncEmailPriorDays() {
             return true;
         } else {
             Logger.error('Error while setting notification prior days');
-            return false;  
+            return false;
         }
-    
+
     }
 }
 /**
@@ -2118,12 +2124,12 @@ function updateStickyioPaymentInformation(stickyioOrderNumber, cardType, cardNum
     orderData.cc_payment_type = cardType;
     orderData.cc_number = cardNumber;
     orderData.cc_cvv = cardSecurityCode;
-    
+
     var expiration = expMonth.length < 2 ? '0' + expMonth : expMonth;
     expiration +=  expYear.length == 4 ? expYear.substr(2,2) : expYear;
-    
+
     orderData.cc_expiration_date = expiration;
-    
+
     body.order_id[stickyioOrderNumber] = orderData;
     params.body = body;
     var stickyioResponse = stickyioAPI('stickyio.http.post.order_update').call(params);
@@ -2278,12 +2284,12 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels)
                 if (thisProduct.hold_date !== '') {
                     stickyioOrderData.hold_date = thisProduct.hold_date;
                     stickyioOrderData.recurring_date = Resource.msg('label.subscriptionmanagement.on_hold', 'stickyio', null) + ' ' + stickyioOrderData.hold_date;
-                } else { 
+                } else {
                     var billingModel;
                     if (billingModels) {
-                        billingModel = getBillingModelFromModels(thisProduct.billing_model.id, billingModels);                      
+                        billingModel = getBillingModelFromModels(thisProduct.billing_model.id, billingModels);
                     }
-                    stickyioOrderData.recurring_date = getNextDeliveryDate(stickyioOrderData.stickyioOrderData[thisOrder], thisProduct, thisProduct.recurring_date, billingModel); 
+                    stickyioOrderData.recurring_date = getNextDeliveryDate(stickyioOrderData.stickyioOrderData[thisOrder], thisProduct, thisProduct.recurring_date, billingModel);
                 }
                 stickyioOrderData.billingModels = thisProduct.billing_models;
                 break;
@@ -2364,17 +2370,17 @@ function subManUpdateRecurringDate(subscriptionID, date) {
  * @returns {Object} - result of the call
  */
 function getSubscriptionShippingAddress(sid) {
-    var params = {};   
+    var params = {};
     params.body = {};
-    
+
     params.id = sid;
     params.helper = 'override';
-    
+
     var stickyioResponse = stickyioAPI('stickyio.http.get.subscriptions.shipping_address').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return stickyioResponse.object.result.data.address;
     }
-    
+
     return null;
 }
 
@@ -2396,13 +2402,13 @@ function updateShippingAddress(stickyioOrderNumber, addrLine1, addrLine2, city, 
     orderData.shipping_state = state;
     orderData.shipping_zip = zip;
     orderData.shipping_country = country;
-    
+
     body.order_id[stickyioOrderNumber] = orderData;
     params.body = body;
-    
+
     var stickyioResponse = stickyioAPI('stickyio.http.post.order_update').call(params);
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
-    
+
     //for address sometimes 911 is returned even though the order shipping address is updated.
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && (stickyioResponse.object.result.response_code === '100' || stickyioResponse.object.result.response_code === '911')) {
         return { message: Resource.msg('label.subscriptionmanagement.response.shipping.update', 'stickyio', null) };
@@ -2451,9 +2457,9 @@ function subManPause(subscriptionID, firstName, lastName, email) {
     params.helper = 'pause';
     var stickyioResponse = stickyioAPI('stickyio.http.put.subscriptions.pause').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
-        
+
         if (Site.current.getCustomPreferenceValue('stickyioPauseEmailEnabled')) {
-            var emailHelpers = require('*/cartridge/scripts/helpers/emailHelpers');       
+            var emailHelpers = require('*/cartridge/scripts/helpers/emailHelpers');
             var objectForEmail = {
                 firstName: firstName,
                 lastName: lastName,
@@ -2464,9 +2470,9 @@ function subManPause(subscriptionID, firstName, lastName, email) {
                 from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com',
                 type: emailHelpers.emailTypes.stickyPause,
                 subject: Resource.msg('email.pause.title','stickyio',null)
-            };       
-            emailHelpers.sendEmail(emailObj, 'stickyio/email/stickySubscriptionPause', objectForEmail);  
-        }             
+            };
+            emailHelpers.sendEmail(emailObj, 'stickyio/email/stickySubscriptionPause', objectForEmail);
+        }
         return { message: Resource.msg('label.subscriptionmanagement.response.pause', 'stickyio', null) };
     }
     var message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
@@ -2640,11 +2646,11 @@ function getStickyioCustomField(customFields, token) {
  */
  function getBillingModelFromModels(billingModelId, billingModels) {
     var model;
-    
+
     if (billingModels){
         var keys = [];
         keys = Object.keys(billingModels);
-        
+
         for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             var thisModel = billingModels[key];
@@ -2766,6 +2772,19 @@ function getStickyioDeliveryFrequency(billingModelId, billingModel) {
     return false;
 }
 
+
+/**
+ * Get the Multi-currency configuration object
+ * @returns {Object} - empty if it is not set
+ */
+function getMulticurrencyObject() {
+    let multiCurrencyProperty = Site.getCurrent().getCustomPreferenceValue('stickyioMultiCurrencyOptions');
+    if (multiCurrencyProperty === null || multiCurrencyProperty === undefined) {
+        return [];
+    }
+    return JSON.parse(multiCurrencyProperty);
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2809,4 +2828,5 @@ module.exports = {
     getBillingModelsFromStickyio : getBillingModelsFromStickyio,
     getCancellationNoteTemplates: getCancellationNoteTemplates,
     getCancellationRequiredConfig: getCancellationRequiredConfig,
+    getMulticurrencyObject: getMulticurrencyObject,
 };
