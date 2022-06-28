@@ -209,13 +209,20 @@
     function saveData() {
         let data = constructDataObject();
         let error = false;
+        let message = "";
         data.forEach(preference => {
             if (preference.gatewayId === "") {
                 error = true;
+                message = "Changes not saved. Gateway ID can not be empty.";
+            }
+            let dups = data.filter(value => value.locale === preference.locale && value.currency === preference.currency)
+            if (dups.length > 1) {
+                error = true;
+                message = "Changes not saved. Duplicated locale and currency pairs are not allowed.";
             }
         })
         if (error === true) {
-            toast("Changes not saved. Gateway ID can not be empty.", true);
+            toast(message, true);
             return;
         }
         sendData(data);
