@@ -61,7 +61,7 @@
                 <!----------------------------------------------------------------------------------->
 
                 <div class="alert alert-danger error-message" role="alert">
-                    <p class="error-message-text"></p>
+                    ${Resource.msg('multicurrency.error.no.gateway.defined','stickyio',null)}
                 </div>
 
                 <isif condition="${pdict.sfccVersion >= 6}">
