@@ -1,0 +1,359 @@
+<isdecorate template="application/MenuFrame">
+    <iscontent type="text/html" charset="UTF-8"/>
+    <isinclude template="inc/Modules"/>
+    <isset name="TOP_URL" value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', pdict.CurrentHttpParameterMap.CurrentMenuItemId)}" scope="page"/>
+    <isbreadcrumb name1="sticky.io" url1="${TOP_URL.toString()}" name2="${dw.web.Resource.msg('manage.' + pdict.type, 'stickyio', null)}"/>
+    <link href="${URLUtils.staticURL('css/administration.css')}" rel="stylesheet" type="text/css" />
+    <link href="${URLUtils.staticURL('css/multicurrency.css')}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <hr/>
+
+    <div class="main-content">
+        <div class="header-title">
+            <h1>Multi-Currency</h1>
+        </div>
+        <div>
+            <label class="mc-enabled-label">
+                Enabled
+                <select class="mc-enabled" id="mc-enabled" onchange="mcSwitchStateChanged(event)">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
+            </label>
+        </div>
+        <div id="mc-enabled-section">
+            <h2 class="section-subtitle">
+                Defined Gateways
+                <span class="mc-unsaved-changes" id="mc-unsaved-changes" style="display: none">You have unsaved changes</span>
+            </h2>
+            <table style="width: 100%;">
+                <thead>
+                <tr class="table-headings">
+                    <th style="width: 30%; padding: 6px">Locale</th>
+                    <th style="width: 30%; padding: 6px">Currency</th>
+                    <th style="width: 30%; padding: 6px">Gateway ID</th>
+                    <th style="width: 10%; padding: 6px">Action</th>
+                </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
+            <div style="overflow: hidden; margin-top: 10px">
+                <button class="mc-add-button" id="mc-add-button" onclick="addInputsRow(null, true)">ADD</button>
+            </div>
+            <div style="margin-top: 20px; overflow: hidden;">
+                <div style="float: right">
+                    <button class="mc-cancel-button" id="mc-cancel-button">
+                        <a href="" id="mc-cancel-button-link">CANCEL</a>
+                    </button>
+                    <button class="mc-save-button" id="mc-save-button" onclick="saveData()">SAVE</button>
+                </div>
+            </div>
+        </div>
+        <div id="mc-disabled-section">
+            <h2 class="section-subtitle">
+                Default Gateway
+            </h2>
+            <label>
+                Gateway ID
+                <input id="default-gw-input" type="number" value="${pdict.stickyioGatewayID}">
+                <button class="default-gw-save" onclick="saveDefaultGatewayId()">SAVE</button>
+            </label>
+        </div>
+    </div>
+
+    <div id="mc-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="mc-close-modal" onclick="setModalState(false)">&times;</span>
+            <p>Disabling Multi-Currency will erase your current configuration</p>
+            <button class="mc-modal-accept-button" id="mc-modal-accept-button" onclick="deleteData()">Accept</button>
+            <button class="mc-modal-cancel-button" id="mc-modal-cancel-button" onclick="setModalState(false)">Cancel</button>
+        </div>
+    </div>
+
+    <div id="snackbar">Saved</div>
+</isdecorate>
+
+<script>
+    loadData();
+    setAddButtonState();
+    setSaveButtonState();
+    showGatewaysSection();
+    setStickyMenuUrl();
+
+    function sendData(preferences) {
+        let url = "${URLUtils.url('Stickyio_bm-MultiCurrency-UpdatePreference')}" + '?stickyioMultiCurrencyOptions=' + JSON.stringify(preferences);
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function () {
+            // let jsonResponse = JSON.parse(xhttp.responseText);
+        }
+        xhttp.open('POST', url, true)
+        xhttp.send();
+    }
+
+    function addInputsRow(data = null, isAddingNewRow) {
+        let nextRowId = (getInputsRows().length + 1).toString();
+        let tableBody = document.getElementById("table-body");
+        let newRow = document.createElement("tr");
+        newRow.className = "mc-option";
+        newRow.id = "mc-option-" + nextRowId;
+        if (parseInt(nextRowId) % 2 === 0) {
+            newRow.style.backgroundColor = "#f8f8f8";
+        }
+        let newLocaleSelectElement = document.createElement("select");
+        newLocaleSelectElement.className = "mc-locale-select";
+        newLocaleSelectElement.id = "mc-locale-select-" + nextRowId;
+        newLocaleSelectElement.addEventListener("change", unsavedChangesMessage);
+        let newLocaleTD = document.createElement("td");
+        newLocaleTD.appendChild(newLocaleSelectElement);
+        let newCurrencySelectElement = document.createElement("select");
+        newCurrencySelectElement.className = "mc-currency-select";
+        newCurrencySelectElement.id = "mc-locale-currency-" + nextRowId;
+        newCurrencySelectElement.addEventListener("change", unsavedChangesMessage);
+        let newCurrencyTD = document.createElement("td");
+        newCurrencyTD.appendChild(newCurrencySelectElement);
+        let newGatewayIdInputElement = document.createElement("input");
+        newGatewayIdInputElement.className = "mc-gatewayid-input";
+        newGatewayIdInputElement.id = "mc-locale-gatewayid-" + nextRowId;
+        newGatewayIdInputElement.addEventListener("keydown", unsavedChangesMessage);
+        let newGatewayIdTD = document.createElement("td");
+        newGatewayIdTD.appendChild(newGatewayIdInputElement);
+        let newDeleteRowButtonElement = document.createElement("span");
+        newDeleteRowButtonElement.innerText = "delete";
+        newDeleteRowButtonElement.className = "mc-delete-row-button material-symbols-outlined";
+        newDeleteRowButtonElement.id = "mc-delete-row-button" + nextRowId;
+        newDeleteRowButtonElement.textContent = 'Delete';
+        newDeleteRowButtonElement.addEventListener("click", deleteInputRow);
+        let newDeleteTD = document.createElement("td");
+        newDeleteTD.appendChild(newDeleteRowButtonElement);
+
+        getAllowedLocales().forEach(locale => {
+            let newOptionElement = document.createElement("option");
+            newOptionElement.text = locale;
+            newOptionElement.value = locale;
+            if (data?.locale === locale) {
+                newOptionElement.selected = true;
+            }
+            newLocaleSelectElement.appendChild(newOptionElement);
+        })
+
+        getAllowedCurrencies().forEach(currency => {
+            let newOptionElement = document.createElement("option");
+            newOptionElement.text = currency;
+            newOptionElement.value = currency;
+            if (data?.currency === currency) {
+                newOptionElement.selected = true;
+            }
+            newCurrencySelectElement.appendChild(newOptionElement);
+        })
+
+        newGatewayIdInputElement.type = "number";
+        newGatewayIdInputElement.placeholder = "Gateway ID";
+        if (data?.gatewayId) {
+            newGatewayIdInputElement.value = data.gatewayId;
+        }
+
+        newRow.appendChild(newLocaleTD);
+        newRow.appendChild(newCurrencyTD);
+        newRow.appendChild(newGatewayIdTD);
+        newRow.appendChild(newDeleteTD);
+        tableBody.appendChild(newRow);
+        if (isAddingNewRow) { unsavedChangesMessage(true); }
+    }
+
+    function getAllowedLocales() {
+        return "${pdict.locales}".slice(1,-1).split(", ");
+    }
+
+    function getAllowedCurrencies() {
+        return "${pdict.currencies}".slice(1,-1).split(", ");
+    }
+
+    function constructDataObject() {
+        let tableRows = Array.from(document.getElementById('table-body').children);
+        let preferences = [];
+        tableRows.forEach(element => {
+            if (element.className !== 'mc-option') { return; }
+            let rowElements = Array.from(element.children);
+            let preference = {};
+            rowElements.forEach(rowElement => {
+                let input = Array.from(rowElement.children)[0];
+                switch (input.className) {
+                    case "mc-locale-select": preference.locale = input.value; break;
+                    case "mc-currency-select": preference.currency = input.value; break;
+                    case "mc-gatewayid-input":
+                        preference.gatewayId = input.value;
+                        if (preference.gatewayId === "") {
+                            input.style.borderColor = "red";
+                            input.style.borderStyle = "solid";
+                        } else {
+                            input.style.border = "none";
+                        }
+                        break;
+                }
+            })
+            preferences.push(preference);
+        })
+        return preferences;
+    }
+
+    function loadData() {
+        let data = JSON.parse("${pdict.stickyioMultiCurrencyOptions}".replace(/&quot;/g,'"'));
+        if (Object.keys(data).length === 0) { return; }
+        document.getElementById("mc-enabled").value = "true";
+        data.forEach(element => {
+            addInputsRow(element);
+        })
+    }
+
+    function saveData() {
+        let data = constructDataObject();
+        let error = false;
+        let message = "";
+        data.forEach(preference => {
+            if (preference.gatewayId === "") {
+                error = true;
+                message = "Changes not saved. Gateway ID can not be empty.";
+            }
+            let dups = data.filter(value => value.locale === preference.locale && value.currency === preference.currency)
+            if (dups.length > 1) {
+                error = true;
+                message = "Changes not saved. Duplicated locale and currency pairs are not allowed.";
+            }
+        })
+        if (error === true) {
+            toast(message, true);
+            return;
+        }
+        sendData(data);
+        unsavedChangesMessage(false);
+        toast();
+    }
+
+    function mcSwitchStateChanged(event) {
+        let mcEnabled = isMCEnabled();
+        if (mcEnabled === true) {
+            showGatewaysSection();
+            addInputsRow();
+            setAddButtonState();
+            return;
+        }
+        event.preventDefault();
+        setModalState(true);
+    }
+
+    function getInputsRows() {
+        let preferencesElement = document.getElementById("table-body");
+        return Array.from(preferencesElement.children);
+    }
+
+    function getInputRow(id) {
+        let inputRows = getInputsRows();
+        for (let inputRow of inputRows) {
+            if (inputRow.id === "mc-option-"+id) {
+                return inputRow;
+            }
+        }
+    }
+
+    function deleteInputRow(event) {
+        event.target.parentElement.parentElement.remove();
+        unsavedChangesMessage(true);
+    }
+
+    function unsavedChangesMessage(show) {
+        let unsavedChangesElement = document.getElementById("mc-unsaved-changes");
+        if (typeof show !== 'boolean') { show = true; }
+        unsavedChangesElement.style.display = show ? "inline" : "none";
+        setSaveButtonState();
+    }
+
+    function setModalState(state) {
+        if (state !== false) {
+            document.getElementById("mc-enabled").value = "true";
+        }
+        document.getElementById("mc-modal").style.display= state === true ? "block" : "none";
+    }
+
+    function deleteData() {
+        getInputsRows().forEach(inputRow => {
+            inputRow.remove();
+        })
+        sendData({});
+        document.getElementById("mc-enabled").value = "false";
+        setModalState(false);
+        setAddButtonState();
+        unsavedChangesMessage(false);
+        showGatewaysSection();
+    }
+
+    function isMCEnabled() {
+        return document.getElementById("mc-enabled").value === "true";
+    }
+
+    function setAddButtonState() {
+        let addButtonElement = document.getElementById("mc-add-button");
+        addButtonElement.disabled = !isMCEnabled();
+    }
+
+    function setSaveButtonState() {
+        let saveButtonElement = document.getElementById("mc-save-button");
+        let unsavedChangesElement = document.getElementById("mc-unsaved-changes");
+        if(unsavedChangesElement.style.display === "inline") {
+            saveButtonElement.disabled = false;
+            return;
+        }
+        saveButtonElement.disabled = true;
+    }
+
+    function toast(message = "Saved", error = false) {
+        let toast = document.getElementById("snackbar");
+        toast.className = "show";
+        toast.innerText = message;
+        if (error) {
+            toast.style.backgroundColor = "red";
+        } else {
+            toast.style.backgroundColor = "#40b4e2"
+        }
+        setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    function saveDefaultGatewayId() {
+        let gatewayId = document.getElementById("default-gw-input").value;
+        let url = "${URLUtils.url('Stickyio_bm-UpdatePreference-GatewayId')}" + '?stickyioGatewayID=' + gatewayId;
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function () {
+            toast();
+        }
+        xhttp.open('POST', url, true)
+        xhttp.send();
+    }
+
+    function showGatewaysSection() {
+        let mcSection = document.getElementById("mc-enabled-section");
+        let defaultGwSection = document.getElementById("mc-disabled-section");
+        if (isMCEnabled()) {
+            mcSection.style.display = "block";
+            defaultGwSection.style.display = "none";
+        }
+        else {
+            mcSection.style.display = "none";
+            defaultGwSection.style.display = "block";
+        }
+    }
+
+    function deleteTbody() {
+        document.getElementById("table-body").innerHTML = "";
+    }
+
+    function cancelChanges() {
+        deleteTbody();
+        unsavedChangesMessage(false);
+        loadData();
+    }
+
+    function setStickyMenuUrl() {
+        let url = "${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview')}" + "?CurrentMenuItemId=stickyio&itemType=Site";
+        document.getElementById("mc-cancel-button-link").href = url;
+    }
+</script>

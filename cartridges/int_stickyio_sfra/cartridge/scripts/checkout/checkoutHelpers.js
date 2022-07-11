@@ -124,6 +124,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         var paymentInstrument = order.getPaymentInstruments(PaymentInstrument.METHOD_CREDIT_CARD).toArray()[0];
         var plis = order.getAllProductLineItems();
         var stickyioGatewayID = Site.getCurrent().getCustomPreferenceValue('stickyioGatewayID');
+        var stickyioMulticurrencyConfig = stickyio.getMulticurrencyObject();
         var stickyioStraightSaleProductID = Site.getCurrent().getCustomPreferenceValue('stickyioStraightSaleProductID');
         var siteIDObject = { token: 'sfcc_site_id', value: Site.getCurrent().ID };
         var hostnameObject = { token: 'sfcc_hostname', value: Site.getCurrent().httpsHostName };
@@ -173,6 +174,24 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
         if (shipment.gift) {
             params.body.gift = {};
             params.body.gift.message = shipment.giftMessage;
+        }
+
+        if (stickyioMulticurrencyConfig.length > 0) {
+            var customerLocale = order.getCustomerLocaleID();
+            var customerCurrency = order.getCurrencyCode();
+            stickyioMulticurrencyConfig = stickyioMulticurrencyConfig.filter(configuration => configuration.locale === customerLocale || configuration.currency === customerCurrency);
+            var exactMatch = stickyioMulticurrencyConfig.filter(configuration => configuration.locale === customerLocale && configuration.currency === customerCurrency);
+            if (exactMatch.length > 0) {
+                params.body.forceGatewayId = exactMatch[0].gatewayId;
+                params.body.currency = exactMatch[0].currency;
+            } else {
+                error = true;
+                Transaction.wrap(function () { OrderMgr.failOrder(order, true); });
+                if (thisStickyioOrderNo) {
+                    stickyio.voidStickyioOrder(thisStickyioOrderNo);
+                }
+                serverErrors.push(Resource.msg('multicurrency.error.no.gateway.defined','stickyio',null));
+            }
         }
 
         var offers = [];

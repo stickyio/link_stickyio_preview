@@ -80,12 +80,55 @@ server.get('Prefs', function (req, res, next) {
  * sticky.io order note templates iframe
  * @returns {void}
  */
- server.get('OrderNoteTemplates', function (req, res, next) {
+server.get('OrderNoteTemplates', function (req, res, next) {
     var url = stickyio.sso('notes/index.php', 'ConfigUser');
     var pdict = {};
     pdict.url = url;
     pdict.type = 'orderNoteTemplates';
     res.render('stickyio/manage', pdict);
+    next();
+});
+
+server.get('MultiCurrency', function (req, res, next) {
+    var Site = require('dw/system/Site');
+    var pdict = {};
+    pdict.type = 'multiCurrencySettings';
+
+    pdict.locales = Site.getCurrent().allowedLocales;
+    pdict.currencies = Site.getCurrent().allowedCurrencies;
+    pdict.stickyioMultiCurrencyOptions = Site.getCurrent().getCustomPreferenceValue('stickyioMultiCurrencyOptions');
+    pdict.stickyioGatewayID = Site.getCurrent().getCustomPreferenceValue('stickyioGatewayID');
+
+    res.render('stickyio/multicurrency', pdict);
+    next();
+});
+
+server.post('MultiCurrency-UpdatePreference', function (req, res, next) {
+    var txn = require('dw/system/Transaction');
+    var Site = require('dw/system/Site');
+    var pdict = {};
+
+    txn.wrap(function () {
+        Site.getCurrent().setCustomPreferenceValue('stickyioMultiCurrencyOptions', req.querystring.stickyioMultiCurrencyOptions);
+        pdict.stickyioMultiCurrencyOptions = Site.getCurrent().getCustomPreferenceValue('stickyioMultiCurrencyOptions');
+    });
+
+    res.json(pdict);
+    next();
+});
+
+server.post('UpdatePreference-GatewayId', function (req, res, next) {
+    var txn = require('dw/system/Transaction');
+    var Site = require('dw/system/Site');
+    var pdict = {};
+
+    txn.wrap(function () {
+        // eslint-disable-next-line radix
+        Site.getCurrent().setCustomPreferenceValue('stickyioGatewayID', parseInt(req.querystring.stickyioGatewayID));
+        pdict.stickyioGatewayID = Site.getCurrent().getCustomPreferenceValue('stickyioGatewayID');
+    });
+
+    res.json(pdict);
     next();
 });
 
