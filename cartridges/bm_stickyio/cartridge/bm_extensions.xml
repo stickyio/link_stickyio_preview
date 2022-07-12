@@ -84,8 +84,8 @@
 		<icon>icons/logo.png</icon>
 	</menuaction>
 	<menuaction id="stickyio_id08" menupath="stickyio" position="599997" site="true">
-		<name xml:lang="x-default">Example Name</name>
-		<short_description xml:lang="x-default">Product Groups</short_description>
+		<name xml:lang="x-default">Product Groups</name>
+		<short_description xml:lang="x-default">Product Swap Configuration</short_description>
 		<description xml:lang="x-default">Product Swap Configuration</description>
 		<exec pipeline="Stickyio_bm" node="ProductGroups" />
 		<sub-pipelines>
