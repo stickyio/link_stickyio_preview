@@ -766,7 +766,7 @@
                 <mandatory-flag>false</mandatory-flag>
             </attribute-definition>
             <attribute-definition attribute-id="stickyioProductSwapEnabled">
-                <display-name xml:lang="x-default">Product Swap Enabled</display-name>
+                <display-name xml:lang="x-default">Enable Product Swap</display-name>
                 <description xml:lang="x-default">Create groups of products allowed to be swapped.</description>
                 <type>boolean</type>
                 <mandatory-flag>false</mandatory-flag>
