@@ -4,12 +4,16 @@ var ProductMgr = require('dw/catalog/ProductMgr');
 var stickyio = require('int_stickyio_sfra/cartridge/scripts/stickyio'); // hard-coded path to shared sticky.io library
 
 exports.productSync = function (parameters) {
+    let productGroupCustomField = stickyio.getStickyioProductGroupCustomField();
+    if (!productGroupCustomField) {
+        productGroupCustomField = stickyio.createStickyioProductGroupCustomField();
+    }
     var products = ProductMgr.queryAllSiteProducts();
     var allStickyioProducts = stickyio.getAllStickyioMasterProducts();
 
     while (products.hasNext()) {
         var product = products.next();
-        stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false);
+        stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false, productGroupCustomField);
     }
 
     stickyio.createStraightSaleProduct();
