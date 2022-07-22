@@ -1636,7 +1636,7 @@ function updateLastSync(product) {
  * @param {boolean} persistStickyIDs - boolean flag to persist product's custom sticky.io product IDs when resetProducts is true
  * @returns {void}
  */
-function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) {
+function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs, productGroupCustomField) {
     var newProduct = true;
     var existantProduct = getCorrespondingPIDandName(product.ID, 0); // check to see if this product exists in sticky.io
     if (existantProduct) { // it exists
@@ -1670,6 +1670,7 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
             params.body.product_id = {};
             params.body.product_id[product.custom.stickyioProductID] = body;
             stickyioData = { stickyioResponse: stickyioAPI(apiCall).call(params), productChange: productChange, newProduct: newProduct };
+            updateStickyioProductGroupCustomField(product, productGroupCustomField);
         }
     }
     if (product.custom.stickyioProductID === null) { // create the product in sticky.io
@@ -1678,6 +1679,7 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
     } else { stickyioData = { stickyioResponse: false, productChange: productChange, newProduct: newProduct }; }
     if (stickyioData.stickyioResponse !== false && stickyioData.stickyioResponse !== 'skip') {
         updateSFCCProductAttributes(product, stickyioData.stickyioResponse, stickyioData.productChange, stickyioData.newProduct, (product.custom.stickyioVertical === null));
+        updateStickyioProductGroupCustomField(product, productGroupCustomField);
     }
     if (product.isMaster()) {
         var stickyioResponse = getAttributes(product.custom.stickyioProductID);
@@ -1851,7 +1853,7 @@ function syncOffers(localAllStickyioProducts) {
  * @param {boolean} recursed - Flag to know if this is a recursion call
  * @returns {void}
  */
-function syncProduct(product, localAllStickyioProducts, reset, persist, recursed) {
+function syncProduct(product, localAllStickyioProducts, reset, persist, recursed, productGroupCustomField) {
     var thisProduct = product;
     var productSetProducts;
     var thisReset = reset;
@@ -1883,11 +1885,11 @@ function syncProduct(product, localAllStickyioProducts, reset, persist, recursed
                 var i;
                 for (i = 0; i < productSetProducts.length; i++) {
                     setupProductSetProduct(thisProduct, productSetProducts[i]);
-                    syncProduct(productSetProducts[i], allStickyioProducts, thisReset, thisPersist, true);
+                    syncProduct(productSetProducts[i], allStickyioProducts, thisReset, thisPersist, true, productGroupCustomField);
                 }
             } else {
                 if (recursed) { thisReset = false; } // don't reset the product and its possible variants a second time
-                createOrUpdateProduct(thisProduct, thisReset, thisPersist);
+                createOrUpdateProduct(thisProduct, thisReset, thisPersist, productGroupCustomField);
             }
         }
     }
@@ -2785,6 +2787,70 @@ function getMulticurrencyObject() {
     return JSON.parse(multiCurrencyProperty);
 }
 
+/**
+ * Fetch all the custom fields created on sticky.io
+ * @returns {Array}
+ */
+function getAllStickyioCustomFields() {
+    let endpoint = 'stickyio.http.get.custom_fields';
+    let params = {};
+    let response = stickyioAPI(endpoint).call(params);
+    return response.object.result.data;
+}
+
+/**
+ * Fetch the product group custom field created on sticky.io, returns undefined if it does not exist.
+ * @returns {Object|undefined}
+ */
+function getStickyioProductGroupCustomField() {
+    let customFields = getAllStickyioCustomFields();
+    return customFields.filter(customField => customField.field_type_id === 1 && customField.type_id === 3 && customField.name === 'product_group_attributes')[0];
+}
+
+
+/**
+ * Create the product group custom field created on sticky.io and return it.
+ * @returns {Object}
+ */
+function createStickyioProductGroupCustomField() {
+    let endpoint = 'stickyio.http.post.custom_fields';
+    let params = {};
+    params.body = {
+        'name': 'product_group_attributes',
+        'field_type_id': 1, // Type for Text
+        'type_id': 3, // Type for Product
+        'is_multi': 0, // Not used but required
+        'token_key': 'product_group_attributes' // Not used but required
+    };
+    let response = stickyioAPI(endpoint).call(params);
+    if (response.object.result.status !== 'SUCCESS') {
+        throw new Error('Custom field could not be created.')
+    }
+    return response.object.result.data;
+}
+
+/**
+ * Sync the product group custom field with sticky.io.
+ */
+function updateStickyioProductGroupCustomField(product, productGroupCustomField) {
+    let endpoint = 'stickyio.http.post.products.custom_fields';
+    let params = {};
+    params.id = product.custom.stickyioProductID;
+    params.helper = 'custom_fields';
+    params.body = {
+        'custom_fields': [
+            {
+                'id': productGroupCustomField.id,
+                'value': product.custom.stickyioFilters
+            },
+        ]
+    };
+    let response = stickyioAPI(endpoint).call(params);
+    if (response.object.result.status !== 'SUCCESS') {
+        throw new Error('Custom field could not be synced.')
+    }
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2829,4 +2895,8 @@ module.exports = {
     getCancellationNoteTemplates: getCancellationNoteTemplates,
     getCancellationRequiredConfig: getCancellationRequiredConfig,
     getMulticurrencyObject: getMulticurrencyObject,
+    getAllStickyioCustomFields: getAllStickyioCustomFields,
+    getStickyioProductGroupCustomField: getStickyioProductGroupCustomField,
+    createStickyioProductGroupCustomField: createStickyioProductGroupCustomField,
+    updateStickyioProductGroupCustomField: updateStickyioProductGroupCustomField,
 };
