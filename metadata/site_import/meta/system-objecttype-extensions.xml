@@ -450,7 +450,7 @@
                 </value-definitions>
             </attribute-definition>
             <attribute-definition attribute-id="stickyioFilters">
-                <display-name xml:lang="x-default">Filters for prodcut groups</display-name>
+                <display-name xml:lang="x-default">Filters for product groups</display-name>
                 <type>string</type>
                 <localizable-flag>false</localizable-flag>
                 <site-specific-flag>false</site-specific-flag>
