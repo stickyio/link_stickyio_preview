@@ -2829,6 +2829,9 @@ function createStickyioProductGroupCustomField() {
     return response.object.result.data;
 }
 
+/**
+ * Sync the product group custom field with sticky.io.
+ */
 function updateStickyioProductGroupCustomField(product, productGroupCustomField) {
     let endpoint = 'stickyio.http.post.products.custom_fields';
     let params = {};
