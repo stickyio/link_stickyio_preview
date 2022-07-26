@@ -213,7 +213,7 @@
         data.forEach(preference => {
             if (preference.gatewayId === "") {
                 error = true;
-                message = "Changes not saved. Gateway ID can not be empty.";
+                message = "Changes cannot be saved. Gateway ID cannot be empty.";
             }
             let dups = data.filter(value => value.locale === preference.locale && value.currency === preference.currency)
             if (dups.length > 1) {
