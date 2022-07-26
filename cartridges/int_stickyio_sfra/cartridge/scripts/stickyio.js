@@ -202,7 +202,7 @@ function createShippingMethod(shippingMethod) {
     var params = {};
     params.body = {};
     params.body.name = thisShippingMethod.displayName;
-    params.body.description = thisShippingMethod.description;
+    params.body.description = thisShippingMethod.description ? thisShippingMethod.description : thisShippingMethod.displayName;
     // The rest of these fields are required, but do not matter
     params.body.type_id = 1;
     params.body.service_code = 'ABC';
@@ -228,7 +228,7 @@ function updateShippingMethod(shippingMethod, stickyioShippingMethodID) {
     params.body = {};
     params.id = stickyioShippingMethodID;
     params.body.name = shippingMethod.displayName;
-    params.body.description = shippingMethod.description;
+    params.body.description = shippingMethod.description ? shippingMethod.description : shippingMethod.displayName;
     var stickyioResponse = stickyioAPI('stickyio.http.put.shipping').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return stickyioResponse.object.result.data.id;
