@@ -202,7 +202,7 @@ function createShippingMethod(shippingMethod) {
     var params = {};
     params.body = {};
     params.body.name = thisShippingMethod.displayName;
-    params.body.description = thisShippingMethod.description;
+    params.body.description = thisShippingMethod.description ? thisShippingMethod.description : thisShippingMethod.displayName;
     // The rest of these fields are required, but do not matter
     params.body.type_id = 1;
     params.body.service_code = 'ABC';
@@ -228,7 +228,7 @@ function updateShippingMethod(shippingMethod, stickyioShippingMethodID) {
     params.body = {};
     params.id = stickyioShippingMethodID;
     params.body.name = shippingMethod.displayName;
-    params.body.description = shippingMethod.description;
+    params.body.description = shippingMethod.description ? shippingMethod.description : shippingMethod.displayName;
     var stickyioResponse = stickyioAPI('stickyio.http.put.shipping').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return stickyioResponse.object.result.data.id;
@@ -1644,6 +1644,9 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
             updateProductID(product, existantProduct.stickyioProductID);
             newProduct = false;
         }
+        if (product.custom.stickyioProductID) {
+            newProduct = false;
+        }
     }
     var productChange = false;
     var stickyioData = {};
@@ -1663,12 +1666,18 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
     body.product_max_quantity = 100;
     body.taxable = true;
     body.shippable = true;
+    let productGroupJSON = createProductGroupProductJSON(product);
+    setProductGroupProductAttribute(product, productGroupJSON);
+    body.product_group_attributes = JSON.stringify(productGroupJSON);
+    body.disable_product_swap = 0; // TODO Update this once UI for managing product swap is ready
     if (productChange && product.custom.stickyioProductID !== null && (product.isMaster() || product.isProduct())) {
         if (!newProduct) { // update the product in sticky.io
             apiCall = 'stickyio.http.post.product_update';
             params.body = {};
             params.body.product_id = {};
             params.body.product_id[product.custom.stickyioProductID] = body;
+            params.body.product_group_attributes = JSON.stringify(productGroupJSON);
+            params.body.disable_product_swap = 0; // TODO Update this once UI for managing product swap is ready
             stickyioData = { stickyioResponse: stickyioAPI(apiCall).call(params), productChange: productChange, newProduct: newProduct };
         }
     }
@@ -2858,6 +2867,48 @@ function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, 
     return stickyioResponse.object.result.response_message;
 }
 
+/**
+ * Fetch all the custom fields created on sticky.io
+ * @returns {Array}
+ */
+function getAllStickyioCustomFields() {
+    let endpoint = 'stickyio.http.get.custom_fields';
+    let params = {};
+    let response = stickyioAPI(endpoint).call(params);
+    return response.object.result.data;
+}
+
+/**
+ * Creates the product group JSON
+ * @param product
+ * @return {{Filters: {'SFCC-Categories': *[]}}}
+ */
+function createProductGroupProductJSON(product) {
+    let productGroupJSON = {
+        'Filters': {
+            'SFCC-Categories': []
+        }
+    };
+    let categories = product.categories.toArray();
+    categories.forEach(category => {
+        let categoryData = {};
+        categoryData[category.displayName] = category.ID;
+        productGroupJSON.Filters['SFCC-Categories'].push(categoryData);
+    })
+    return productGroupJSON;
+}
+
+/**
+ * Set the product group JSON property on the SFCC product
+ * @param product
+ * @param property
+ */
+function setProductGroupProductAttribute(product, property) {
+    Transaction.wrap(function () {
+        product.custom.stickyioFilters = property;
+    });
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2904,4 +2955,6 @@ module.exports = {
     getMulticurrencyObject: getMulticurrencyObject,
     getSwapProducts:getSwapProducts,
     subscriptionOrderUpdate:subscriptionOrderUpdate,
+    getAllStickyioCustomFields: getAllStickyioCustomFields,
+    createProductGroupProductJSON: createProductGroupProductJSON,
 };
