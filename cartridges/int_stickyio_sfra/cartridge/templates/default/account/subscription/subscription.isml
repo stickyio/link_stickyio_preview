@@ -59,17 +59,28 @@
                             </isif>
                             <p>
                                 ${Resource.msg('label.subscriptionmanagement.nextrecurring','stickyio',null)}: 
+                                <i class="fa fa-calendar-times-o"></i>
                                 <isif condition="${subscription.stickyioAllowRecurring === true}">
                                     <input type="text" size="11" class="datepicker" placeholder="${subscription.recurring_date}" data-initialvalue="${subscription.recurring_date}" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'recur_at', 'sid', subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" value="${subscription.recurring_date}"/>
-                                    <p class="hint">${Resource.msg('label.subscriptionmanagement.hint', 'stickyio', null)}</p>
                                 <iselse/>
                                     ${subscription.recurring_date}
                                 </isif>
                             </p>
+                            <hr/>
                             <p><a href="#stickyDiv" class="stickyAddressShow" data-toggle="collapse">Edit Shipping Address</a></p>
                             <isinclude template="account/subscription/subscriptionAddress"/>
+                            <hr/>
                             <p><a href="#stickyDivCreditCard" class="stickyCreditCardShow" data-toggle="collapse">Edit Payment</a></p>
                             <isinclude template="account/subscription/subscriptionCreditCard"/>
+
+                            <isif condition="${pdict.showProductSwapUI === true}">
+                                <hr/>
+                                <div class="product-edit">
+                                    <a id="product-edit-url" href="${URLUtils.url('Subscriptions-GetProduct', 'productLineItem', JSON.stringify(subscription.orderData.productLineItem), 'newProductID', '')}" class="edit" data-toggle="modal" data-target="#productSwapModal">
+                                        ${Resource.msg('label.subscriptionmanagement.update_product', 'stickyio', null)}
+                                    </a>
+                                </div>
+                            </isif>
                         </isif>
                         <isif condition="${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + subscription.subscriptionID).value}">
                             <p class="stickyiosubscriptionresponse">${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + subscription.subscriptionID).value}</p>

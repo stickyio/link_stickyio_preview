@@ -6,6 +6,9 @@ const ACTION_TERMINATE_NEXT = 'terminate_next';
 var server = require('server');
 var Site = require('dw/system/Site');
 var stickyioEnabled = require('dw/system/Site').getCurrent().getCustomPreferenceValue('stickyioEnabled');
+let ProductMgr = require('dw/catalog/ProductMgr');
+let ProductFactory = require('*/cartridge/scripts/factories/product');
+let renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
 
 if (stickyioEnabled) {
     var stickyio = require('~/cartridge/scripts/stickyio');
@@ -151,7 +154,13 @@ if (stickyioEnabled) {
             addressForm.clear();
             var creditCardForm = server.forms.getForm('creditCard');
             creditCardForm.clear();
- 	        
+
+            let stickyioProductSwapEnabled = Site.getCurrent().getCustomPreferenceValue('stickyioProductSwapEnabled');
+            let stickyioDisableProductSwap = subscription.orderData.productLineItem.custom.stickyioDisableProductSwap;
+            let isPrepaid = subscription.orderData.productLineItem.custom.stickyioTermsID > 0 ? true : false;
+            let showProductSwapUI = stickyioProductSwapEnabled && !stickyioDisableProductSwap && !isPrepaid;
+            subscription.orderData.productLineItem.custom.stickyOrderNumber = subscription.orderNumbers[0].stickyioOrderNo;
+
             if (order && orderCustomerNo === currentCustomerNo) { // additional check
                 // make our productModelOption data easier to deal with
                 res.render('account/subscriptionDetails', {
@@ -162,7 +171,8 @@ if (stickyioEnabled) {
                     expirationYears : creditCardExpirationYears,
                     exitLinkText: exitLinkText,
                     exitLinkUrl: exitLinkUrl,
-                    breadcrumbs: breadcrumbs
+                    breadcrumbs: breadcrumbs,
+                    showProductSwapUI: showProductSwapUI
                 });
             } else if (subscriptions.length === 0) {
                 res.render('account/subscriptionDetails', {
@@ -499,7 +509,118 @@ if (stickyioEnabled) {
             next();     
         }
     );
-    
+
+    server.get('GetProduct', function (req, res, next) {
+        let productLineItem = JSON.parse(req.querystring.productLineItem);
+        let selectedQuantity = (req.querystring.quantity && parseInt(req.querystring.quantity) > 0) ? parseInt(req.querystring.quantity) : productLineItem.quantity;
+
+        let swapProducts = JSON.stringify(stickyio.getSwapProducts(productLineItem.productID));
+        let newProductID = req.querystring.newProductID ? req.querystring.newProductID : '';
+        let newProduct = newProductID ? ProductMgr.getProduct(newProductID.toString()) : null;
+        let newProductName = newProduct ? newProduct.name : '';
+        let images = newProduct ? newProduct.getImages('small') : null;
+        let newProductImage = images ? images[0].absURL.toString() : '';
+        let currencysymbol = Resource.msg('productdetail.currencysymbol.' + Site.getCurrent().getDefaultCurrency(), 'stickyio', '$');
+        let priceDelta = newProduct ? (newProduct.priceModel.price.value * productLineItem.quantity - productLineItem.price) : 0;
+        let newProductPriceDelta = priceDelta < 0 ? '-' + currencysymbol + Math.abs(priceDelta).toFixed(2) : '+' + currencysymbol + Math.abs(priceDelta).toFixed(2); 
+
+        // Load current product info
+        let pliProduct = {
+            pid: newProductID ? newProductID : productLineItem.productID,
+            quantity: selectedQuantity
+        };
+
+        let product = ProductFactory.get(pliProduct);
+
+        product.stickyio.stickyioOID = productLineItem.custom.stickyioOfferID;
+        product.stickyio.stickyioBMID = productLineItem.custom.stickyioBillingModelID;
+        product.stickyio.stickyioTID = productLineItem.custom.stickyioTermsID;
+        product.stickyio.stickyioDisableProductSwap = productLineItem.custom.stickyioDisableProductSwap;
+        product.stickyio.stickyioOneTimePurchase = false;
+        product.stickyio.isProductSwap = true;
+
+        // Set prepaid offer to hidden in order to hide it in the UI
+        Object.keys(product.stickyio.offers).forEach(key => {
+            if (product.stickyio.offers[key].name === 'Prepaid') {
+                product.stickyio.offers[key].hidden = true;
+            }
+        });
+
+        let context = {
+            productLineItem: productLineItem,
+            product: product,
+            swapProducts: swapProducts,
+            newProductID: newProductID,
+            newProductName: newProductName,
+            newProductImage: newProductImage,
+            newProductPriceDelta: newProductPriceDelta,
+            template: 'product/productSwapQuickView.isml'
+        };
+
+        res.setViewData(context);
+
+        this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
+            let viewData = res.getViewData();
+
+            res.json({
+                renderedTemplate: renderTemplateHelper.getRenderedHtml(viewData, viewData.template)
+            });
+        });
+
+        next();
+    });
+
+    server.get('GetSwapProduct', function (req, res, next) {
+        let productLineItem = JSON.parse(req.querystring.productLineItem);
+        let swapProducts = stickyio.getSwapProducts(productLineItem.productID);
+        let newProductID = req.querystring.newProductID;
+
+        let context = {
+            productLineItem: productLineItem,
+            swapProducts: swapProducts,
+            newProductID: newProductID,
+            template: 'product/productSwapView.isml'
+        };
+
+        res.setViewData(context);
+
+        this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
+            let viewData = res.getViewData();
+
+            res.json({
+                renderedTemplate: renderTemplateHelper.getRenderedHtml(viewData, viewData.template)
+            });
+        });
+
+        next();
+    });
+
+    server.get('SaveProduct', function (req, res, next) {
+        let message = 'Product successfully swapped';
+        
+        let productLineItem = JSON.parse(req.querystring.productLineItem);
+        let newProductID = req.querystring.newProductID ? req.querystring.newProductID : productLineItem.productID;
+        let newProduct = newProductID ? ProductMgr.getProduct(newProductID.toString()) : null;
+        let newRecurringQuantity = (req.querystring.quantity && parseInt(req.querystring.quantity) > 0) ? parseInt(req.querystring.quantity) : productLineItem.quantity;
+        let newRecurringVariantId = req.querystring.newProductVariantID ? req.querystring.newProductVariantID : 0;
+
+        if (newProduct) {
+            let stickyOrderNumber = productLineItem.custom.stickyOrderNumber;
+            let stickyProductId = productLineItem.stickyProductID;
+            let newRecurringProductId = newProduct.custom.stickyioProductID;
+
+            let responseMessage = stickyio.subscriptionOrderUpdate(stickyOrderNumber, stickyProductId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity)
+            if (responseMessage != '') {
+                message = responseMessage;
+            }
+        } 
+        
+        res.json({
+            message: message
+        });
+
+        next();
+    });
 }
 
 module.exports = server.exports();

@@ -449,6 +449,17 @@
                     </value-definition>
                 </value-definitions>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioDisableProductSwap">
+                <display-name xml:lang="x-default">Disable product swap</display-name>
+                <description xml:lang="x-default">Disable product swap</description>
+                <type>boolean</type>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioFilters">
                 <display-name xml:lang="x-default">Filters for product groups</display-name>
                 <type>string</type>
@@ -475,6 +486,7 @@
                 <attribute attribute-id="stickyioBillingModelConsumerSelectable"/>
                 <attribute attribute-id="stickyioTermsConsumerSelectable"/>
                 <attribute attribute-id="stickyioVertical"/>
+                <attribute attribute-id="stickyioDisableProductSwap"/>
             </attribute-group>
         </group-definitions>
     </type-extension>

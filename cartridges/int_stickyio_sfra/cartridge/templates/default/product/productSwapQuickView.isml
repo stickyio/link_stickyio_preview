@@ -1,0 +1,115 @@
+<isset name="productLineItem" value="${pdict.productLineItem}" scope="page"/>
+<isset name="product" value="${pdict.product}" scope="page"/>
+<isset name="swapProducts" value="${pdict.swapProducts}" scope="page"/>
+<isset name="newProductID" value="${pdict.newProductID}" scope="page"/>
+<isset name="newProductName" value="${pdict.newProductName}" scope="page"/>
+<isset name="newProductImage" value="${pdict.newProductImage}" scope="page"/>
+<isset name="newProductPriceDelta" value="${pdict.newProductPriceDelta}" scope="page"/>
+<isset name="isBundle" value="${false}" scope="page"/>
+<div class="modal-body">
+    <div class="row">
+        <!-- Product Images Carousel -->
+        <isinclude template="product/components/imageCarousel" />
+
+        <!-- Product Name and Number -->
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col">
+                    <section>
+                        <h1 class="product-name">${product.productName}</h1>
+                    </section>
+                </div>
+            </div>
+
+            <div class="detail-panel">
+                <!-- Attributes -->
+                <div class="attributes">
+                    <isinclude template="product/components/mainAttributes" />
+
+                    <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+                        <div data-attr="${attr.id}" class="swatch row">
+                            <div class="col-8">
+                                <isinclude template="product/components/variationAttribute" />
+                            </div>
+                        </div>
+                    </isloop>
+
+                    <!-- Quantity Drop Down Menu -->
+                    <div data-attr="${attr.id}" class="swatch row">
+                        <div class="attribute quantity col-4">
+                            <isinclude template="product/components/quantity" />
+                        </div>
+                    </div>    
+
+                    <!-- Offers -->
+                    <isif condition="${newProductID != '' && product.stickyio}">
+                        <div class="row stickyiosubscriptioncontainer" data-attr="stickyiosubscription">
+                            <isinclude template="stickyio/stickyioProduct" />
+                        </div>
+                    </isif>  
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer row align-items-end">
+    <div class="hidden-xs-down col availability align-self-end global-availability">
+        <div class="row">
+            <div class="col">
+                <isif condition="${swapProducts.length > 1 && newProductID == ''}">
+                    <button id="swap-btn" class="btn btn-primary swapBtn" 
+                        data-href="${URLUtils.url('Subscriptions-GetSwapProduct', 
+                        'productLineItem', JSON.stringify(productLineItem),
+                        'swapProducts', JSON.stringify(swapProducts),
+                        'newProductID', newProductID)}"
+                    >
+                        ${Resource.msg('button.swap_product', 'common', null)}
+                    </button>
+                <iselse/>
+                    <isif condition="${swapProducts.length > 1 && newProductID != ''}">
+                        <div class="col">
+                            <strong>SWAPPING FROM</strong>
+
+                            <div class="row" style="margin-top: 1em">
+                                <div class="col-4 hidden-xs-down">
+                                    <img class="img-fluid" src="${newProductImage}" alt="${newProductName}" title="${newProductName}">
+                                </div>
+
+                                <div class="col">
+                                    <div class="row">
+                                        <strong>${newProductName}</strong>
+                                    </div>  
+
+                                    <div class="row">
+                                        <p>Price Difference: <strong>${newProductPriceDelta}</strong></p>
+                                    </div>  
+                                </div>
+                            </div>  
+                        </div>
+                    </isif>          
+                </isif>
+            </div>   
+
+            <div class="col align-self-end">
+                <button id="save-btn" class="btn btn-primary pull-right saveBtn"
+                    data-href="${URLUtils.url('Subscriptions-SaveProduct', 
+                    'productLineItem', JSON.stringify(productLineItem))}"
+                >
+                    ${Resource.msg('button.save', 'common', null)}
+                </button>
+
+                <isif condition="${newProductID != ''}">
+                    <button id="previous-btn" class="btn btn-link pull-right previousBtn" 
+                        data-href="${URLUtils.url('Subscriptions-GetSwapProduct', 
+                        'productLineItem', JSON.stringify(productLineItem),
+                        'swapProducts', JSON.stringify(swapProducts),
+                        'newProductID', newProductID)}"
+                    >
+                        ${Resource.msg('button.previous', 'common', null)}
+                    </button>
+                </isif>
+            </div>
+        </div>
+    </div>
+</div>
