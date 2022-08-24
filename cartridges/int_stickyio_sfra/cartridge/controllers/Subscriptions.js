@@ -539,13 +539,50 @@ if (stickyioEnabled) {
         product.stickyio.stickyioOneTimePurchase = false;
         product.stickyio.isProductSwap = true;
 
+        let nextOfferId = 0;
+        let nextBillingModelId = 0;
+
         // Set prepaid offer to hidden in order to hide it in the UI
-        if (product.stickyio.offers) {
-            Object.keys(product.stickyio.offers).forEach(key => {
-                if (product.stickyio.offers[key].name === 'Prepaid') {
-                    product.stickyio.offers[key].hidden = true;
-                }
+        if (newProductID != '' && product.stickyio.offers) {
+            let offerIds = [];
+            let firstOfferId = 0;
+
+            Object.keys(product.stickyio.offers).forEach(function (offerId) {
+                offerIds.push(offerId)
             });
+
+            for (let i = 0; i < offerIds.length; i++) {
+                let offerId = offerIds[i];
+                
+                if (product.stickyio.offers[offerId].terms) {
+                    product.stickyio.offers[offerId].hidden = true;
+                } else {
+                    if (firstOfferId == 0) 
+                        firstOfferId = offerId;
+                    
+                    if (offerId == productLineItem.custom.stickyioOfferID)
+                        nextOfferId = offerId;
+                }
+            }
+
+            if (nextOfferId == 0) {
+                nextOfferId = firstOfferId;
+            }
+
+            if (nextBillingModelId == 0) {
+                let thisOffer = product.stickyio.offers[nextOfferId];
+                let firstBillingModelId = 0;
+
+                for (let i = 0; i < thisOffer.billingModels.length; i++) {
+                    if (thisOffer.billingModels[i].id == productLineItem.custom.stickyioBillingModelID)
+                        nextBillingModelId = productLineItem.custom.stickyioBillingModelID;
+                    else if (firstBillingModelId == 0)
+                        firstBillingModelId = thisOffer.billingModels[i].id
+                }
+
+                if (nextBillingModelId == 0)
+                    nextBillingModelId = firstBillingModelId;
+            }
         }
 
         let oldProduct = newProductID != '' ? ProductMgr.getProduct(productLineItem.productID) : null;
@@ -562,7 +599,9 @@ if (stickyioEnabled) {
             newProductImage: newProductImage,
             newProductPriceDelta: newProductPriceDelta,
             oldProductName: oldProductName,
-            oldProductImage:oldProductImage,
+            oldProductImage: oldProductImage,
+            nextOfferId: nextOfferId,
+            nextBillingModelId: nextBillingModelId,
             template: 'product/productSwapQuickView.isml'
         };
 
@@ -625,7 +664,16 @@ if (stickyioEnabled) {
             let stickyProductId = productLineItem.stickyProductID;
             let newRecurringProductId = newProduct.custom.stickyioProductID;
 
-            let responseMessage = stickyio.subscriptionOrderUpdate(stickyOrderNumber, stickyProductId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity)
+            let offerId = req.querystring.offer;
+            let billingModelId = req.querystring.billingmodel;
+
+            if (offerId > 0 || billingModelId > 0) {
+                // Update the offer
+                stickyio.subscriptionOrderUpdate(stickyOrderNumber, stickyProductId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, offerId, billingModelId)    
+            }
+
+            // Update next recurring product
+            let responseMessage = stickyio.subscriptionOrderUpdate(stickyOrderNumber, stickyProductId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, 0, 0)
             if (responseMessage != '') {
                 message = Resource.msg('label.product_update_error', 'common', null);
             }   

@@ -125,12 +125,3 @@ ul.pagination li a:hover:not(.active) {background-color: #ddd;}
     from {bottom: 0; opacity: 0;}
     to {bottom: 30px; opacity: 1;}
 }
-
-/* Radio label */
-input[type=radio],
-input.radio {
-    float: left;
-    clear: none;
-    margin-right: .4rem;
-    margin-top: .4rem;
-}

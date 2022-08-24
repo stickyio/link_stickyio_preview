@@ -16,6 +16,7 @@ let newProductID = '';
 let newProductVariantID = 0;
 let currentProductID = '';
 let quantity = 0;
+
 const activeColor = '#dcf1f9';
 const inactiveColor = '#e5e9ee';
 
@@ -473,6 +474,10 @@ $('body').on('click', '.saveBtn', function () {
     }
  
     actionUrl += '&quantity=' + quantity;
+
+    let nextOfferId = getNextOfferId();
+    let nextBillingModelId = getNextBillingModelId(nextOfferId);
+    actionUrl += '&offer=' + nextOfferId + '&billingmodel=' + nextBillingModelId;
  
     getStickyProductVariantId(save, actionUrl);
 });
@@ -637,4 +642,23 @@ function getStickyProductVariantId(callback = null, actionUrl = null) {
     } else if (callback && actionUrl) {
         callback(actionUrl);
     }
+}
+
+function getNextOfferId() {
+    return $("input[name='offerRadio']:checked").val();
+}
+
+function getNextBillingModelId(nextOfferId) {
+    let nextBillingModelId = 0;
+
+    $(".billingModelSelector").each(function (index, element) {
+        let value = $(element).val();
+
+        let valueArray = value.split('_');
+        if (valueArray.length == 2 && valueArray[0] == nextOfferId) {
+            nextBillingModelId = valueArray[1];
+        }
+    });
+
+    return nextBillingModelId;
 }

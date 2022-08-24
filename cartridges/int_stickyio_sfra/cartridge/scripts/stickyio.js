@@ -2847,9 +2847,11 @@ function getMulticurrencyObject() {
  * @param {number} newRecurringProductId - new recurring product ID
  * @param {number} newRecurringVariantId - new recurring variant ID
  * @param {number} newRecurringQuantity - new recurring quantity
+ * @param {number} offerId - new offer ID
+ * @param {number} billingModelId - new billing model ID
  * @returns {string} - Response message
  */
-function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity) {
+function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, offerId, billingModelId) {
     var params = {};
     var body = {};
     body.order_id = orderNumber;
@@ -2857,6 +2859,15 @@ function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, 
     body.new_recurring_product_id = newRecurringProductId;
     body.new_recurring_variant_id = newRecurringVariantId;
     body.new_recurring_quantity = newRecurringQuantity;
+
+    if (offerId > 0) {
+        body.new_recurring_offer_id = offerId;
+    }
+
+    if (billingModelId > 0) {
+        body.billing_model_id = billingModelId;
+    }
+
     params.body = body;
 
     var stickyioResponse = stickyioAPI('stickyio.http.post.subscription_order_update').call(params);

@@ -7,6 +7,8 @@
 <isset name="oldProductName" value="${pdict.oldProductName}" scope="page"/>
 <isset name="oldProductImage" value="${pdict.oldProductImage}" scope="page"/>
 <isset name="newProductPriceDelta" value="${pdict.newProductPriceDelta}" scope="page"/>
+<isset name="nextOfferId" value="${pdict.nextOfferId}" scope="page"/>
+<isset name="nextBillingModelId" value="${pdict.nextBillingModelId}" scope="page"/>
 <isset name="isBundle" value="${false}" scope="page"/>
 <div class="modal-body">
     <div class="row">
@@ -44,9 +46,27 @@
                     </div>    
 
                     <!-- Offers -->
-                    <isif condition="${newProductID != '' && product.stickyio}">
-                        <div class="row stickyiosubscriptioncontainer" data-attr="stickyiosubscription">
-                            <isinclude template="stickyio/stickyioProduct" />
+                    <isif condition="${newProductID != '' && product.stickyio.offers}">
+                        <br/>
+                        <label class="subscriptionlabel" for="stickyioproductbillingmodelselect">${Resource.msg('productdetail.title', 'stickyio', null)}:</label>
+
+                        <div>
+                            <isloop items="${Object.keys(product.stickyio.offers)}" var="offer" status="offerStatus">
+                                <isif condition="${!product.stickyio.offers[offer].hidden}">
+                                    <input type="radio" name="offerRadio" id="offerRadio" value="${offer}" ${offer === nextOfferId ? 'checked' : ''}/>
+                                    <label>${product.stickyio.offers[offer].name}</label>
+                                    
+                                    <select class="billingModelSelector custom-select">
+                                        <option value="">${Resource.msg('productdetail.selectdefault', 'stickyio', null)}</option>
+
+                                        <isloop items="${product.stickyio.offers[offer].billingModels}" var="billingmodel">
+                                            <option value="${offer}_${billingmodel.id}" ${nextOfferId === offer && nextBillingModelId.toString() === billingmodel.id ? 'selected' : ''}>
+                                                ${billingmodel.name}
+                                            </option>
+                                        </isloop>
+                                    </select>
+                                </isif>	
+                            </isloop>
                         </div>
                     </isif>  
                 </div>
