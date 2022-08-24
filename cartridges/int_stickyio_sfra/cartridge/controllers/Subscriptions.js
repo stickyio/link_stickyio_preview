@@ -157,7 +157,7 @@ if (stickyioEnabled) {
 
             let stickyioProductSwapEnabled = Site.getCurrent().getCustomPreferenceValue('stickyioProductSwapEnabled');
             let stickyioDisableProductSwap = subscription.orderData.productLineItem.custom.stickyioDisableProductSwap;
-            let isPrepaid = subscription.orderData.productLineItem.custom.stickyioTermsID > 0 ? true : false;
+            let isPrepaid = subscription.orderData.productLineItem.custom.stickyioTermsID.length == 1 && parseInt(subscription.orderData.productLineItem.custom.stickyioTermsID) == 0 ? false : true;
             let showProductSwapUI = stickyioProductSwapEnabled && !stickyioDisableProductSwap && !isPrepaid;
             subscription.orderData.productLineItem.custom.stickyOrderNumber = subscription.orderNumbers[0].stickyioOrderNo;
 
@@ -518,7 +518,7 @@ if (stickyioEnabled) {
         let newProductID = req.querystring.newProductID ? req.querystring.newProductID : '';
         let newProduct = newProductID ? ProductMgr.getProduct(newProductID.toString()) : null;
         let newProductName = newProduct ? newProduct.name : '';
-        let images = newProduct ? newProduct.getImages('small') : null;
+        let images = newProduct ? newProduct.getImages('large') : null;
         let newProductImage = images ? images[0].absURL.toString() : '';
         let currencysymbol = Resource.msg('productdetail.currencysymbol.' + Site.getCurrent().getDefaultCurrency(), 'stickyio', '$');
         let priceDelta = newProduct ? (newProduct.priceModel.price.value * productLineItem.quantity - productLineItem.price) : 0;
@@ -540,11 +540,18 @@ if (stickyioEnabled) {
         product.stickyio.isProductSwap = true;
 
         // Set prepaid offer to hidden in order to hide it in the UI
-        Object.keys(product.stickyio.offers).forEach(key => {
-            if (product.stickyio.offers[key].name === 'Prepaid') {
-                product.stickyio.offers[key].hidden = true;
-            }
-        });
+        if (product.stickyio.offers) {
+            Object.keys(product.stickyio.offers).forEach(key => {
+                if (product.stickyio.offers[key].name === 'Prepaid') {
+                    product.stickyio.offers[key].hidden = true;
+                }
+            });
+        }
+
+        let oldProduct = newProductID != '' ? ProductMgr.getProduct(productLineItem.productID) : null;
+        let oldProductName = oldProduct ? oldProduct.name : '';
+        let oldImages = oldProduct ? oldProduct.getImages('small') : null;
+        let oldProductImage = oldImages ? oldImages[0].absURL.toString() : '';
 
         let context = {
             productLineItem: productLineItem,
@@ -554,6 +561,8 @@ if (stickyioEnabled) {
             newProductName: newProductName,
             newProductImage: newProductImage,
             newProductPriceDelta: newProductPriceDelta,
+            oldProductName: oldProductName,
+            oldProductImage:oldProductImage,
             template: 'product/productSwapQuickView.isml'
         };
 
@@ -596,23 +605,30 @@ if (stickyioEnabled) {
     });
 
     server.get('SaveProduct', function (req, res, next) {
-        let message = 'Product successfully swapped';
+        let message = '';
         
         let productLineItem = JSON.parse(req.querystring.productLineItem);
         let newProductID = req.querystring.newProductID ? req.querystring.newProductID : productLineItem.productID;
         let newProduct = newProductID ? ProductMgr.getProduct(newProductID.toString()) : null;
         let newRecurringQuantity = (req.querystring.quantity && parseInt(req.querystring.quantity) > 0) ? parseInt(req.querystring.quantity) : productLineItem.quantity;
-        let newRecurringVariantId = req.querystring.newProductVariantID ? req.querystring.newProductVariantID : 0;
+        let newRecurringVariantId = req.querystring.newProductVariantID ? parseInt(req.querystring.newProductVariantID) : 0;
 
-        if (newProduct) {
+        if (newProductID !== productLineItem.productID || 
+            newRecurringVariantId !== productLineItem.stickyVariantID || 
+            newRecurringQuantity !== productLineItem.quantity) {
+            message = Resource.msg('label.product_successfully_updated', 'common', null);
+
+            if (newProductID !== productLineItem.productID)
+                message = Resource.msg('label.product_successfully_swapped', 'common', null);
+
             let stickyOrderNumber = productLineItem.custom.stickyOrderNumber;
             let stickyProductId = productLineItem.stickyProductID;
             let newRecurringProductId = newProduct.custom.stickyioProductID;
 
             let responseMessage = stickyio.subscriptionOrderUpdate(stickyOrderNumber, stickyProductId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity)
             if (responseMessage != '') {
-                message = responseMessage;
-            }
+                message = Resource.msg('label.product_update_error', 'common', null);
+            }   
         } 
         
         res.json({

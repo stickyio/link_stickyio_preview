@@ -115,7 +115,7 @@ $('body').on('click', '.stickyCreditCardShow', function () {
 
 $('.stickyAddressForm').on('submit', function (e) {
     e.preventDefault();
-	
+ 
     $.ajax({
         url: $(this).attr('action'),
         method: 'POST',
@@ -129,7 +129,7 @@ $('.stickyAddressForm').on('submit', function (e) {
 
 $('.stickyPaymentForm').on('submit', function (e) {
     e.preventDefault();
-	
+ 
     $.ajax({
         url: $(this).attr('action'),
         method: 'POST',
@@ -223,7 +223,7 @@ function getModalHtmlElement() {
  * replaces the content in the modal window for product variation to be edited.
  * @param {string} editProductUrl - url to be used to retrieve a new product model
  */
- function fillModalElement(editProductUrl, callback = null) {
+function fillModalElement(editProductUrl, callback = null) {
     $('.modal-body').spinner().start();
     $.ajax({
         url: editProductUrl,
@@ -315,7 +315,7 @@ function compare(a, b) {
     }
 
     return 0;
-  }
+}
 
 function isCurrentProduct(product) {
     return product.isCurrent === 1;
@@ -359,12 +359,8 @@ function loadSwapProducts() {
                             <small class="price text-muted" style="float: right"></small>
                         </div>
 
-                        <div class="card-body">
-                            <article class="photo">
-                                <div style="width:100%; text-align:center">
-                                    <img class="image" src="data:," alt style="width:150px; height:150px;">
-                                </div>
-                            </article>
+                        <div class="card-body d-flex align-items-center justify-content-center">
+                            <img class="image" src="data:," alt style="height:150px;">
                         </div>
 
                         <div id="card-footer-${values.id}" class="card-footer d-flex justify-content-center" style="background-color: ${bgColor}">
@@ -444,36 +440,41 @@ function toast(message) {
     snackbar.innerText = message;
     snackbar.className = "show";
    
-    setTimeout(function(){ snackbar.className = snackbar.className.replace("show", ""); }, 3000);
+    setTimeout(function(){ snackbar.className = snackbar.className.replace("show", ""); }, 4000);
 }
 
-$('body').on('click', '.saveBtn', function () {
-    $('#productSwapModal').modal('hide');
-
-    let actionUrl = document.getElementById("save-btn").getAttribute('data-href');
-
-    if (newProductID.length > 0) {
-        actionUrl += '&newProductID=' + newProductID;
-    }
-
+function save(actionUrl) {
     if (newProductVariantID > 0) {
         actionUrl += '&newProductVariantID=' + newProductVariantID;
-    }    
-
-    actionUrl += '&quantity=' + quantity;
-
+    }
+ 
     $.ajax({
         url: actionUrl,
         method: 'GET',
         dataType: 'json',
         success: function (data) {
-            console.log('Sucessfully updating product - message = ' + data.message);
-            toast(data.message);
+            if (data.message !== '') {
+                toast(data.message);
+            }
         },
         error: function () {
             console.log('Unable to swap product');
         }
     });
+}
+
+$('body').on('click', '.saveBtn', function () {
+    $('#productSwapModal').modal('hide');
+ 
+    let actionUrl = document.getElementById("save-btn").getAttribute('data-href');
+ 
+    if (newProductID.length > 0) {
+        actionUrl += '&newProductID=' + newProductID;
+    }
+ 
+    actionUrl += '&quantity=' + quantity;
+ 
+    getStickyProductVariantId(save, actionUrl);
 });
 
 $('body').on('click', '.product_swap_btn', function () {
@@ -564,6 +565,76 @@ $(document).on("click", "a.page" , function() {
     }
 });
 
-$('body').off('product:afterAttributeSelect').on('product:afterAttributeSelect', function (e, response) {
-    newProductVariantID = response.data.product.stickyio.stickyioVID ? response.data.product.stickyio.stickyioVID : 0;
-});
+function getStickyProductVariantId(callback = null, actionUrl = null) {
+    let value = '';
+    let url = '';
+    let params = '';
+    let dwvar = '';
+    let pid = '';
+    let quantity = '';
+    let color = '';
+    let newParams = '';
+    newProductVariantID = 0;
+ 
+    $(".custom-select").each(function (index, element) {
+        let classAttr = $(element).attr('class');
+
+        if (classAttr.indexOf('custom-select form-control select-') >= 0) {
+            let lastIndex = classAttr.lastIndexOf('select-');
+            let attrId = classAttr.slice(lastIndex+7, classAttr.length);
+ 
+            if (value === '') {
+                value = $('.select-' + attrId).find(':selected').val();
+                let valueArray = value.split('?');
+ 
+                if (valueArray.length >= 2) {
+                    url = valueArray[0];
+                    params = valueArray[1];
+ 
+                    let paramsArray = params.split('&');
+                    for (let i = 0; i < paramsArray.length; i++) {
+                        if (paramsArray[i].indexOf('dwvar_') >= 0 && dwvar === '') {
+                            let lastIndex = paramsArray[i].lastIndexOf('_');
+                            dwvar = paramsArray[i].slice(0, lastIndex+1);
+                        } else if (paramsArray[i].indexOf('pid') >= 0 && pid === '') {
+                            pid = paramsArray[i];
+                        } else if (paramsArray[i].indexOf('quantity') >= 0 && quantity === '') {
+                            quantity = paramsArray[i];
+                        }
+                    }
+                }
+            }
+
+            newParams += newParams === '' ? '' : '&';
+            newParams += dwvar + attrId + '=' + $('.select-' + attrId).find(':selected').attr('data-attr-value');
+        }
+    });
+
+    $(".color-attribute").each(function (index, element) {
+        let classAttr = $(element).attr('class');
+        let attrValue = $(element).attr('aria-describedby');
+        let label = $(element).attr('aria-label');
+    });
+ 
+    if (newParams !== '') {
+        newParams = color + '&' + newParams + '&' + pid + '&' + quantity;
+ 
+        $.ajax({
+            url: url + '?' + newParams,
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                newProductVariantID = data.product.stickyio.stickyioVID ? data.product.stickyio.stickyioVID : 0;
+ 
+                if (callback && actionUrl) {
+                    callback(actionUrl);
+                }
+            },
+            error: function () {
+                console.log('Unable to get sticky product variant id');
+            }
+        });
+    } else if (callback && actionUrl) {
+        callback(actionUrl);
+    }
+}

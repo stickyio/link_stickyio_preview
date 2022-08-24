@@ -2812,7 +2812,7 @@ function getMulticurrencyObject() {
 
         for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {
             let productGroup = stickyioResponse.object.result.data[i];
-            if (productGroup.products.includes(productId) && productGroup.system.indexOf(siteName) > 0) {
+            if (productGroup.products && productGroup.products.includes(productId) && productGroup.system.indexOf(siteName) > 0) {
                 productIds = productGroup.products;
                 break;
             }
