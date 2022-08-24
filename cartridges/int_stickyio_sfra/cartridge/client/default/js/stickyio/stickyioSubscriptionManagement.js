@@ -459,7 +459,7 @@ function save(actionUrl) {
             }
         },
         error: function () {
-            console.log('Unable to swap product');
+            toast('Unable to update product');
         }
     });
 }
@@ -636,7 +636,7 @@ function getStickyProductVariantId(callback = null, actionUrl = null) {
                 }
             },
             error: function () {
-                console.log('Unable to get sticky product variant id');
+                toast('Unable to get sticky product variant id');
             }
         });
     } else if (callback && actionUrl) {
