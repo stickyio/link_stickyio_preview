@@ -48,9 +48,7 @@
 					<isif condition="${stickyio.offers[offer].terms}">
 						<isset name="prepaid" value="true" scope="page" />
 					</isif>
-					<isif condition="${!stickyio.isProductSwap}">
 					<li data-oid="${offer}">
-					</isif>
 						<isif condition="${!stickyio.stickyioBillingModelConsumerSelectable || stickyio.offers[offer].billingModels.length === 1}">
 							<isset name="noSelectBMID" value="${stickyio.offers[offer].billingModels[0].id}" scope="page" />
 						</isif>
@@ -58,12 +56,10 @@
 						<input class="subscriptionselect" type="radio" name="subscriptionSelect" id="${radioID}_${(parseInt(offer) + 1).toFixed(0)}" value="${stickyio.offers[offer].name}" ${typeof (offerSelected) === 'undefined' && stickyio.stickyioOID && (parseInt(stickyio.stickyioOID, 10) + 1).toFixed(0) === (parseInt(offer, 10) + 1).toFixed(0) ? 'checked' : ''} />
 						<label for="${radioID}_${(parseInt(offer, 10) + 1).toFixed(0)}">${Resource.msg('productdetail.label.offer_' + offer, 'stickyio', stickyio.offers[offer].name)}</label>
 						
-						<isif condition="${!stickyio.isProductSwap}">
 						<select class="select-hiddenselect">
 							<option value="" selected>1</option>
 							<option value="${stickyio.stickyioBaseURL + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioOfferOptions=' + offer + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioBillingModelOptions='}${typeof (noSelectBMID) !== 'undefined' ? noSelectBMID : '0'}${'&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioTermOptions=0'}${prepaid === 'true' ? '&offerType=prepaid' : ''}">2</option>
 						</select>
-						</isif>
 
 						<isif condition="${stickyio.stickyioBillingModelConsumerSelectable}">
 							<isif condition="${stickyio.offers[offer].billingModels.length > 1}">
@@ -109,9 +105,7 @@
 								<p class="nomargin"><span class="stickyioproductbillingmodeldetails">${Resource.msg('productdetail.label.terms_' + stickyio.offers[offer].terms[0].id, 'stickyio', stickyio.offers[offer].terms[0].description)}</span></p>
 							</isif>
 						</isif>
-					<isif condition="${!stickyio.isProductSwap}">	
 					</li>
-					</isif>	
 				</isif>	
 			</isloop>
 			</ul>
