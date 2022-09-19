@@ -1644,6 +1644,9 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
             updateProductID(product, existantProduct.stickyioProductID);
             newProduct = false;
         }
+        if (product.custom.stickyioProductID) {
+            newProduct = false;
+        }
     }
     var productChange = false;
     var stickyioData = {};
@@ -1663,12 +1666,18 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
     body.product_max_quantity = 100;
     body.taxable = true;
     body.shippable = true;
+    let productGroupJSON = createProductGroupProductJSON(product);
+    setProductGroupProductAttribute(product, productGroupJSON);
+    body.product_group_attributes = JSON.stringify(productGroupJSON);
+    body.disable_product_swap = 0; // TODO Update this once UI for managing product swap is ready
     if (productChange && product.custom.stickyioProductID !== null && (product.isMaster() || product.isProduct())) {
         if (!newProduct) { // update the product in sticky.io
             apiCall = 'stickyio.http.post.product_update';
             params.body = {};
             params.body.product_id = {};
             params.body.product_id[product.custom.stickyioProductID] = body;
+            params.body.product_group_attributes = JSON.stringify(productGroupJSON);
+            params.body.disable_product_swap = 0; // TODO Update this once UI for managing product swap is ready
             stickyioData = { stickyioResponse: stickyioAPI(apiCall).call(params), productChange: productChange, newProduct: newProduct };
         }
     }
@@ -2785,6 +2794,132 @@ function getMulticurrencyObject() {
     return JSON.parse(multiCurrencyProperty);
 }
 
+/**
+ * Get swap products from Product Group
+ * @param {string} productId - Product ID
+ * @returns {Array} - Array of products found in the product group
+ */
+ function getSwapProducts(productId) {
+    let params = {};
+    let productIds = [];
+    let products = [];
+    
+    let currencysymbol = Resource.msg('productdetail.currencysymbol.' + Site.getCurrent().getDefaultCurrency(), 'stickyio', '$');
+    let stickyioResponse = stickyioAPI('stickyio.http.get.product_groups').call(params);
+
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
+        let siteName = Site.getCurrent().name;
+
+        for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {
+            let productGroup = stickyioResponse.object.result.data[i];
+            if (productGroup.products && productGroup.products.includes(productId) && productGroup.system.indexOf(siteName) > 0) {
+                productIds = productGroup.products;
+                break;
+            }
+        }
+    }
+
+    for (let i = 0; i < productIds.length; i++) {
+        let sfccProduct = ProductMgr.getProduct(productIds[i]);
+
+        if (sfccProduct) {
+            let images = sfccProduct.getImages('small');
+            let image = images ? images[0].absURL.toString() : null;
+
+            products.push(
+                {
+                    name: sfccProduct.name,
+                    price: currencysymbol + sfccProduct.priceModel.price.value,
+                    imgurl: image,
+                    productId: sfccProduct.ID,
+                }
+            )
+        }
+    }
+
+    return products;
+}
+
+/**
+ * update a subscription order
+ * @param {number} orderNumber - sticky.io order number
+ * @param {number} productId - sticky.io product ID
+ * @param {number} newRecurringProductId - new recurring product ID
+ * @param {number} newRecurringVariantId - new recurring variant ID
+ * @param {number} newRecurringQuantity - new recurring quantity
+ * @param {number} offerId - new offer ID
+ * @param {number} billingModelId - new billing model ID
+ * @returns {string} - Response message
+ */
+function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, offerId, billingModelId) {
+    var params = {};
+    var body = {};
+    body.order_id = orderNumber;
+    body.product_id = productId;
+    body.new_recurring_product_id = newRecurringProductId;
+    body.new_recurring_variant_id = newRecurringVariantId;
+    body.new_recurring_quantity = newRecurringQuantity;
+
+    if (offerId > 0) {
+        body.new_recurring_offer_id = offerId;
+    }
+
+    if (billingModelId > 0) {
+        body.billing_model_id = billingModelId;
+    }
+
+    params.body = body;
+
+    var stickyioResponse = stickyioAPI('stickyio.http.post.subscription_order_update').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
+        return '';
+    }
+
+    return stickyioResponse.object.result.response_message;
+}
+
+/**
+ * Fetch all the custom fields created on sticky.io
+ * @returns {Array}
+ */
+function getAllStickyioCustomFields() {
+    let endpoint = 'stickyio.http.get.custom_fields';
+    let params = {};
+    let response = stickyioAPI(endpoint).call(params);
+    return response.object.result.data;
+}
+
+/**
+ * Creates the product group JSON
+ * @param product
+ * @return {{Filters: {'SFCC-Categories': *[]}}}
+ */
+function createProductGroupProductJSON(product) {
+    let productGroupJSON = {
+        'Filters': {
+            'SFCC-Categories': []
+        }
+    };
+    let categories = product.categories.toArray();
+    categories.forEach(category => {
+        let categoryData = {};
+        categoryData[category.displayName] = category.ID;
+        productGroupJSON.Filters['SFCC-Categories'].push(categoryData);
+    })
+    return productGroupJSON;
+}
+
+/**
+ * Set the product group JSON property on the SFCC product
+ * @param product
+ * @param property
+ */
+function setProductGroupProductAttribute(product, property) {
+    Transaction.wrap(function () {
+        product.custom.stickyioFilters = property;
+    });
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2829,4 +2964,8 @@ module.exports = {
     getCancellationNoteTemplates: getCancellationNoteTemplates,
     getCancellationRequiredConfig: getCancellationRequiredConfig,
     getMulticurrencyObject: getMulticurrencyObject,
+    getSwapProducts:getSwapProducts,
+    subscriptionOrderUpdate:subscriptionOrderUpdate,
+    getAllStickyioCustomFields: getAllStickyioCustomFields,
+    createProductGroupProductJSON: createProductGroupProductJSON,
 };
