@@ -132,4 +132,11 @@ server.post('UpdatePreference-GatewayId', function (req, res, next) {
     next();
 });
 
+server.get('ProductGroups', function (req, res, next) {
+    var pdict = {};
+    pdict.type = 'productGroups';
+    res.render('stickyio/product-groups', pdict);
+    next();
+});
+
 module.exports = server.exports();
