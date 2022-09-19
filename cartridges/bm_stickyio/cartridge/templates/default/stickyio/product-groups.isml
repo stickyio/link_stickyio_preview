@@ -1,8 +1,0 @@
-<isdecorate template="application/MenuFrame">
-    <iscontent type="text/html" charset="UTF-8"/>
-    <isinclude template="inc/Modules"/>
-    <isset name="TOP_URL" value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', pdict.CurrentHttpParameterMap.CurrentMenuItemId)}" scope="page"/>
-    <isbreadcrumb name1="sticky.io" url1="${TOP_URL.toString()}" name2="${dw.web.Resource.msg('manage.' + pdict.type, 'stickyio', null)}"/>
-    <link href="${URLUtils.staticURL('css/administration.css')}" rel="stylesheet" type="text/css" />
-    <hr/>
-</isdecorate>
