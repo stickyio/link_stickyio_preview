@@ -133,9 +133,13 @@ server.post('UpdatePreference-GatewayId', function (req, res, next) {
 });
 
 server.get('ProductGroups', function (req, res, next) {
+    var Site = require('dw/system/Site');
+    var siteId = Site.getCurrent().ID;
+    var url = stickyio.sso('products_group/index.php?SFCC-Site-Id=' + siteId, 'ConfigUser');
     var pdict = {};
     pdict.type = 'productGroups';
-    res.render('stickyio/product-groups', pdict);
+    pdict.url = url;
+    res.render('stickyio/manage', pdict);
     next();
 });
 
