@@ -2920,6 +2920,41 @@ function setProductGroupProductAttribute(product, property) {
     });
 }
 
+/**
+ * Get next recurring product
+ * @param {string} subscriptionId - Subscription ID
+ * @returns {Object} - master and variant skus of the next recurring product + quantity
+ */
+ function getNextRecurringProduct(subscriptionId) {
+    let nextRecurringProduct = {};
+
+    let params = {};
+    params.id = subscriptionId;
+
+    let stickyioResponse = stickyioAPI('stickyio.http.get.subscriptions').call(params);
+
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.next_product) {
+        nextRecurringProduct.masterSku = stickyioResponse.object.result.data.next_product.sku;
+        nextRecurringProduct.quantity = stickyioResponse.object.result.data.next_product.quantity;
+
+        let variantId = stickyioResponse.object.result.data.next_product.variant_id;
+        if (variantId && variantId > 0) {
+            stickyioResponse = getVariants(stickyioResponse.object.result.data.next_product.id, true);
+            if (stickyioResponse && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data) {
+                for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {
+                    let variantProduct = stickyioResponse.object.result.data[i];
+                    if (variantProduct.id == variantId) {
+                        nextRecurringProduct.variantSku = variantProduct.sku_num;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return nextRecurringProduct;
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2968,4 +3003,5 @@ module.exports = {
     subscriptionOrderUpdate:subscriptionOrderUpdate,
     getAllStickyioCustomFields: getAllStickyioCustomFields,
     createProductGroupProductJSON: createProductGroupProductJSON,
+    getNextRecurringProduct: getNextRecurringProduct,
 };

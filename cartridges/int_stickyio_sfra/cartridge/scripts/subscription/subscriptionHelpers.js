@@ -186,18 +186,22 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
                     }
 
                     // The following is used by the product swap feature
+                    let nextRecurringProduct = stickyio.getNextRecurringProduct(thisPLI.custom.stickyioSubscriptionID);
+                    
                     let productLineItem = {};
                     productLineItem.productID = thisPLI.productID;
+                    productLineItem.nextProductID = nextRecurringProduct.variantSku ? nextRecurringProduct.variantSku : nextRecurringProduct.masterSku;
+                    productLineItem.masterProductID = nextRecurringProduct.masterSku;
                     productLineItem.stickyProductID = thisPLI.custom.stickyioProductID;
                     productLineItem.stickyVariantID = thisPLI.custom.stickyioVariationID;
                     productLineItem.UUID = thisPLI.UUID;
-                    productLineItem.quantity = thisPLI.quantityValue;
+                    productLineItem.quantity = nextRecurringProduct.quantity;
                     productLineItem.optionValueID = thisPLI.optionValueID;
                     productLineItem.price = thisPLI.priceValue;
 
                     productLineItem.options = subscriptions[thisPLI.custom.stickyioSubscriptionID].orderData.options;
                     for (let i = 0; i < productLineItem.options.length; i++) { 
-                        productLineItem.options[i].productId = thisPLI.productID; 
+                        productLineItem.options[i].productId = productLineItem.productID; 
                     }
 
                     let custom = {};
@@ -205,7 +209,7 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
                     custom.stickyioBillingModelID = thisPLI.custom.stickyioBillingModelID;
                     custom.stickyioTermsID = thisPLI.custom.stickyioTermsID;
                     
-                    let productDetails = ProductMgr.getProduct(thisPLI.productID);
+                    let productDetails = ProductMgr.getProduct(productLineItem.productID);
                     custom.stickyioDisableProductSwap = (productDetails && productDetails.custom.stickyioDisableProductSwap) ? productDetails.custom.stickyioDisableProductSwap : false;
 
                     productLineItem.custom = custom;
