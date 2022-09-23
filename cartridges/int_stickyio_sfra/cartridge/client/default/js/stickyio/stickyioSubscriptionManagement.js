@@ -416,11 +416,11 @@ $('body').on('click', '.swapBtn', function (e) {
     const productLineItem = JSON.parse(urlParams.get('productLineItem'));
     const swapProducts = eval(urlParams.get('swapProducts'));
     productSwapData = JSON.parse(swapProducts);
-    currentProductID = productLineItem.productID;
+    currentProductID = productLineItem.masterProductID;
     quantity = productLineItem.quantity;
 
     for (let i = 0; i < productSwapData.length; i++) {
-        productSwapData[i].isCurrent = productSwapData[i].productId === productLineItem.productID ? 1 : 0;
+        productSwapData[i].isCurrent = productSwapData[i].productId === currentProductID ? 1 : 0;
         productSwapData[i].isNew = 0;
     }
 
@@ -436,18 +436,26 @@ $('body').off('change', '.quantity-select').on('change', '.quantity-select', fun
     quantity = $(this).val();
 });
 
-function toast(message) {
+function toast(message, reload = false) {
     let snackbar = document.getElementById("snackbar");
     snackbar.innerText = message;
     snackbar.className = "show";
    
-    setTimeout(function(){ snackbar.className = snackbar.className.replace("show", ""); }, 4000);
+    setTimeout(function(){ 
+        snackbar.className = snackbar.className.replace("show", ""); 
+
+        if (reload) {
+            window.location.reload();
+        }
+    }, 4000);
 }
 
 function save(actionUrl) {
     if (newProductVariantID > 0) {
         actionUrl += '&newProductVariantID=' + newProductVariantID;
     }
+
+    $.spinner().start();
  
     $.ajax({
         url: actionUrl,
@@ -455,11 +463,12 @@ function save(actionUrl) {
         dataType: 'json',
         success: function (data) {
             if (data.message !== '') {
-                toast(data.message);
+                toast(data.message, true);
             }
         },
         error: function () {
             toast('Unable to update product');
+            $.spinner().stop();
         }
     });
 }

@@ -2849,9 +2849,10 @@ function getMulticurrencyObject() {
  * @param {number} newRecurringQuantity - new recurring quantity
  * @param {number} offerId - new offer ID
  * @param {number} billingModelId - new billing model ID
+ * @param {number} newRecurringProductPrice - new recurring product price
  * @returns {string} - Response message
  */
-function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, offerId, billingModelId) {
+function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, offerId, billingModelId, newRecurringProductPrice) {
     var params = {};
     var body = {};
     body.order_id = orderNumber;
@@ -2859,6 +2860,10 @@ function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, 
     body.new_recurring_product_id = newRecurringProductId;
     body.new_recurring_variant_id = newRecurringVariantId;
     body.new_recurring_quantity = newRecurringQuantity;
+
+    if (newRecurringProductPrice > 0) {
+        body.new_recurring_price = newRecurringProductPrice.toFixed(2);;
+    }
 
     if (offerId > 0) {
         body.new_recurring_offer_id = offerId;
@@ -2920,6 +2925,41 @@ function setProductGroupProductAttribute(product, property) {
     });
 }
 
+/**
+ * Get next recurring product
+ * @param {string} subscriptionId - Subscription ID
+ * @returns {Object} - master and variant skus of the next recurring product + quantity
+ */
+ function getNextRecurringProduct(subscriptionId) {
+    let nextRecurringProduct = {};
+
+    let params = {};
+    params.id = subscriptionId;
+
+    let stickyioResponse = stickyioAPI('stickyio.http.get.subscriptions').call(params);
+
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.next_product) {
+        nextRecurringProduct.masterSku = stickyioResponse.object.result.data.next_product.sku;
+        nextRecurringProduct.quantity = stickyioResponse.object.result.data.next_product.quantity;
+        nextRecurringProduct.nextVariantID = stickyioResponse.object.result.data.next_product.variant_id;
+
+        if (nextRecurringProduct.nextVariantID && nextRecurringProduct.nextVariantID > 0) {
+            stickyioResponse = getVariants(stickyioResponse.object.result.data.next_product.id, true);
+            if (stickyioResponse && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data) {
+                for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {
+                    let variantProduct = stickyioResponse.object.result.data[i];
+                    if (variantProduct.id == nextRecurringProduct.nextVariantID) {
+                        nextRecurringProduct.variantSku = variantProduct.sku_num;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return nextRecurringProduct;
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2968,4 +3008,5 @@ module.exports = {
     subscriptionOrderUpdate:subscriptionOrderUpdate,
     getAllStickyioCustomFields: getAllStickyioCustomFields,
     createProductGroupProductJSON: createProductGroupProductJSON,
+    getNextRecurringProduct: getNextRecurringProduct,
 };
