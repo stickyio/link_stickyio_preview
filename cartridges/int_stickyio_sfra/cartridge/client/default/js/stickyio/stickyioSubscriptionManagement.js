@@ -468,6 +468,7 @@ function save(actionUrl) {
         },
         error: function () {
             toast('Unable to update product');
+            $.spinner().stop();
         }
     });
 }

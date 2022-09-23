@@ -155,11 +155,20 @@ if (stickyioEnabled) {
             var creditCardForm = server.forms.getForm('creditCard');
             creditCardForm.clear();
 
+            // Check if product swap is enabled
             let stickyioProductSwapEnabled = Site.getCurrent().getCustomPreferenceValue('stickyioProductSwapEnabled');
             let stickyioDisableProductSwap = subscription.orderData.productLineItem.custom.stickyioDisableProductSwap;
             let isPrepaid = subscription.orderData.productLineItem.custom.stickyioTermsID.length == 1 && parseInt(subscription.orderData.productLineItem.custom.stickyioTermsID) == 0 ? false : true;
             let showProductSwapUI = stickyioProductSwapEnabled && !stickyioDisableProductSwap && !isPrepaid;
             subscription.orderData.productLineItem.custom.stickyOrderNumber = subscription.orderNumbers[0].stickyioOrderNo;
+
+            // Get next recurring product data
+            let nextRecurringProduct = stickyio.getNextRecurringProduct(subscription.subscriptionID);
+
+            subscription.orderData.productLineItem.nextProductID = nextRecurringProduct.variantSku ? nextRecurringProduct.variantSku : nextRecurringProduct.masterSku;
+            subscription.orderData.productLineItem.nextVariantID = nextRecurringProduct.nextVariantID;
+            subscription.orderData.productLineItem.masterProductID = nextRecurringProduct.masterSku;
+            subscription.orderData.productLineItem.quantity = nextRecurringProduct.quantity;
 
             subscription.orderData.nextProductName = subscription.orderData.name;
             if (subscription.orderData.productLineItem.productID != subscription.orderData.productLineItem.nextProductID) {
@@ -668,12 +677,26 @@ if (stickyioEnabled) {
         
         let productLineItem = JSON.parse(req.querystring.productLineItem);
         let newProductID = req.querystring.newProductID ? req.querystring.newProductID : productLineItem.nextProductID;
-        let newProduct = newProductID ? ProductMgr.getProduct(newProductID.toString()) : null;
         let newRecurringQuantity = (req.querystring.quantity && parseInt(req.querystring.quantity) > 0) ? parseInt(req.querystring.quantity) : productLineItem.quantity;
         let newRecurringVariantId = req.querystring.newProductVariantID ? parseInt(req.querystring.newProductVariantID) : 0;
 
+        let newProduct = newProductID ? ProductMgr.getProduct(newProductID.toString()) : null;
+        if (newProduct && newRecurringVariantId && newRecurringVariantId > 0) {
+            let stickyioResponse = stickyio.getVariants(newProduct.custom.stickyioProductID, true);
+            if (stickyioResponse && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data) {
+                for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {
+                    let variantProduct = stickyioResponse.object.result.data[i];
+                    if (variantProduct.id == newRecurringVariantId) {
+                        newProductID = variantProduct.sku_num;
+                        newProduct = ProductMgr.getProduct(newProductID.toString());
+                        break;
+                    }
+                }
+            }
+        }
+
         if (newProduct && (newProductID !== productLineItem.nextProductID || 
-            newRecurringVariantId !== productLineItem.stickyVariantID || 
+            newRecurringVariantId !== productLineItem.nextVariantID || 
             newRecurringQuantity !== productLineItem.quantity)) {
             message = Resource.msg('label.product_successfully_updated', 'common', null);
 

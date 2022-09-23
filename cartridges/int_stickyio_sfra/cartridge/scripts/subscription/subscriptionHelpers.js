@@ -186,16 +186,11 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
                     }
 
                     // The following is used by the product swap feature
-                    let nextRecurringProduct = stickyio.getNextRecurringProduct(thisPLI.custom.stickyioSubscriptionID);
-                    
                     let productLineItem = {};
                     productLineItem.productID = thisPLI.productID;
-                    productLineItem.nextProductID = nextRecurringProduct.variantSku ? nextRecurringProduct.variantSku : nextRecurringProduct.masterSku;
-                    productLineItem.masterProductID = nextRecurringProduct.masterSku;
                     productLineItem.stickyProductID = thisPLI.custom.stickyioProductID;
                     productLineItem.stickyVariantID = thisPLI.custom.stickyioVariationID;
                     productLineItem.UUID = thisPLI.UUID;
-                    productLineItem.quantity = nextRecurringProduct.quantity;
                     productLineItem.optionValueID = thisPLI.optionValueID;
                     productLineItem.price = thisPLI.priceValue;
 
