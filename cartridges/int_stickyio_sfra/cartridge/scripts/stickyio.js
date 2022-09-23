@@ -2849,9 +2849,10 @@ function getMulticurrencyObject() {
  * @param {number} newRecurringQuantity - new recurring quantity
  * @param {number} offerId - new offer ID
  * @param {number} billingModelId - new billing model ID
+ * @param {number} newRecurringProductPrice - new recurring product price
  * @returns {string} - Response message
  */
-function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, offerId, billingModelId) {
+function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, offerId, billingModelId, newRecurringProductPrice) {
     var params = {};
     var body = {};
     body.order_id = orderNumber;
@@ -2859,6 +2860,10 @@ function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, 
     body.new_recurring_product_id = newRecurringProductId;
     body.new_recurring_variant_id = newRecurringVariantId;
     body.new_recurring_quantity = newRecurringQuantity;
+
+    if (newRecurringProductPrice > 0) {
+        body.new_recurring_price = newRecurringProductPrice;
+    }
 
     if (offerId > 0) {
         body.new_recurring_offer_id = offerId;

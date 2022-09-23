@@ -672,9 +672,9 @@ if (stickyioEnabled) {
         let newRecurringQuantity = (req.querystring.quantity && parseInt(req.querystring.quantity) > 0) ? parseInt(req.querystring.quantity) : productLineItem.quantity;
         let newRecurringVariantId = req.querystring.newProductVariantID ? parseInt(req.querystring.newProductVariantID) : 0;
 
-        if (newProductID !== productLineItem.nextProductID || 
+        if (newProduct && (newProductID !== productLineItem.nextProductID || 
             newRecurringVariantId !== productLineItem.stickyVariantID || 
-            newRecurringQuantity !== productLineItem.quantity) {
+            newRecurringQuantity !== productLineItem.quantity)) {
             message = Resource.msg('label.product_successfully_updated', 'common', null);
 
             if (newProductID !== productLineItem.nextProductID)
@@ -683,17 +683,18 @@ if (stickyioEnabled) {
             let stickyOrderNumber = productLineItem.custom.stickyOrderNumber;
             let stickyProductId = productLineItem.stickyProductID;
             let newRecurringProductId = newProduct.custom.stickyioProductID;
+            let newRecurringProductPrice = newProduct.priceModel.price.value;
 
             let offerId = req.querystring.offer;
             let billingModelId = req.querystring.billingmodel;
 
             if (offerId > 0 || billingModelId > 0) {
                 // Update the offer
-                stickyio.subscriptionOrderUpdate(stickyOrderNumber, stickyProductId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, offerId, billingModelId)    
+                stickyio.subscriptionOrderUpdate(stickyOrderNumber, stickyProductId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, offerId, billingModelId, 0);
             }
 
             // Update next recurring product
-            let responseMessage = stickyio.subscriptionOrderUpdate(stickyOrderNumber, stickyProductId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, 0, 0)
+            let responseMessage = stickyio.subscriptionOrderUpdate(stickyOrderNumber, stickyProductId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, 0, 0, newRecurringProductPrice);
             if (responseMessage != '') {
                 message = Resource.msg('label.product_update_error', 'common', null);
             }   
