@@ -86,7 +86,7 @@
                         'swapProducts', JSON.stringify(swapProducts),
                         'newProductID', newProductID)}"
                     >
-                        ${Resource.msg('button.swap_product', 'common', null)}
+                        ${Resource.msg('button.swap_product', 'stickyio', null)}
                     </button>
                 <iselse/>
                     <isif condition="${swapProducts.length > 2 && newProductID != ''}">
@@ -116,7 +116,7 @@
                     data-href="${URLUtils.url('Subscriptions-SaveProduct', 
                     'productLineItem', JSON.stringify(productLineItem))}"
                 >
-                    ${Resource.msg('button.save', 'common', null)}
+                    ${Resource.msg('button.save', 'stickyio', null)}
                 </button>
 
                 <isif condition="${newProductID != ''}">
@@ -126,7 +126,7 @@
                         'swapProducts', JSON.stringify(swapProducts),
                         'newProductID', newProductID)}"
                     >
-                        ${Resource.msg('button.previous', 'common', null)}
+                        ${Resource.msg('button.previous', 'stickyio', null)}
                     </button>
                 </isif>
             </div>
