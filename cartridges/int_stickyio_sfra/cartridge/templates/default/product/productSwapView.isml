@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col">
             <section>
-                <h1>${Resource.msg('label.swap_product_title', 'common', null)}</h1>
+                <h1>${Resource.msg('label.swap_product_title', 'stickyio', null)}</h1>
             </section>
         </div>
     </div>
@@ -14,7 +14,7 @@
         <div id="product_wap_list" class="card p-3">
             <div class="row">
                 <div class="col-12">
-                    <input type="search" class="search form-control" placeholder="${Resource.msg('label.search_placeholder', 'common', null)}">
+                    <input type="search" class="search form-control" placeholder="${Resource.msg('label.search_placeholder', 'stickyio', null)}">
                 </div>
             </div>
             <div class="card-deck list row"></div>
@@ -33,7 +33,7 @@
                     data-href="${URLUtils.url('Subscriptions-GetProduct',
                     'productLineItem', JSON.stringify(productLineItem))}"
                 >
-                    ${Resource.msg('button.continue', 'common', null)}
+                    ${Resource.msg('button.continue', 'stickyio', null)}
                 </button>
             </div>
         </div>

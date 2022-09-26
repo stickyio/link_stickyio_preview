@@ -464,6 +464,8 @@ function save(actionUrl) {
         success: function (data) {
             if (data.message !== '') {
                 toast(data.message, true);
+            } else {
+                $.spinner().stop();
             }
         },
         error: function () {

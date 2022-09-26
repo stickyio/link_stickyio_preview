@@ -698,10 +698,10 @@ if (stickyioEnabled) {
         if (newProduct && (newProductID !== productLineItem.nextProductID || 
             newRecurringVariantId !== productLineItem.nextVariantID || 
             newRecurringQuantity !== productLineItem.quantity)) {
-            message = Resource.msg('label.product_successfully_updated', 'common', null);
+            message = Resource.msg('label.product_successfully_updated', 'stickyio', null);
 
             if (newProductID !== productLineItem.nextProductID)
-                message = Resource.msg('label.product_successfully_swapped', 'common', null);
+                message = Resource.msg('label.product_successfully_swapped', 'stickyio', null);
 
             let stickyOrderNumber = productLineItem.custom.stickyOrderNumber;
             let stickyProductId = productLineItem.stickyProductID;
@@ -719,7 +719,7 @@ if (stickyioEnabled) {
             // Update next recurring product
             let responseMessage = stickyio.subscriptionOrderUpdate(stickyOrderNumber, stickyProductId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, 0, 0, newRecurringProductPrice);
             if (responseMessage != '') {
-                message = Resource.msg('label.product_update_error', 'common', null);
+                message = Resource.msg('label.product_update_error', 'stickyio', null);
             }   
         } 
         
