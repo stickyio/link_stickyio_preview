@@ -2808,11 +2808,11 @@ function getMulticurrencyObject() {
     let stickyioResponse = stickyioAPI('stickyio.http.get.product_groups').call(params);
 
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
-        let siteName = Site.getCurrent().name;
+        let siteID = Site.getCurrent().ID;
 
         for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {
             let productGroup = stickyioResponse.object.result.data[i];
-            if (productGroup.products && productGroup.products.includes(productId) && productGroup.system.indexOf(siteName) > 0) {
+            if (productGroup.products && productGroup.products.includes(productId) && productGroup.system.indexOf(siteID) > 0) {
                 productIds = productGroup.products;
                 break;
             }
