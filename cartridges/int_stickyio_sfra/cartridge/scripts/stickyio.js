@@ -2962,6 +2962,10 @@ function setProductGroupProductAttribute(product, property) {
     return nextRecurringProduct;
 }
 
+/**
+ * Saves the image on sticky, attaches it to the product and updates the SFCC custom field
+ * @param product
+ */
 function saveProductImagesOnSticky(product) {
     let currentImages = {};
     let stickyioSyncedImages;
@@ -3012,6 +3016,13 @@ function saveProductImagesOnSticky(product) {
     }
 }
 
+/**
+ * Uploads the image to sticky and returns the ID
+ * @param imageURL
+ * @param viewType
+ * @param product
+ * @return {*}
+ */
 function uploadImageToSticky(imageURL, viewType, product) {
     let apiCall = 'stickyio.http.post.images';
     let params = {};
@@ -3027,6 +3038,12 @@ function uploadImageToSticky(imageURL, viewType, product) {
     throw new Error('Error while uploading image for PID: ' + product.ID);
 }
 
+/**
+ * Attach images IDS to sticky product
+ * @param product
+ * @param stickyImageIds
+ * @return {boolean}
+ */
 function attachImageToStickyProduct(product, stickyImageIds) {
     let apiCall = 'stickyio.http.put.products.images';
     let params = {};
