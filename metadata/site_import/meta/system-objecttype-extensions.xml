@@ -471,6 +471,18 @@
                 <order-required-flag>false</order-required-flag>
                 <externally-defined-flag>false</externally-defined-flag>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioSyncedImages">
+                <display-name xml:lang="x-default">Synced Images</display-name>
+                <description xml:lang="x-default">JSON string containing data about image syncing to sticky</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="stickyio">
