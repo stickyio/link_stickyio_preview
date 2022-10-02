@@ -1679,6 +1679,7 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
             params.body.product_group_attributes = JSON.stringify(productGroupJSON);
             params.body.disable_product_swap = 0; // TODO Update this once UI for managing product swap is ready
             stickyioData = { stickyioResponse: stickyioAPI(apiCall).call(params), productChange: productChange, newProduct: newProduct };
+            saveProductImagesOnSticky(product);
         }
     }
     if (product.custom.stickyioProductID === null) { // create the product in sticky.io
@@ -1687,6 +1688,7 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
     } else { stickyioData = { stickyioResponse: false, productChange: productChange, newProduct: newProduct }; }
     if (stickyioData.stickyioResponse !== false && stickyioData.stickyioResponse !== 'skip') {
         updateSFCCProductAttributes(product, stickyioData.stickyioResponse, stickyioData.productChange, stickyioData.newProduct, (product.custom.stickyioVertical === null));
+        saveProductImagesOnSticky(product);
     }
     if (product.isMaster()) {
         var stickyioResponse = getAttributes(product.custom.stickyioProductID);
@@ -2803,7 +2805,7 @@ function getMulticurrencyObject() {
     let params = {};
     let productIds = [];
     let products = [];
-    
+
     let currencysymbol = Resource.msg('productdetail.currencysymbol.' + Site.getCurrent().getDefaultCurrency(), 'stickyio', '$');
     let stickyioResponse = stickyioAPI('stickyio.http.get.product_groups').call(params);
 
@@ -2960,6 +2962,104 @@ function setProductGroupProductAttribute(product, property) {
     return nextRecurringProduct;
 }
 
+/**
+ * Saves the image on sticky, attaches it to the product and updates the SFCC custom field
+ * @param product
+ */
+function saveProductImagesOnSticky(product) {
+    let currentImages = {};
+    let stickyioSyncedImages;
+    const viewTypes = [
+        'hi-res',
+        'large',
+        'medium',
+        'small',
+        'swatch'
+    ];
+
+    if (product.custom.stickyioSyncedImages) {
+        stickyioSyncedImages = JSON.parse(product.custom.stickyioSyncedImages);
+    } else {
+        stickyioSyncedImages = {};
+    }
+
+    viewTypes.forEach(viewType => {
+        const image = product.getImages(viewType);
+        if (! image.empty) {
+            currentImages[viewType] = image[0].absURL.toString(); // Only sync the first image of each type
+        } else {
+            currentImages[viewType] = null;
+        }
+    });
+
+    let stickyImageIdsToSync = [];
+
+    viewTypes.forEach(viewType => {
+        if (currentImages[viewType] !== stickyioSyncedImages[viewType]) {
+            const stickyImageId = uploadImageToSticky(currentImages[viewType], viewType, product);
+            stickyImageIdsToSync.push(stickyImageId);
+        }
+    });
+
+    if (stickyImageIdsToSync. length === 0) {
+        return;
+    }
+    attachImageToStickyProduct(product, stickyImageIdsToSync);
+
+    try {
+        Transaction.wrap(function() {
+            product.custom.stickyioSyncedImages = JSON.stringify(currentImages);
+        });
+    } catch (e) {
+        Logger.error('Error while setting sticky.io custom attributes for PID: ' + product.ID + ': ' + JSON.stringify(e, null, 2));
+        throw e;
+    }
+}
+
+/**
+ * Uploads the image to sticky and returns the ID
+ * @param imageURL
+ * @param viewType
+ * @param product
+ * @return {*}
+ */
+function uploadImageToSticky(imageURL, viewType, product) {
+    let apiCall = 'stickyio.http.post.images';
+    let params = {};
+    let body = {};
+    body.image = imageURL;
+    body.alias = product.ID + '-' + viewType + '-' + Date.now().toString();
+    params.body = body;
+    let response = stickyioAPI(apiCall).call(params);
+    if (response.object.result.status === 'SUCCESS') {
+        return response.object.result.data.id;
+    }
+    Logger.error('Error while uploading image for PID: ' + product.ID);
+    throw new Error('Error while uploading image for PID: ' + product.ID);
+}
+
+/**
+ * Attach images IDS to sticky product
+ * @param product
+ * @param stickyImageIds
+ * @return {boolean}
+ */
+function attachImageToStickyProduct(product, stickyImageIds) {
+    let apiCall = 'stickyio.http.put.products.images';
+    let params = {};
+    let body = {};
+    params.id = product.custom.stickyioProductID;
+    params.helper = 'images';
+    body.image_ids = stickyImageIds;
+    params.body = body;
+    let response = stickyioAPI(apiCall).call(params);
+    if (response.object.result.status === 'SUCCESS') {
+        return true;
+    }
+    Logger.error('Error while attaching image for PID: ' + product.ID);
+    throw new Error('Error while attaching image for PID: ' + product.ID);
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -3009,4 +3109,5 @@ module.exports = {
     getAllStickyioCustomFields: getAllStickyioCustomFields,
     createProductGroupProductJSON: createProductGroupProductJSON,
     getNextRecurringProduct: getNextRecurringProduct,
+    saveProductImagesOnSticky: saveProductImagesOnSticky,
 };
