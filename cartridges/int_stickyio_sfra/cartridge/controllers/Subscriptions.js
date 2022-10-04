@@ -517,7 +517,6 @@ if (stickyioEnabled) {
                         template = 'stickyio/email/stickySubscriptionPause';
                         break;
                     case 28: //out of stock
-                        //Currently not supported on CRM but template was created,
                         enabled = Site.current.getCustomPreferenceValue('stickyioOOSEmailEnabled');
                         if (enabled) {
                             sendEmail = true;
