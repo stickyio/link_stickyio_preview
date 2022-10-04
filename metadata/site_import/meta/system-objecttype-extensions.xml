@@ -794,6 +794,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioOOSEmailEnabled">
+                <display-name xml:lang="x-default">Out Of Stock Email Enabled</display-name>
+                <description xml:lang="x-default">Send customer an out-of-stock email when a subscription product does not have enough quantity available to fulfill the order.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioMultiCurrencyOptions">
                 <display-name xml:lang="x-default">MultiCurrency options</display-name>
                 <description xml:lang="x-default">Internal object to map different currencies with the proper sticky's gateways</description>
@@ -825,6 +833,7 @@
                 <attribute attribute-id="stickyioPauseEmailEnabled"/>
                 <attribute attribute-id="stickyioReminderEmailEnabled"/>
                 <attribute attribute-id="stickyioReminderDaysOut"/>
+                <attribute attribute-id="stickyioOOSEmailEnabled"/>
                 <attribute attribute-id="stickyioForceRegisteredCheckout"/>
                 <attribute attribute-id="stickyioSubManAllowRecurringDate"/>
                 <attribute attribute-id="stickyioSubManAllowUpdateBillingModel"/>
