@@ -57,7 +57,7 @@ if (stickyioEnabled) {
         function (req, res, next) {
             var SubscriptionHelpers = require('~/cartridge/scripts/subscription/subscriptionHelpers');
             var billingModels = stickyio.getBillingModelsFromStickyio(1, {});
-            
+
             var ordersResult = SubscriptionHelpers.getSubscriptions(
                 req.currentCustomer,
                 req.querystring,
@@ -103,7 +103,7 @@ if (stickyioEnabled) {
             var SubscriptionHelpers = require('~/cartridge/scripts/subscription/subscriptionHelpers');
 
             var billingModels = stickyio.getBillingModelsFromStickyio(1, {});
-            
+
             var ordersResult = SubscriptionHelpers.getSubscriptions(
                 req.currentCustomer,
                 req.querystring,
@@ -114,7 +114,7 @@ if (stickyioEnabled) {
             var order;
             var subscription;
             var currentCustomerNo;
-            
+
             var sid = req.querystring.sid;
             var subscriptions = ordersResult.subscriptions;
             if (subscriptions.length > 0) {
@@ -122,7 +122,7 @@ if (stickyioEnabled) {
                 order = OrderMgr.getOrder(subscription.orderNumbers[0].sfccOrderNo, subscription.orderNumbers[0].sfccOrderToken);
                 currentCustomerNo = order.customer.profile.customerNo;
             }
-           
+
             var orderCustomerNo = req.currentCustomer.profile.customerNo;
             var breadcrumbs = [
                 {
@@ -140,18 +140,18 @@ if (stickyioEnabled) {
             ];
             var currentYear = new Date().getFullYear();
             var creditCardExpirationYears = [];
-		
+
             for (var i = 0; i < 10; i++) {
                 creditCardExpirationYears.push((currentYear + i).toString());
             }
-		    
+
             var exitLinkText = Resource.msg('label.subscriptionmanagement.orderheader', 'stickyio', null);
             var exitLinkUrl = URLUtils.https('Subscriptions-List', 'orderFilter', req.querystring.orderFilter);
             var addressForm = server.forms.getForm('stickyAddress');
             addressForm.clear();
             var creditCardForm = server.forms.getForm('creditCard');
             creditCardForm.clear();
- 	        
+
             if (order && orderCustomerNo === currentCustomerNo) { // additional check
                 // make our productModelOption data easier to deal with
                 res.render('account/subscriptionDetails', {
@@ -253,7 +253,7 @@ if (stickyioEnabled) {
                 let stickyioResponse = stickyio.getCancellationNoteTemplates();
 
                 if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
-                    for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {    
+                    for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {
                         let note = stickyioResponse.object.result.data[i];
                         notes[i] = {'id': note.id, 'note': note.name, 'editable': note.is_editable};
                     }
@@ -304,7 +304,7 @@ if (stickyioEnabled) {
             next();
         }
     );
-    
+
     server.post('UpdateShippingAddress',
         server.middleware.https,
         csrfProtection.generateToken,
@@ -313,17 +313,17 @@ if (stickyioEnabled) {
             var success = true;
             var sid = req.form.sid;
             var stickyOrderNo = req.form.stickyioOrderNo;
-            
+
             var form = server.forms.getForm('stickyAddress');
             var addrLine1 = form.address1.value;
             var addrLine2 = form.address2.value;
             var city = form.city.value;
             var state = form.states.stateCode.value;
-            var country = form.country.value; 
+            var country = form.country.value;
             var phone = form.phone.value;
             var postalCode = form.postalCode.value;
- 
-            var stickyioResponse = stickyio.updateShippingAddress(stickyOrderNo, addrLine1, addrLine2, city, state, postalCode, country, phone);     	
+
+            var stickyioResponse = stickyio.updateShippingAddress(stickyOrderNo, addrLine1, addrLine2, city, state, postalCode, country, phone);
             if (stickyioResponse.error) {
                 success = false;
             }
@@ -331,10 +331,10 @@ if (stickyioEnabled) {
                 success: success,
                 message : stickyioResponse.message
             });
-            next();		
+            next();
     	}
     );
-    
+
     server.post('UpdatePaymentInformation',
         server.middleware.https,
         csrfProtection.generateToken,
@@ -346,31 +346,31 @@ if (stickyioEnabled) {
             var sid = req.form.sid;
             var stickyOrderNo = req.form.stickyioOrderNo;
             var form = server.forms.getForm('creditCard');
-            
+
             var cardType = form.cardType.value;
             var cardNumber = form.cardNumber.value.replace(/\s/g, '');
-            
+
             var expirationMonth = form.expirationMonth.value.toString();
             var expirationYear = form.expirationYear.value.toString();
             var cardSecurityCode = form.securityCode.value;
             var creditCardStatus;
             var message;
-            
+
             var paymentCard = PaymentMgr.getPaymentCard(cardType);
-						
+
             if (paymentCard) {
                 creditCardStatus = paymentCard.verify(expirationMonth,expirationYear,cardNumber,cardSecurityCode);
             } else {
                 success = false;
                 message =  Resource.msg('error.invalid.card.number', 'creditCard', null);
             }
-       		      		
+
             if (creditCardStatus.error) {
                 success = false;
                 message = Resource.msg('error.card.information.error', 'creditCard', null);
             }
-            if (success) {            
-                var stickyioResponse = stickyio.updateStickyioPaymentInformation(stickyOrderNo, cardType, cardNumber,cardSecurityCode,expirationMonth,expirationYear);     	
+            if (success) {
+                var stickyioResponse = stickyio.updateStickyioPaymentInformation(stickyOrderNo, cardType, cardNumber,cardSecurityCode,expirationMonth,expirationYear);
                 if (stickyioResponse.error) {
                     success = false;
                     message = Resource.msg('error.card.information.error', 'creditCard', null);
@@ -383,30 +383,30 @@ if (stickyioEnabled) {
                 success: success,
                 message : message
             });
-            next();		
+            next();
     	}
     );
-    
+
      server.post('Notification',
         server.middleware.https,
         function (req, res, next) {
             var success = true;
-            
+
             var dwCryptoMessageDigest = require('dw/crypto/MessageDigest');
             var dwCryptoEncoding = require('dw/crypto/Encoding');
             var dwUtilBytes = require('dw/util/Bytes');
- 
+
             var secret = Site.current.getCustomPreferenceValue('stickyioClientId');
             var salt = Site.current.getCustomPreferenceValue('stickyioClientPass');
-            
+
             var dwSecretBytes = new dwUtilBytes(secret + salt);
             var dwDigestObj = new dwCryptoMessageDigest(dwCryptoMessageDigest['DIGEST_SHA_256']);
             var hash = dwCryptoEncoding.toBase64(dwDigestObj.digestBytes(dwSecretBytes));
 
-           
-            var contentType = req.httpHeaders.get('Content-Type') || req.httpHeaders.get('content-type');              
+
+            var contentType = req.httpHeaders.get('Content-Type') || req.httpHeaders.get('content-type');
             var hashRequest = req.httpHeaders.get('X-Secret') || req.httpHeaders.get('x-secret');
-            
+
             if (empty(hashRequest) || hashRequest !== hash){
                 success = false;
             }
@@ -414,7 +414,7 @@ if (stickyioEnabled) {
                 var data = JSON.parse(req.httpParameterMap.requestBodyAsString);
                 var emailType = data.emailType;
                 var emailHelpers = require('*/cartridge/scripts/helpers/emailHelpers');
-                
+
                 var objectForEmail = {
                     firstName: data.firstName,
                     lastName: data.lastName
@@ -423,7 +423,7 @@ if (stickyioEnabled) {
                     to: data.customer,
                     from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com'
                 };
-                var template;   
+                var template;
                 var sendEmail = false;
                 var enabled = true;
                 switch (emailType) {
@@ -478,28 +478,32 @@ if (stickyioEnabled) {
                         template = 'stickyio/email/stickySubscriptionPause';
                         break;
                     case 28: //out of stock
-                        //Currently not supported on CRM but template was created, 
-                        emailObj.type = emailHelpers.emailTypes.stickyOutOfStock;
-                        emailObj.subject = Resource.msg('email.out.stock.title','stickyio',null);
-                        objectForEmail.subscriptionId = data.subscriptionId;
-                        template = 'stickyio/email/stickySubscriptionOutStock';
+                        //Currently not supported on CRM but template was created,
+                        enabled = Site.current.getCustomPreferenceValue('stickyioOOSEmailEnabled');
+                        if (enabled) {
+                            sendEmail = true;
+                            emailObj.type = emailHelpers.emailTypes.stickyOutOfStock;
+                            emailObj.subject = Resource.msg('email.out.stock.title','stickyio',null);
+                            objectForEmail.subscriptionId = data.subscriptionId;
+                            template = 'stickyio/email/stickySubscriptionOutStock';
+                        }
                         break;
                     default:
                         sendEmail = false;
                 }
-                if (sendEmail) { 
+                if (sendEmail) {
                     emailHelpers.sendEmail(emailObj, template, objectForEmail);
                 }
-                  
+
             }
-            
+
             res.json({
                 success: success
             });
-            next();     
+            next();
         }
     );
-    
+
 }
 
 module.exports = server.exports();
