@@ -1,8 +1,29 @@
 <isset name="subscription" value="${pdict.subscription}" scope="page" />
+
+<isif condition="${subscription.orderData.productLineItem.productID != subscription.orderData.productLineItem.nextProductID}">
+    <div class="panel panel-default" style="background:#E3E6EB">
+        <span onclick="this.parentElement.style.display='none'" class="close" style="padding-right: 0.2em;">&times;</span>
+        <div class="panel-body" style="padding-top: 1em;padding-bottom: 1em;">
+            <div class="row">
+                <div class="col-4">
+                    <img class="img-fluid" src="${subscription.orderData.image.url}" alt="${subscription.orderData.image.alt}" title="${subscription.orderData.image.title}">
+                </div>
+                <div class="col-8 d-flex">
+                    <div class="d-flex align-items-center">
+                        <p style="color:#1C3F6F">Your previous product was updated. You can make changes until your <span style="font-weight: bold">Next Shipment Date<span> on ${subscription.recurring_date}.</p>
+                    </div>
+                </div>
+            </div>           
+        </div>
+    </div>
+</isif>
+
+<br/>
+
 <div class="card">
     <div class="card-header clearfix">
         <div class="subscriptionmanagement" data-subscriptionid="${subscription.subscriptionID}">
-            <h3 class="pull-left">${subscription.orderData.name}</h3>
+            <h3 class="pull-left">${subscription.orderData.nextProductName}</h3>
         <!--- if nothing is allowed, don't show this at all --->
             <isif condition="${(subscription.stickyioAllowSubManSelect && subscription.is_recurring) || (subscription.on_hold && !subscription.is_recurring)}">
                 <select class="subscriptionmanagementselect quickview pull-right">
@@ -28,7 +49,7 @@
     <div class="card-body card-info-group">
         <div class="row">
             <div class="col-4 hidden-xs-down">
-                <img class="img-fluid" src="${subscription.orderData.image.url}" alt="${subscription.orderData.image.alt}" title="${subscription.orderData.image.title}">
+                <img class="img-fluid" src="${subscription.orderData.nextProductImage.url}" alt="${subscription.orderData.nextProductImage.alt}" title="${subscription.orderData.nextProductImage.title}">
             </div>
             <div class="col-sm-8 col-12">
                 <isinclude template="account/subscription/subscriptionShippingTitle"/>
@@ -59,17 +80,28 @@
                             </isif>
                             <p>
                                 ${Resource.msg('label.subscriptionmanagement.nextrecurring','stickyio',null)}: 
+                                <i class="fa fa-calendar-times-o"></i>
                                 <isif condition="${subscription.stickyioAllowRecurring === true}">
                                     <input type="text" size="11" class="datepicker" placeholder="${subscription.recurring_date}" data-initialvalue="${subscription.recurring_date}" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'recur_at', 'sid', subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" value="${subscription.recurring_date}"/>
-                                    <p class="hint">${Resource.msg('label.subscriptionmanagement.hint', 'stickyio', null)}</p>
                                 <iselse/>
                                     ${subscription.recurring_date}
                                 </isif>
                             </p>
+                            <hr/>
                             <p><a href="#stickyDiv" class="stickyAddressShow" data-toggle="collapse">Edit Shipping Address</a></p>
                             <isinclude template="account/subscription/subscriptionAddress"/>
+                            <hr/>
                             <p><a href="#stickyDivCreditCard" class="stickyCreditCardShow" data-toggle="collapse">Edit Payment</a></p>
                             <isinclude template="account/subscription/subscriptionCreditCard"/>
+
+                            <isif condition="${pdict.showProductSwapUI === true}">
+                                <hr/>
+                                <div class="product-edit">
+                                    <a id="product-edit-url" href="${URLUtils.url('Subscriptions-GetProduct', 'productLineItem', JSON.stringify(subscription.orderData.productLineItem), 'newProductID', '')}" class="edit" data-toggle="modal" data-target="#productSwapModal">
+                                        ${Resource.msg('label.subscriptionmanagement.update_product', 'stickyio', null)}
+                                    </a>
+                                </div>
+                            </isif>
                         </isif>
                         <isif condition="${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + subscription.subscriptionID).value}">
                             <p class="stickyiosubscriptionresponse">${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + subscription.subscriptionID).value}</p>
