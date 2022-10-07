@@ -2824,7 +2824,7 @@ function getMulticurrencyObject() {
 
         if (sfccProduct) {
             let images = sfccProduct.getImages('small');
-            let image = images ? images[0].absURL.toString() : null;
+            let image = images.length > 0 ? images[0].absURL.toString() : null;
 
             products.push(
                 {
