@@ -816,6 +816,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>false</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowSkipNow">
+                <display-name xml:lang="x-default">Allow Skip Next Cycle</display-name>
+                <description xml:lang="x-default">Allow the consumer to skip the next cycle for their subscription</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="STICKYIO">
@@ -842,6 +850,7 @@
                 <attribute attribute-id="stickyioSubManAllowTerminateNext"/>
                 <attribute attribute-id="stickyioSubManAllowReset"/>
                 <attribute attribute-id="stickyioSubManAllowBillNow"/>
+                <attribute attribute-id="stickyioSubManAllowSkipNow"/>
                 <attribute attribute-id="stickyioProductSwapEnabled"/>
             </attribute-group>
         </group-definitions>
