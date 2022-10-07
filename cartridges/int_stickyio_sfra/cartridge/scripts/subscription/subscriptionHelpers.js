@@ -10,6 +10,7 @@ var Locale = require('dw/util/Locale');
 
 var OrderModel = require('*/cartridge/models/order');
 var stickyio = require('~/cartridge/scripts/stickyio');
+let ProductMgr = require('dw/catalog/ProductMgr');
 
 var subscriptions = {};
 
@@ -183,6 +184,32 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
                             }
                         }
                     }
+
+                    // The following is used by the product swap feature
+                    let productLineItem = {};
+                    productLineItem.productID = thisPLI.productID;
+                    productLineItem.stickyProductID = thisPLI.custom.stickyioProductID;
+                    productLineItem.stickyVariantID = thisPLI.custom.stickyioVariationID;
+                    productLineItem.UUID = thisPLI.UUID;
+                    productLineItem.optionValueID = thisPLI.optionValueID;
+                    productLineItem.price = thisPLI.priceValue;
+
+                    productLineItem.options = subscriptions[thisPLI.custom.stickyioSubscriptionID].orderData.options;
+                    for (let i = 0; i < productLineItem.options.length; i++) { 
+                        productLineItem.options[i].productId = productLineItem.productID; 
+                    }
+
+                    let custom = {};
+                    custom.stickyioOfferID = thisPLI.custom.stickyioOfferID;
+                    custom.stickyioBillingModelID = thisPLI.custom.stickyioBillingModelID;
+                    custom.stickyioTermsID = thisPLI.custom.stickyioTermsID;
+                    
+                    let productDetails = ProductMgr.getProduct(productLineItem.productID);
+                    custom.stickyioDisableProductSwap = (productDetails && productDetails.custom.stickyioDisableProductSwap) ? productDetails.custom.stickyioDisableProductSwap : false;
+
+                    productLineItem.custom = custom;
+
+                    subscriptions[thisPLI.custom.stickyioSubscriptionID].orderData.productLineItem = productLineItem;
                 }
             }
         }
