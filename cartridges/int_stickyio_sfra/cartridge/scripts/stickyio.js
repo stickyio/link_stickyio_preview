@@ -2320,6 +2320,7 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels)
     stickyioOrderData.stickyioAllowPause = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowPause');
     stickyioOrderData.stickyioAllowTerminateNext = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowTerminateNext');
     stickyioOrderData.stickyioAllowStop = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowStop');
+    stickyioOrderData.stickyioSubManAllowSkipNow = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowSkipNow');
 
     if (stickyioOrderData.stickyioAllowReset !== true
         && stickyioOrderData.stickyioAllowBillNow !== true
@@ -2611,6 +2612,7 @@ function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date,
     if (action === 'terminate_next') { return subManTerminateNext(subscriptionID, noteId, noteText); }
     if (action === 'reset') { return subManReset(subscriptionID); }
     if (action === 'bill_now') { return subManBillNow(orderNo, orderToken, subscriptionID); }
+    if (action === 'skip_next_cycle') { return subManSkipNextCycle(subscriptionID); }
     return false;
 }
 
@@ -3058,6 +3060,37 @@ function attachImageToStickyProduct(product, stickyImageIds) {
     }
     Logger.error('Error while attaching image for PID: ' + product.ID);
     throw new Error('Error while attaching image for PID: ' + product.ID);
+}
+
+/**
+ * Skip the next cycle of the subscription
+ * @param {string} subscriptionID - sticky.io subscription ID
+ * @returns {Object} - result of the call
+ */
+function subManSkipNextCycle(subscriptionID) {
+    let params  = {};
+    params.body = {
+        subscription_id: subscriptionID
+    }
+
+    let stickyioResponse = stickyioAPI('stickyio.http.post.skip_next_billing').call(params);
+
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
+        return {
+            message: Resource.msg('label.subscriptionmanagement.response.recur_at', 'stickyio', null)
+        };
+    }
+
+    let message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+
+    if (stickyioResponse && stickyioResponse.errorMessage) {
+        message = JSON.parse(stickyioResponse.errorMessage);
+    }
+
+    return {
+        error: true,
+        message: message
+    };
 }
 
 module.exports = {
