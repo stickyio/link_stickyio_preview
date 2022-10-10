@@ -526,11 +526,14 @@ if (stickyioEnabled) {
                         template = 'stickyio/email/stickySubscriptionPause';
                         break;
                     case 28: //out of stock
-                        //Currently not supported on CRM but template was created,
-                        emailObj.type = emailHelpers.emailTypes.stickyOutOfStock;
-                        emailObj.subject = Resource.msg('email.out.stock.title','stickyio',null);
-                        objectForEmail.subscriptionId = data.subscriptionId;
-                        template = 'stickyio/email/stickySubscriptionOutStock';
+                        enabled = Site.current.getCustomPreferenceValue('stickyioOOSEmailEnabled');
+                        if (enabled) {
+                            sendEmail = true;
+                            emailObj.type = emailHelpers.emailTypes.stickyOutOfStock;
+                            emailObj.subject = Resource.msg('email.out.stock.title','stickyio',null);
+                            objectForEmail.subscriptionId = data.subscriptionId;
+                            template = 'stickyio/email/stickySubscriptionOutStock';
+                        }
                         break;
                     default:
                         sendEmail = false;
@@ -547,6 +550,7 @@ if (stickyioEnabled) {
             next();
         }
     );
+
 
     server.get('GetProduct', function (req, res, next) {
         let productLineItem = JSON.parse(req.querystring.productLineItem);
