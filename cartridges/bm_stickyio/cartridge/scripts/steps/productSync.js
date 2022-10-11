@@ -15,7 +15,7 @@ exports.productSync = function (parameters) {
         if (product.isBundle()) {
             productBundles.push(product);
         } else {
-            stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false);
+            stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false, parameters['Force Update']);
         }
     }
 
@@ -25,6 +25,8 @@ exports.productSync = function (parameters) {
             let productBundle = productBundles[i];
             stickyio.syncProduct(productBundle, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false);
         }
+
+        stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false, parameters['Force Update']);
     }
 
     stickyio.createStraightSaleProduct();
