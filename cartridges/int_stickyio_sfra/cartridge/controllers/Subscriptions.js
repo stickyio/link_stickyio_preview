@@ -149,7 +149,16 @@ if (stickyioEnabled) {
             }
 
             var exitLinkText = Resource.msg('label.subscriptionmanagement.orderheader', 'stickyio', null);
-            var exitLinkUrl = URLUtils.https('Subscriptions-List', 'orderFilter', req.querystring.orderFilter);
+
+            let filter;
+            if (req.querystring.orderFilter === undefined) {
+                filter = '';
+            }
+            else {
+                filter = req.querystring.orderFilter;
+            }
+
+            var exitLinkUrl = URLUtils.https('Subscriptions-List', 'orderFilter', filter);
             var addressForm = server.forms.getForm('stickyAddress');
             addressForm.clear();
             var creditCardForm = server.forms.getForm('creditCard');
