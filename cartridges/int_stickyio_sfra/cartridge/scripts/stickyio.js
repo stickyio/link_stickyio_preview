@@ -991,7 +991,7 @@ function generateObjects() {
     var updateBillingModels = [];
     var stickyioCampaigns = getCampaignCustomObjectJSON(); // get our latest campaignJSON
     var i;
-    if (stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
+    if (stickyioCampaigns && stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
         for (i = 0; i < Object.keys(stickyioCampaigns.offers).length; i++) {
             var thisOfferID = Object.keys(stickyioCampaigns.offers)[i];
             if (thisOfferID !== 'updateSFCC') {
@@ -1000,7 +1000,7 @@ function generateObjects() {
             }
         }
     }
-    if (stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
+    if (stickyioCampaigns && stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
         for (i = 0; i < Object.keys(stickyioCampaigns.terms).length; i++) {
             var thisTermID = Object.keys(stickyioCampaigns.terms)[i];
             if (thisTermID !== 'updateSFCC') {
@@ -1015,7 +1015,7 @@ function generateObjects() {
             }
         }
     }
-    if (stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
+    if (stickyioCampaigns && stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
         for (i = 0; i < Object.keys(stickyioCampaigns.billingModels).length; i++) {
             var thisBMID = Object.keys(stickyioCampaigns.billingModels)[i];
             if (thisBMID !== 'updateSFCC') {
@@ -1669,10 +1669,31 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs, 
     body.product_max_quantity = 100;
     body.taxable = true;
     body.shippable = true;
+
+    if (product.isBundle()) {
+        body.bundle_type_id = 1;
+        body.price_type_id = 1;
+        body.bundle_products = [];
+
+        if (product.bundledProducts && product.bundledProducts.length > 0) {
+            for (let i = 0; i < product.bundledProducts.length; i++) {
+                let bundledProduct = product.bundledProducts[i];
+
+                if (bundledProduct.custom.stickyioProductID) {
+                    let length = body.bundle_products.length;
+                    body.bundle_products[length] = {};
+                    body.bundle_products[length].product_id = bundledProduct.custom.stickyioProductID;
+                    body.bundle_products[length].quantity = product.getBundledProductQuantity(bundledProduct).value; 
+                }
+            }
+        }
+    }
+
     let productGroupJSON = createProductGroupProductJSON(product);
     setProductGroupProductAttribute(product, productGroupJSON);
     body.product_group_attributes = JSON.stringify(productGroupJSON);
     body.disable_product_swap = 0; // TODO Update this once UI for managing product swap is ready
+
     if (productChange && product.custom.stickyioProductID !== null && (product.isMaster() || product.isProduct())) {
         if (!newProduct) { // update the product in sticky.io
             apiCall = 'stickyio.http.post.product_update';
