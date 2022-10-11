@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-header clearfix">
         <h3 class="pull-left">${Resource.msg('label.orderhistory.orderno','account',null)} ${subscription.orderNumbers[0].sfccOrderNo}</h3>
-        <isif condition="${subscription.orderData.nextRecurring}">
+        <isif condition="${subscription.orderData.nextRecurring && subscription.orderData.status !== 'canceled'}">
             <a href="${URLUtils.url('Subscriptions-Details', 'sid', subscription.subscriptionID, 'orderFilter', pdict.orderFilter)}" class="pull-right" aria-label="${Resource.msgf('label.manage', 'stickyio', null, subscription.subscriptionID)}">${Resource.msg('link.manage','stickyio',null)}</a>
         </isif>
     </div>
