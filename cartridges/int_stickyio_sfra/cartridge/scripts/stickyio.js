@@ -991,7 +991,7 @@ function generateObjects() {
     var updateBillingModels = [];
     var stickyioCampaigns = getCampaignCustomObjectJSON(); // get our latest campaignJSON
     var i;
-    if (stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
+    if (stickyioCampaigns && stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
         for (i = 0; i < Object.keys(stickyioCampaigns.offers).length; i++) {
             var thisOfferID = Object.keys(stickyioCampaigns.offers)[i];
             if (thisOfferID !== 'updateSFCC') {
@@ -1000,7 +1000,7 @@ function generateObjects() {
             }
         }
     }
-    if (stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
+    if (stickyioCampaigns && stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
         for (i = 0; i < Object.keys(stickyioCampaigns.terms).length; i++) {
             var thisTermID = Object.keys(stickyioCampaigns.terms)[i];
             if (thisTermID !== 'updateSFCC') {
@@ -1015,7 +1015,7 @@ function generateObjects() {
             }
         }
     }
-    if (stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
+    if (stickyioCampaigns && stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
         for (i = 0; i < Object.keys(stickyioCampaigns.billingModels).length; i++) {
             var thisBMID = Object.keys(stickyioCampaigns.billingModels)[i];
             if (thisBMID !== 'updateSFCC') {
@@ -1634,9 +1634,10 @@ function updateLastSync(product) {
  * @param {dw.catalog.Product} product - SFCC product
  * @param {boolean} resetProductVariants - boolean flag to reset the product's variant's custom sticky.io attributes
  * @param {boolean} persistStickyIDs - boolean flag to persist product's custom sticky.io product IDs when resetProducts is true
+ * @param {boolean} forceUpdate - boolean flag to ignore the last updated timestamp
  * @returns {void}
  */
-function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) {
+function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs, forceUpdate) {
     var newProduct = true;
     var existantProduct = getCorrespondingPIDandName(product.ID, 0); // check to see if this product exists in sticky.io
     if (existantProduct) { // it exists
@@ -1653,7 +1654,9 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
     if (product.isVariant() && product.masterProduct.custom.stickyioSubscriptionActive === true) { stickyioData.stickyioResponse = 'skip'; } // this is a variant bound to a subscribe-able master, so don't create it as a stand-alone product
     var lastModified = new Calendar(product.getLastModified()).getTime().getTime();
     var storedLastModified = product.custom.stickyioLastSync ? product.custom.stickyioLastSync.getTime() : 0;
-    if (lastModified > storedLastModified) { productChange = true; }
+    if (lastModified > storedLastModified || forceUpdate) {
+        productChange = true;
+    }
     var apiCall = 'stickyio.http.post.product_create';
     var params = {};
     var body = {};
@@ -1666,10 +1669,31 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
     body.product_max_quantity = 100;
     body.taxable = true;
     body.shippable = true;
+
+    if (product.isBundle()) {
+        body.bundle_type_id = 1;
+        body.price_type_id = 1;
+        body.bundle_products = [];
+
+        if (product.bundledProducts && product.bundledProducts.length > 0) {
+            for (let i = 0; i < product.bundledProducts.length; i++) {
+                let bundledProduct = product.bundledProducts[i];
+
+                if (bundledProduct.custom.stickyioProductID) {
+                    let length = body.bundle_products.length;
+                    body.bundle_products[length] = {};
+                    body.bundle_products[length].product_id = bundledProduct.custom.stickyioProductID;
+                    body.bundle_products[length].quantity = product.getBundledProductQuantity(bundledProduct).value; 
+                }
+            }
+        }
+    }
+
     let productGroupJSON = createProductGroupProductJSON(product);
     setProductGroupProductAttribute(product, productGroupJSON);
     body.product_group_attributes = JSON.stringify(productGroupJSON);
     body.disable_product_swap = 0; // TODO Update this once UI for managing product swap is ready
+
     if (productChange && product.custom.stickyioProductID !== null && (product.isMaster() || product.isProduct())) {
         if (!newProduct) { // update the product in sticky.io
             apiCall = 'stickyio.http.post.product_update';
@@ -1860,9 +1884,10 @@ function syncOffers(localAllStickyioProducts) {
  * @param {boolean} reset - Job parameter to reset all custom sticky.io attributes
  * @param {boolean} persist - Job parameter to persist sticky.io product IDs in the face of a rest
  * @param {boolean} recursed - Flag to know if this is a recursion call
+ * @param {boolean} forceUpdate - Flag to update the product to sticky, ignoring the last updated timestamp
  * @returns {void}
  */
-function syncProduct(product, localAllStickyioProducts, reset, persist, recursed) {
+function syncProduct(product, localAllStickyioProducts, reset, persist, recursed, forceUpdate) {
     var thisProduct = product;
     var productSetProducts;
     var thisReset = reset;
@@ -1894,11 +1919,11 @@ function syncProduct(product, localAllStickyioProducts, reset, persist, recursed
                 var i;
                 for (i = 0; i < productSetProducts.length; i++) {
                     setupProductSetProduct(thisProduct, productSetProducts[i]);
-                    syncProduct(productSetProducts[i], allStickyioProducts, thisReset, thisPersist, true);
+                    syncProduct(productSetProducts[i], allStickyioProducts, thisReset, thisPersist, true, forceUpdate);
                 }
             } else {
                 if (recursed) { thisReset = false; } // don't reset the product and its possible variants a second time
-                createOrUpdateProduct(thisProduct, thisReset, thisPersist);
+                createOrUpdateProduct(thisProduct, thisReset, thisPersist, forceUpdate);
             }
         }
     }
@@ -2320,6 +2345,7 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels)
     stickyioOrderData.stickyioAllowPause = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowPause');
     stickyioOrderData.stickyioAllowTerminateNext = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowTerminateNext');
     stickyioOrderData.stickyioAllowStop = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowStop');
+    stickyioOrderData.stickyioSubManAllowSkipNow = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowSkipNow');
 
     if (stickyioOrderData.stickyioAllowReset !== true
         && stickyioOrderData.stickyioAllowBillNow !== true
@@ -2611,6 +2637,7 @@ function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date,
     if (action === 'terminate_next') { return subManTerminateNext(subscriptionID, noteId, noteText); }
     if (action === 'reset') { return subManReset(subscriptionID); }
     if (action === 'bill_now') { return subManBillNow(orderNo, orderToken, subscriptionID); }
+    if (action === 'skip_next_cycle') { return subManSkipNextCycle(subscriptionID); }
     return false;
 }
 
@@ -2996,8 +3023,10 @@ function saveProductImagesOnSticky(product) {
 
     viewTypes.forEach(viewType => {
         if (currentImages[viewType] !== stickyioSyncedImages[viewType]) {
-            const stickyImageId = uploadImageToSticky(currentImages[viewType], viewType, product);
-            stickyImageIdsToSync.push(stickyImageId);
+            if (currentImages[viewType]) {
+                const stickyImageId = uploadImageToSticky(currentImages[viewType], viewType, product);
+                stickyImageIdsToSync.push(stickyImageId);
+            }
         }
     });
 
@@ -3058,6 +3087,37 @@ function attachImageToStickyProduct(product, stickyImageIds) {
     }
     Logger.error('Error while attaching image for PID: ' + product.ID);
     throw new Error('Error while attaching image for PID: ' + product.ID);
+}
+
+/**
+ * Skip the next cycle of the subscription
+ * @param {string} subscriptionID - sticky.io subscription ID
+ * @returns {Object} - result of the call
+ */
+function subManSkipNextCycle(subscriptionID) {
+    let params  = {};
+    params.body = {
+        subscription_id: subscriptionID
+    }
+
+    let stickyioResponse = stickyioAPI('stickyio.http.post.skip_next_billing').call(params);
+
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
+        return {
+            message: Resource.msg('label.subscriptionmanagement.response.recur_at', 'stickyio', null)
+        };
+    }
+
+    let message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+
+    if (stickyioResponse && stickyioResponse.errorMessage) {
+        message = JSON.parse(stickyioResponse.errorMessage);
+    }
+
+    return {
+        error: true,
+        message: message
+    };
 }
 
 module.exports = {
