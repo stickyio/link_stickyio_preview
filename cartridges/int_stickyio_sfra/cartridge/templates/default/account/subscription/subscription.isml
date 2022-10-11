@@ -13,7 +13,7 @@
                         <p style="color:#1C3F6F">Your previous product was updated. You can make changes until your <span style="font-weight: bold">Next Shipment Date<span> on ${subscription.recurring_date}.</p>
                     </div>
                 </div>
-            </div>           
+            </div>
         </div>
     </div>
 </isif>
@@ -37,11 +37,11 @@
                     <isif condition="${subscription.stickyioAllowBillNow}"><option value="bill_now" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'bill_now', 'sid',subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" ${subscription.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.bill_now', 'stickyio', null)}</option></isif>
                     <isif condition="${subscription.stickyioAllowSubManStopOptions}">
                         <optgroup label="${Resource.msg('label.subscriptionmanagement.stoplabel', 'stickyio', null)}">
-                            <isif condition="${subscription.stickyioAllowStop}"><option value="cancel" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'cancel', 'sid',subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" ${subscription.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.stop', 'stickyio', null)}</option></isif> 
+                            <isif condition="${subscription.stickyioAllowStop}"><option value="cancel" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'cancel', 'sid',subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" ${subscription.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.stop', 'stickyio', null)}</option></isif>
                             <isif condition="${subscription.stickyioAllowTerminateNext}"><option value="terminate_next" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'terminate_next', 'sid',subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" ${subscription.on_hold?'disabled':''}>${Resource.msg('label.subscriptionmanagement.terminate_next', 'stickyio', null)}</option></isif>
                         </optgroup>
                     </isif>
- 
+
                 </select>
             </isif>
         </div>
@@ -56,7 +56,7 @@
                 <p>${Resource.msg('label.subscriptionmanagement.status','stickyio',null)}: <span class="dashboard-order-card-status">${subscription.orderData.statusText}</span></p>
                 <div class="subscriptionmanagement" data-subscriptionid="${subscription.subscriptionID}">
                     <p>
-                        ${Resource.msg('label.subscription', 'stickyio', null)}: 
+                        ${Resource.msg('label.subscription', 'stickyio', null)}:
                         <isif condition="${subscription.billingModels && subscription.billingModels.length > 1 && subscription.stickyioAllowUpdateBillingModel === true && subscription.is_recurring}">
                             <select class="updatebillingmodel quickview" data-initialvalue="${subscription.stickyioBillingModelID}">
                                 <isloop items="${subscription.billingModels}" var="billingmodel">
@@ -79,7 +79,7 @@
                                 </isloop>
                             </isif>
                             <p>
-                                ${Resource.msg('label.subscriptionmanagement.nextrecurring','stickyio',null)}: 
+                                ${Resource.msg('label.subscriptionmanagement.nextrecurring','stickyio',null)}:
                                 <i class="fa fa-calendar-times-o"></i>
                                 <isif condition="${subscription.stickyioAllowRecurring === true}">
                                     <input type="text" size="11" class="datepicker" placeholder="${subscription.recurring_date}" data-initialvalue="${subscription.recurring_date}" data-href="${URLUtils.url('Subscriptions-Manage', 'action', 'recur_at', 'sid', subscription.subscriptionID, 'ID', subscription.orderNumbers[0].sfccOrderNo, 'token', subscription.orderNumbers[0].sfccOrderToken)}" value="${subscription.recurring_date}"/>
@@ -105,6 +105,9 @@
                         </isif>
                         <isif condition="${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + subscription.subscriptionID).value}">
                             <p class="stickyiosubscriptionresponse">${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + subscription.subscriptionID).value}</p>
+                        </isif>
+                        <isif condition="${pdict.CurrentRequest.httpParameterMap.get('subscription_error_msg_' + subscription.subscriptionID).value}">
+                            <p class="stickyiosubscriptionresponse stickyiosubmanerror">${pdict.CurrentRequest.httpParameterMap.get('subscription_error_msg_' + subscription.subscriptionID).value}</p>
                         </isif>
                     </isif>
                 </div>

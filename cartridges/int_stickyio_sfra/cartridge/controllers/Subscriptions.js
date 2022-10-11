@@ -308,13 +308,14 @@ if (stickyioEnabled) {
             if (!error) {
                 if (confirm) {
                     var stickyioResponse = stickyio.stickyioSubMan(ID, token, sid, action, bmid, date, req.currentCustomer.profile, noteId, noteText);
+                    var url = req.httpHeaders.get('referer').replace(/&subscriptionmsg_([0-9a-f]{32}=[^&]*)?|^subscriptionmsg_([0-9a-f]{32}=[^&]*)?&?/, ''); // strip any existing stickyiomsg parameter off the URL
                     if (stickyioResponse.error) {
                         res.json({
                             error: stickyioResponse.error,
-                            message: stickyioResponse.message.message
+                            message: stickyioResponse.message.message,
+                            redirectURL: url + '&subscription_error_msg_' + sid + '=' + stickyioResponse.message.message
                         });
                     } else {
-                        var url = req.httpHeaders.get('referer').replace(/&subscriptionmsg_([0-9a-f]{32}=[^&]*)?|^subscriptionmsg_([0-9a-f]{32}=[^&]*)?&?/, ''); // strip any existing stickyiomsg parameter off the URL
                         res.json({
                             redirectURL: url + '&subscriptionmsg_' + sid + '=' + stickyioResponse.message
                         });
