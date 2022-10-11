@@ -7,9 +7,24 @@ exports.productSync = function (parameters) {
     var products = ProductMgr.queryAllSiteProducts();
     var allStickyioProducts = stickyio.getAllStickyioMasterProducts();
 
+    let productBundles = [];
     while (products.hasNext()) {
         var product = products.next();
-        stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false);
+
+        // Sync all single products first
+        if (product.isBundle()) {
+            productBundles.push(product);
+        } else {
+            stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false);
+        }
+    }
+
+    // Sync product bundles
+    if (productBundles.length > 0) {
+        for (let i = 0; i < productBundles.length; i++) {
+            let productBundle = productBundles[i];
+            stickyio.syncProduct(productBundle, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false);
+        }
     }
 
     stickyio.createStraightSaleProduct();
