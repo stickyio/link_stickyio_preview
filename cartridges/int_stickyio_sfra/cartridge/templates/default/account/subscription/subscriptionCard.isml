@@ -12,7 +12,7 @@
             </div>
             <div class="col-sm-8 col-12">
                 <p>${Resource.msg('label.subscriptionmanagement.productname','stickyio',null)}: <isprint value="${subscription.orderData.name}"/></p>
-                <isif condition="${subscription.orderData.nextRecurring}">
+                <isif condition="${subscription.orderData.nextRecurring && subscription.orderData.status !== 'canceled'}">
                     <p>${Resource.msg('label.subscriptionmanagement.nextrecurring','stickyio',null)}: <span ${subscription.orderData.status === 'hold' ? 'class=stickyiohold' : ''}><isprint value="${subscription.orderData.nextRecurring}"/></span></p>
                 </isif>
                 <p>${Resource.msg('label.subscriptionmanagement.status','stickyio',null)}: <span class="dashboard-order-card-status">${subscription.orderData.statusText}</span></p>
