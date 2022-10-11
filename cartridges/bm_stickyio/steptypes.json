@@ -37,6 +37,12 @@
                         "description": "When Reset All Products is checked, don't create new products in sticky.io and use existing sticky.io product IDs. If Reset All Products is checked and Persist Product IDs is unchecked, products will be created again in sticky.io.",
                         "@type": "boolean",
                         "@required": false
+                    },
+                    {
+                        "@name": "Force Update",
+                        "description": "This parameter will force the update of the product on sticky.io",
+                        "@type": "boolean",
+                        "@required": false
                     }
                 ]
             },

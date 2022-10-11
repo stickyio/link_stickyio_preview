@@ -9,7 +9,7 @@ exports.productSync = function (parameters) {
 
     while (products.hasNext()) {
         var product = products.next();
-        stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false);
+        stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false, parameters['Force Update']);
     }
 
     stickyio.createStraightSaleProduct();
