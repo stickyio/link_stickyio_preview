@@ -449,6 +449,40 @@
                     </value-definition>
                 </value-definitions>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioDisableProductSwap">
+                <display-name xml:lang="x-default">Disable product swap</display-name>
+                <description xml:lang="x-default">Disable product swap</description>
+                <type>boolean</type>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioFilters">
+                <display-name xml:lang="x-default">Filters for product groups</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSyncedImages">
+                <display-name xml:lang="x-default">Synced Images</display-name>
+                <description xml:lang="x-default">JSON string containing data about image syncing to sticky</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="stickyio">
@@ -464,6 +498,7 @@
                 <attribute attribute-id="stickyioBillingModelConsumerSelectable"/>
                 <attribute attribute-id="stickyioTermsConsumerSelectable"/>
                 <attribute attribute-id="stickyioVertical"/>
+                <attribute attribute-id="stickyioDisableProductSwap"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
@@ -759,11 +794,35 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioOOSEmailEnabled">
+                <display-name xml:lang="x-default">Out Of Stock Email Enabled</display-name>
+                <description xml:lang="x-default">Send customer an out-of-stock email when a subscription product does not have enough quantity available to fulfill the order.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioMultiCurrencyOptions">
                 <display-name xml:lang="x-default">MultiCurrency options</display-name>
                 <description xml:lang="x-default">Internal object to map different currencies with the proper sticky's gateways</description>
                 <type>string</type>
                 <mandatory-flag>false</mandatory-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioProductSwapEnabled">
+                <display-name xml:lang="x-default">Enable Product Swap</display-name>
+                <description xml:lang="x-default">Create groups of products allowed to be swapped.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowSkipNow">
+                <display-name xml:lang="x-default">Allow Skip Next Cycle</display-name>
+                <description xml:lang="x-default">Allow the consumer to skip the next cycle for their subscription</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
             </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
@@ -782,6 +841,7 @@
                 <attribute attribute-id="stickyioPauseEmailEnabled"/>
                 <attribute attribute-id="stickyioReminderEmailEnabled"/>
                 <attribute attribute-id="stickyioReminderDaysOut"/>
+                <attribute attribute-id="stickyioOOSEmailEnabled"/>
                 <attribute attribute-id="stickyioForceRegisteredCheckout"/>
                 <attribute attribute-id="stickyioSubManAllowRecurringDate"/>
                 <attribute attribute-id="stickyioSubManAllowUpdateBillingModel"/>
@@ -790,6 +850,8 @@
                 <attribute attribute-id="stickyioSubManAllowTerminateNext"/>
                 <attribute attribute-id="stickyioSubManAllowReset"/>
                 <attribute attribute-id="stickyioSubManAllowBillNow"/>
+                <attribute attribute-id="stickyioSubManAllowSkipNow"/>
+                <attribute attribute-id="stickyioProductSwapEnabled"/>
             </attribute-group>
         </group-definitions>
     </type-extension>

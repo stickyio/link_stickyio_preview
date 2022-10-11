@@ -1644,6 +1644,9 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
             updateProductID(product, existantProduct.stickyioProductID);
             newProduct = false;
         }
+        if (product.custom.stickyioProductID) {
+            newProduct = false;
+        }
     }
     var productChange = false;
     var stickyioData = {};
@@ -1683,13 +1686,21 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
         }
     }
 
+    let productGroupJSON = createProductGroupProductJSON(product);
+    setProductGroupProductAttribute(product, productGroupJSON);
+    body.product_group_attributes = JSON.stringify(productGroupJSON);
+    body.disable_product_swap = 0; // TODO Update this once UI for managing product swap is ready
+
     if (productChange && product.custom.stickyioProductID !== null && (product.isMaster() || product.isProduct())) {
         if (!newProduct) { // update the product in sticky.io
             apiCall = 'stickyio.http.post.product_update';
             params.body = {};
             params.body.product_id = {};
             params.body.product_id[product.custom.stickyioProductID] = body;
+            params.body.product_group_attributes = JSON.stringify(productGroupJSON);
+            params.body.disable_product_swap = 0; // TODO Update this once UI for managing product swap is ready
             stickyioData = { stickyioResponse: stickyioAPI(apiCall).call(params), productChange: productChange, newProduct: newProduct };
+            saveProductImagesOnSticky(product);
         }
     }
     if (product.custom.stickyioProductID === null) { // create the product in sticky.io
@@ -1698,6 +1709,7 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs) 
     } else { stickyioData = { stickyioResponse: false, productChange: productChange, newProduct: newProduct }; }
     if (stickyioData.stickyioResponse !== false && stickyioData.stickyioResponse !== 'skip') {
         updateSFCCProductAttributes(product, stickyioData.stickyioResponse, stickyioData.productChange, stickyioData.newProduct, (product.custom.stickyioVertical === null));
+        saveProductImagesOnSticky(product);
     }
     if (product.isMaster()) {
         var stickyioResponse = getAttributes(product.custom.stickyioProductID);
@@ -2329,6 +2341,7 @@ function getSubscriptionData(stickyioOrderNumber, subscriptionID, billingModels)
     stickyioOrderData.stickyioAllowPause = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowPause');
     stickyioOrderData.stickyioAllowTerminateNext = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowTerminateNext');
     stickyioOrderData.stickyioAllowStop = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowStop');
+    stickyioOrderData.stickyioSubManAllowSkipNow = Site.getCurrent().getCustomPreferenceValue('stickyioSubManAllowSkipNow');
 
     if (stickyioOrderData.stickyioAllowReset !== true
         && stickyioOrderData.stickyioAllowBillNow !== true
@@ -2620,6 +2633,7 @@ function stickyioSubMan(orderNo, orderToken, subscriptionID, action, bmID, date,
     if (action === 'terminate_next') { return subManTerminateNext(subscriptionID, noteId, noteText); }
     if (action === 'reset') { return subManReset(subscriptionID); }
     if (action === 'bill_now') { return subManBillNow(orderNo, orderToken, subscriptionID); }
+    if (action === 'skip_next_cycle') { return subManSkipNextCycle(subscriptionID); }
     return false;
 }
 
@@ -2805,6 +2819,301 @@ function getMulticurrencyObject() {
     return JSON.parse(multiCurrencyProperty);
 }
 
+/**
+ * Get swap products from Product Group
+ * @param {string} productId - Product ID
+ * @returns {Array} - Array of products found in the product group
+ */
+ function getSwapProducts(productId) {
+    let params = {};
+    let productIds = [];
+    let products = [];
+
+    let currencysymbol = Resource.msg('productdetail.currencysymbol.' + Site.getCurrent().getDefaultCurrency(), 'stickyio', '$');
+    let stickyioResponse = stickyioAPI('stickyio.http.get.product_groups').call(params);
+
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
+        let siteID = Site.getCurrent().ID;
+
+        for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {
+            let productGroup = stickyioResponse.object.result.data[i];
+            if (productGroup.products && productGroup.products.includes(productId) && productGroup.system.indexOf(siteID) > 0) {
+                productIds = productGroup.products;
+                break;
+            }
+        }
+    }
+
+    for (let i = 0; i < productIds.length; i++) {
+        let sfccProduct = ProductMgr.getProduct(productIds[i]);
+
+        if (sfccProduct) {
+            let images = sfccProduct.getImages('small');
+            let image = images.length > 0 ? images[0].absURL.toString() : null;
+
+            products.push(
+                {
+                    name: sfccProduct.name,
+                    price: currencysymbol + sfccProduct.priceModel.price.value,
+                    imgurl: image,
+                    productId: sfccProduct.ID,
+                }
+            )
+        }
+    }
+
+    return products;
+}
+
+/**
+ * update a subscription order
+ * @param {number} orderNumber - sticky.io order number
+ * @param {number} productId - sticky.io product ID
+ * @param {number} newRecurringProductId - new recurring product ID
+ * @param {number} newRecurringVariantId - new recurring variant ID
+ * @param {number} newRecurringQuantity - new recurring quantity
+ * @param {number} offerId - new offer ID
+ * @param {number} billingModelId - new billing model ID
+ * @param {number} newRecurringProductPrice - new recurring product price
+ * @returns {string} - Response message
+ */
+function subscriptionOrderUpdate(orderNumber, productId, newRecurringProductId, newRecurringVariantId, newRecurringQuantity, offerId, billingModelId, newRecurringProductPrice) {
+    var params = {};
+    var body = {};
+    body.order_id = orderNumber;
+    body.product_id = productId;
+    body.new_recurring_product_id = newRecurringProductId;
+    body.new_recurring_variant_id = newRecurringVariantId;
+    body.new_recurring_quantity = newRecurringQuantity;
+
+    if (newRecurringProductPrice > 0) {
+        body.new_recurring_price = newRecurringProductPrice.toFixed(2);;
+    }
+
+    if (offerId > 0) {
+        body.new_recurring_offer_id = offerId;
+    }
+
+    if (billingModelId > 0) {
+        body.billing_model_id = billingModelId;
+    }
+
+    params.body = body;
+
+    var stickyioResponse = stickyioAPI('stickyio.http.post.subscription_order_update').call(params);
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
+        return '';
+    }
+
+    return stickyioResponse.object.result.response_message;
+}
+
+/**
+ * Fetch all the custom fields created on sticky.io
+ * @returns {Array}
+ */
+function getAllStickyioCustomFields() {
+    let endpoint = 'stickyio.http.get.custom_fields';
+    let params = {};
+    let response = stickyioAPI(endpoint).call(params);
+    return response.object.result.data;
+}
+
+/**
+ * Creates the product group JSON
+ * @param product
+ * @return {{Filters: {'SFCC-Categories': *[]}}}
+ */
+function createProductGroupProductJSON(product) {
+    let productGroupJSON = {
+        'Filters': {
+            'SFCC-Categories': []
+        }
+    };
+    let categories = product.categories.toArray();
+    categories.forEach(category => {
+        let categoryData = {};
+        categoryData[category.displayName] = category.ID;
+        productGroupJSON.Filters['SFCC-Categories'].push(categoryData);
+    })
+    return productGroupJSON;
+}
+
+/**
+ * Set the product group JSON property on the SFCC product
+ * @param product
+ * @param property
+ */
+function setProductGroupProductAttribute(product, property) {
+    Transaction.wrap(function () {
+        product.custom.stickyioFilters = property;
+    });
+}
+
+/**
+ * Get next recurring product
+ * @param {string} subscriptionId - Subscription ID
+ * @returns {Object} - master and variant skus of the next recurring product + quantity
+ */
+ function getNextRecurringProduct(subscriptionId) {
+    let nextRecurringProduct = {};
+
+    let params = {};
+    params.id = subscriptionId;
+
+    let stickyioResponse = stickyioAPI('stickyio.http.get.subscriptions').call(params);
+
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data && stickyioResponse.object.result.data.next_product) {
+        nextRecurringProduct.masterSku = stickyioResponse.object.result.data.next_product.sku;
+        nextRecurringProduct.quantity = stickyioResponse.object.result.data.next_product.quantity;
+        nextRecurringProduct.nextVariantID = stickyioResponse.object.result.data.next_product.variant_id;
+
+        if (nextRecurringProduct.nextVariantID && nextRecurringProduct.nextVariantID > 0) {
+            stickyioResponse = getVariants(stickyioResponse.object.result.data.next_product.id, true);
+            if (stickyioResponse && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS' && stickyioResponse.object.result.data) {
+                for (let i = 0; i < stickyioResponse.object.result.data.length; i++) {
+                    let variantProduct = stickyioResponse.object.result.data[i];
+                    if (variantProduct.id == nextRecurringProduct.nextVariantID) {
+                        nextRecurringProduct.variantSku = variantProduct.sku_num;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return nextRecurringProduct;
+}
+
+/**
+ * Saves the image on sticky, attaches it to the product and updates the SFCC custom field
+ * @param product
+ */
+function saveProductImagesOnSticky(product) {
+    let currentImages = {};
+    let stickyioSyncedImages;
+    const viewTypes = [
+        'hi-res',
+        'large',
+        'medium',
+        'small',
+        'swatch'
+    ];
+
+    if (product.custom.stickyioSyncedImages) {
+        stickyioSyncedImages = JSON.parse(product.custom.stickyioSyncedImages);
+    } else {
+        stickyioSyncedImages = {};
+    }
+
+    viewTypes.forEach(viewType => {
+        const image = product.getImages(viewType);
+        if (! image.empty) {
+            currentImages[viewType] = image[0].absURL.toString(); // Only sync the first image of each type
+        } else {
+            currentImages[viewType] = null;
+        }
+    });
+
+    let stickyImageIdsToSync = [];
+
+    viewTypes.forEach(viewType => {
+        if (currentImages[viewType] !== stickyioSyncedImages[viewType]) {
+            const stickyImageId = uploadImageToSticky(currentImages[viewType], viewType, product);
+            stickyImageIdsToSync.push(stickyImageId);
+        }
+    });
+
+    if (stickyImageIdsToSync. length === 0) {
+        return;
+    }
+    attachImageToStickyProduct(product, stickyImageIdsToSync);
+
+    try {
+        Transaction.wrap(function() {
+            product.custom.stickyioSyncedImages = JSON.stringify(currentImages);
+        });
+    } catch (e) {
+        Logger.error('Error while setting sticky.io custom attributes for PID: ' + product.ID + ': ' + JSON.stringify(e, null, 2));
+        throw e;
+    }
+}
+
+/**
+ * Uploads the image to sticky and returns the ID
+ * @param imageURL
+ * @param viewType
+ * @param product
+ * @return {*}
+ */
+function uploadImageToSticky(imageURL, viewType, product) {
+    let apiCall = 'stickyio.http.post.images';
+    let params = {};
+    let body = {};
+    body.image = imageURL;
+    body.alias = product.ID + '-' + viewType + '-' + Date.now().toString();
+    params.body = body;
+    let response = stickyioAPI(apiCall).call(params);
+    if (response.object.result.status === 'SUCCESS') {
+        return response.object.result.data.id;
+    }
+    Logger.error('Error while uploading image for PID: ' + product.ID);
+    throw new Error('Error while uploading image for PID: ' + product.ID);
+}
+
+/**
+ * Attach images IDS to sticky product
+ * @param product
+ * @param stickyImageIds
+ * @return {boolean}
+ */
+function attachImageToStickyProduct(product, stickyImageIds) {
+    let apiCall = 'stickyio.http.put.products.images';
+    let params = {};
+    let body = {};
+    params.id = product.custom.stickyioProductID;
+    params.helper = 'images';
+    body.image_ids = stickyImageIds;
+    params.body = body;
+    let response = stickyioAPI(apiCall).call(params);
+    if (response.object.result.status === 'SUCCESS') {
+        return true;
+    }
+    Logger.error('Error while attaching image for PID: ' + product.ID);
+    throw new Error('Error while attaching image for PID: ' + product.ID);
+}
+
+/**
+ * Skip the next cycle of the subscription
+ * @param {string} subscriptionID - sticky.io subscription ID
+ * @returns {Object} - result of the call
+ */
+function subManSkipNextCycle(subscriptionID) {
+    let params  = {};
+    params.body = {
+        subscription_id: subscriptionID
+    }
+
+    let stickyioResponse = stickyioAPI('stickyio.http.post.skip_next_billing').call(params);
+
+    if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.response_code === '100') {
+        return {
+            message: Resource.msg('label.subscriptionmanagement.response.recur_at', 'stickyio', null)
+        };
+    }
+
+    let message = Resource.msg('label.subscriptionmanagement.response.genericerror', 'stickyio', null);
+
+    if (stickyioResponse && stickyioResponse.errorMessage) {
+        message = JSON.parse(stickyioResponse.errorMessage);
+    }
+
+    return {
+        error: true,
+        message: message
+    };
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -2849,4 +3158,10 @@ module.exports = {
     getCancellationNoteTemplates: getCancellationNoteTemplates,
     getCancellationRequiredConfig: getCancellationRequiredConfig,
     getMulticurrencyObject: getMulticurrencyObject,
+    getSwapProducts:getSwapProducts,
+    subscriptionOrderUpdate:subscriptionOrderUpdate,
+    getAllStickyioCustomFields: getAllStickyioCustomFields,
+    createProductGroupProductJSON: createProductGroupProductJSON,
+    getNextRecurringProduct: getNextRecurringProduct,
+    saveProductImagesOnSticky: saveProductImagesOnSticky,
 };
