@@ -991,7 +991,7 @@ function generateObjects() {
     var updateBillingModels = [];
     var stickyioCampaigns = getCampaignCustomObjectJSON(); // get our latest campaignJSON
     var i;
-    if (stickyioCampaigns && stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
+    if (stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
         for (i = 0; i < Object.keys(stickyioCampaigns.offers).length; i++) {
             var thisOfferID = Object.keys(stickyioCampaigns.offers)[i];
             if (thisOfferID !== 'updateSFCC') {
@@ -1000,7 +1000,7 @@ function generateObjects() {
             }
         }
     }
-    if (stickyioCampaigns && stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
+    if (stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
         for (i = 0; i < Object.keys(stickyioCampaigns.terms).length; i++) {
             var thisTermID = Object.keys(stickyioCampaigns.terms)[i];
             if (thisTermID !== 'updateSFCC') {
@@ -1015,7 +1015,7 @@ function generateObjects() {
             }
         }
     }
-    if (stickyioCampaigns && stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
+    if (stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
         for (i = 0; i < Object.keys(stickyioCampaigns.billingModels).length; i++) {
             var thisBMID = Object.keys(stickyioCampaigns.billingModels)[i];
             if (thisBMID !== 'updateSFCC') {
