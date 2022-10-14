@@ -119,6 +119,9 @@
                         <isif condition="${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + subscription.subscriptionID).value}">
                             <p class="stickyiosubscriptionresponse">${pdict.CurrentRequest.httpParameterMap.get('subscriptionmsg_' + subscription.subscriptionID).value}</p>
                         </isif>
+                        <isif condition="${pdict.CurrentRequest.httpParameterMap.get('subscription_error_msg_' + subscription.subscriptionID).value}">
+                            <p class="stickyiosubscriptionresponse stickyiosubmanerror">${pdict.CurrentRequest.httpParameterMap.get('subscription_error_msg_' + subscription.subscriptionID).value}</p>
+                        </isif>
                     </isif>
                 </div>
             </div>
