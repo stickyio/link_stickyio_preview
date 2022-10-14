@@ -23,10 +23,8 @@ exports.productSync = function (parameters) {
     if (productBundles.length > 0) {
         for (let i = 0; i < productBundles.length; i++) {
             let productBundle = productBundles[i];
-            stickyio.syncProduct(productBundle, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false);
+            stickyio.syncProduct(productBundle, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false, parameters['Force Update']);
         }
-
-        stickyio.syncProduct(product, allStickyioProducts, parameters['Reset All Products'], parameters['Persist Product IDs'], false, parameters['Force Update']);
     }
 
     stickyio.createStraightSaleProduct();
