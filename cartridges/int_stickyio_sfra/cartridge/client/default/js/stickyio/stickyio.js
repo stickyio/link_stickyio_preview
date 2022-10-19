@@ -255,3 +255,11 @@ $('body').on('editproductmodal:ready', function () {
         stickyio.disableAddToCart(null, stickyio.getClosestWrapper($('body'), true));
     }
 });
+
+$('#bundleStickyOffer').change(function(){
+    if ($(this).prop('selectedIndex') > 0) {
+        document.getElementById("btnAddBundleToCart").disabled = false;
+    } else {
+        document.getElementById("btnAddBundleToCart").disabled = true;
+    }
+})

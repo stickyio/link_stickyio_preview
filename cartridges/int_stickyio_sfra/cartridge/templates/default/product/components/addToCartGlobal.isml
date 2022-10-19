@@ -1,7 +1,7 @@
 <div class="row cart-and-ipay">
     <div class="col-sm-12">
         <input type="hidden" class="add-to-cart-url" value="${pdict.addToCartUrl}">
-        <button class="add-to-cart-global btn btn-primary"
+        <button class="add-to-cart-global btn btn-primary" id="btnAddBundleToCart"
                 data-pid="${product.id}"
                 data-sfccpid="${product.id}"
                 ${!product.readyToOrder || !product.available ? "disabled" : ""}>
