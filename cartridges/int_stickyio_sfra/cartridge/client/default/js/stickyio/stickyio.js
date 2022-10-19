@@ -257,7 +257,9 @@ $('body').on('editproductmodal:ready', function () {
 });
 
 $('#bundleStickyOffer').change(function(){
-    if ($(this).prop('selectedIndex') > 0) {
+    let bundleAvailable = document.getElementById("bundleAvailable").value;
+
+    if ($(this).prop('selectedIndex') > 0 && bundleAvailable  > 0) {
         document.getElementById("btnAddBundleToCart").disabled = false;
     } else {
         document.getElementById("btnAddBundleToCart").disabled = true;
