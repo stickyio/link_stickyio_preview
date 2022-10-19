@@ -75,7 +75,7 @@
                 <!-- sticky.io Subscription -->
                 <isif condition="${product.stickyio}">
                     <div class="row stickyiosubscriptioncontainer" data-attr="stickyiosubscription">
-                        <isinclude template="stickyio/stickyioProduct" />
+                        <isinclude template="stickyio/stickyioBundle" />
                     </div>
                 </isif>
 
