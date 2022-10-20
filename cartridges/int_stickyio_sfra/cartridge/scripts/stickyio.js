@@ -1665,7 +1665,7 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs, 
     body.vertical_id = parseInt(product.custom.stickyioVertical !== null ? product.custom.stickyioVertical.getValue() : 5, 10); // default to Clothing & Apparel
     body.product_sku = product.ID;
     body.product_price = product.getPriceModel().getPrice().value ? product.getPriceModel().getPrice().value.toFixed(2) : 0.01;
-    body.product_description = product.shortDescription.markup;
+    body.product_description = product.shortDescription ? product.shortDescription.markup : '';
     body.product_max_quantity = 100;
     body.taxable = true;
     body.shippable = true;
