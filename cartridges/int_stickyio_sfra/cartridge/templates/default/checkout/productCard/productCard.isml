@@ -11,6 +11,11 @@
         <div class="bundle-includes">${Resource.msg('msg.bundle.includes','cart',null)}</div>
         <!--- individual bundled line items --->
         <isinclude template="cart/productCard/cartProductCardBundledItems" />
+
+        <!--- Subscription Managmement --->
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('stickyioEnabled') && lineItem.stickyioBillingModelID}">
+            <isinclude template="stickyio/subscriptionManagement" />
+        </isif>
     <iselse/>
         <div class="product-line-item-details d-flex flex-row">
             <div class="item-image">
