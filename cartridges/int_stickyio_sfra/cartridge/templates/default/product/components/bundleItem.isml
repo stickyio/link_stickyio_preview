@@ -65,7 +65,7 @@
 
                 <div class="row">
                     <div class="col-12">
-                        <isinclude template="product/components/quantityStatic">
+                        <isinclude template="product/components/quantityStatic" />
                     </div>
                 </div>
             </div>

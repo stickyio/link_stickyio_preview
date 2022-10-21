@@ -22,7 +22,7 @@
 
     <isobject object="${product.raw}" view="detail" />
 
-    <div class="container product-detail" data-pid="${product.id}">
+    <div class="container product-detail product-wrapper" data-pid="${product.id}">
         <div class="row">
             <div class="col-12">
                 <!---Breadcrumbs--->
