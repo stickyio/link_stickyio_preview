@@ -1704,6 +1704,10 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs, 
             params.body.disable_product_swap = 0; // TODO Update this once UI for managing product swap is ready
             stickyioData = { stickyioResponse: stickyioAPI(apiCall).call(params), productChange: productChange, newProduct: newProduct };
             saveProductImagesOnSticky(product);
+
+            if (product.isBundle() && product.bundledProducts && product.bundledProducts.length > 0) {
+                updateBundledProducts(product);
+            } 
         }
     }
     if (product.custom.stickyioProductID === null) { // create the product in sticky.io
@@ -3120,6 +3124,42 @@ function subManSkipNextCycle(subscriptionID) {
     };
 }
 
+/**
+ * Update the bundled products of a product bundle
+ * @param product
+ * @return {boolean}
+ */
+ function updateBundledProducts(product) {
+    let apiCall = 'stickyio.http.put.products.update';
+    let params = {};
+    let body = {};
+    
+    body.bundle = {};
+    body.bundle.children = [];
+
+    for (let i = 0; i < product.bundledProducts.length; i++) {
+        let bundledProduct = product.bundledProducts[i];
+
+        if (bundledProduct.custom.stickyioProductID) {
+            let length = body.bundle.children.length;
+            body.bundle.children[length] = {};
+            body.bundle.children[length].product_id = bundledProduct.custom.stickyioProductID;
+            body.bundle.children[length].quantity = product.getBundledProductQuantity(bundledProduct).value; 
+        }
+    }
+
+    params.body = body;
+    params.id = product.custom.stickyioProductID;
+
+    let response = stickyioAPI(apiCall).call(params);
+    if (response.object.result.status === 'SUCCESS') {
+        return true;
+    }
+
+    Logger.error('Error while updating the bundled products for PID: ' + product.ID);
+    throw new Error('Error while updating the bundled products for PID: ' + product.ID);
+}
+
 module.exports = {
     stickyioAPI: stickyioAPI,
     sso: sso,
@@ -3170,4 +3210,5 @@ module.exports = {
     createProductGroupProductJSON: createProductGroupProductJSON,
     getNextRecurringProduct: getNextRecurringProduct,
     saveProductImagesOnSticky: saveProductImagesOnSticky,
+    updateBundledProducts: updateBundledProducts
 };
