@@ -195,15 +195,18 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
                     productLineItem.price = thisPLI.priceValue;
 
                     productLineItem.options = subscriptions[thisPLI.custom.stickyioSubscriptionID].orderData.options;
-                    for (let i = 0; i < productLineItem.options.length; i++) { 
-                        productLineItem.options[i].productId = productLineItem.productID; 
+
+                    if (productLineItem.options) {
+                        for (let i = 0; i < productLineItem.options.length; i++) {
+                            productLineItem.options[i].productId = productLineItem.productID;
+                        }
                     }
 
                     let custom = {};
                     custom.stickyioOfferID = thisPLI.custom.stickyioOfferID;
                     custom.stickyioBillingModelID = thisPLI.custom.stickyioBillingModelID;
                     custom.stickyioTermsID = thisPLI.custom.stickyioTermsID;
-                    
+
                     let productDetails = ProductMgr.getProduct(productLineItem.productID);
                     custom.stickyioDisableProductSwap = (productDetails && productDetails.custom.stickyioDisableProductSwap) ? productDetails.custom.stickyioDisableProductSwap : false;
 
@@ -245,7 +248,7 @@ function getSubscriptions(currentCustomer, querystring, locale, billingModels) {
                         if (billingModels) {
                             billingModel = stickyio.getBillingModelFromModels(thisProduct.billing_model.id, billingModels);
                         }
-                        
+
                         validSubscriptionIDs[thisProductSubscriptionID] = {
                             nextRecurring: stickyio.getNextDeliveryDate(thisStickyOrderData, thisProduct, thisProduct.recurring_date, billingModel),
                             statusText: Resource.msg('label.subscriptionmanagement.active', 'stickyio', null),
