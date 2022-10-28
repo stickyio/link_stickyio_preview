@@ -630,7 +630,7 @@
                 <min-length>0</min-length>
             </attribute-definition>
             <attribute-definition attribute-id="stickyioClientId">
-                <display-name xml:lang="x-default">stickyioClientID</display-name>
+                <display-name xml:lang="x-default">Sticky Client ID</display-name>
                 <description xml:lang="x-default">Used as part of authorization for Sticky notifications</description>
                 <type>string</type>
                 <mandatory-flag>false</mandatory-flag>
