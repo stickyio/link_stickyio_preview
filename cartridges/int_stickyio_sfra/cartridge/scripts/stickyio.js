@@ -991,39 +991,43 @@ function generateObjects() {
     var updateBillingModels = [];
     var stickyioCampaigns = getCampaignCustomObjectJSON(); // get our latest campaignJSON
     var i;
-    if (stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
-        for (i = 0; i < Object.keys(stickyioCampaigns.offers).length; i++) {
-            var thisOfferID = Object.keys(stickyioCampaigns.offers)[i];
-            if (thisOfferID !== 'updateSFCC') {
-                var thisOffer = stickyioCampaigns.offers[thisOfferID];
-                updateOffers.push({ id: thisOfferID, name: thisOffer.name });
-            }
-        }
-    }
-    if (stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
-        for (i = 0; i < Object.keys(stickyioCampaigns.terms).length; i++) {
-            var thisTermID = Object.keys(stickyioCampaigns.terms)[i];
-            if (thisTermID !== 'updateSFCC') {
-                var thisTerm = stickyioCampaigns.terms[thisTermID];
-                var discount = '';
-                if (thisTerm.value && thisTerm.value.toString() !== '0' && thisTerm.value.toString() !== '0.00') {
-                    discount = thisTerm.type === 'Amount' ? '$' + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
-                    discount = ' at ' + discount + ' off';
+
+    if (stickyioCampaigns) {
+        if (stickyioCampaigns.offers && stickyioCampaigns.offers.updateSFCC) { // offers
+            for (i = 0; i < Object.keys(stickyioCampaigns.offers).length; i++) {
+                var thisOfferID = Object.keys(stickyioCampaigns.offers)[i];
+                if (thisOfferID !== 'updateSFCC') {
+                    var thisOffer = stickyioCampaigns.offers[thisOfferID];
+                    updateOffers.push({id: thisOfferID, name: thisOffer.name});
                 }
-                var name = thisTerm.cycles + ' cycles' + discount;
+            }
+        }
+        if (stickyioCampaigns.terms && stickyioCampaigns.terms.updateSFCC) { // terms
+            for (i = 0; i < Object.keys(stickyioCampaigns.terms).length; i++) {
+                var thisTermID = Object.keys(stickyioCampaigns.terms)[i];
+                if (thisTermID !== 'updateSFCC') {
+                    var thisTerm = stickyioCampaigns.terms[thisTermID];
+                    var discount = '';
+                    if (thisTerm.value && thisTerm.value.toString() !== '0' && thisTerm.value.toString() !== '0.00') {
+                        discount = thisTerm.type === 'Amount' ? '$' + parseInt(thisTerm.value, 10).toFixed(2) : thisTerm.value + '%';
+                        discount = ' at ' + discount + ' off';
+                    }
+                    var name = thisTerm.cycles + ' cycles' + discount;
                 updateTerms.push({ id: thisTermID, cycles: thisTerm.cycles, value: thisTerm.value, type: thisTerm.type, name: name });
+                }
+            }
+        }
+        if (stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
+            for (i = 0; i < Object.keys(stickyioCampaigns.billingModels).length; i++) {
+                var thisBMID = Object.keys(stickyioCampaigns.billingModels)[i];
+                if (thisBMID !== 'updateSFCC') {
+                    var thisBM = stickyioCampaigns.billingModels[thisBMID];
+                    if (thisBMID !== '2') { updateBillingModels.push({id: thisBMID, name: thisBM.name}); } // exclude straight sale billing model
+                }
             }
         }
     }
-    if (stickyioCampaigns.billingModels && stickyioCampaigns.billingModels.updateSFCC) { // offers
-        for (i = 0; i < Object.keys(stickyioCampaigns.billingModels).length; i++) {
-            var thisBMID = Object.keys(stickyioCampaigns.billingModels)[i];
-            if (thisBMID !== 'updateSFCC') {
-                var thisBM = stickyioCampaigns.billingModels[thisBMID];
-                if (thisBMID !== '2') { updateBillingModels.push({ id: thisBMID, name: thisBM.name }); } // exclude straight sale billing model
-            }
-        }
-    }
+
     if (updateOffers.length > 0 || updateBillingModels.length > 0 || updateTerms.length > 0) {
         createSystemObjectXML(false, updateOffers, updateTerms, updateBillingModels);
         generateProductOptions(stickyioCampaigns.products, updateOffers, updateTerms, updateBillingModels);
@@ -1683,7 +1687,7 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs, 
                     let length = body.bundle_products.length;
                     body.bundle_products[length] = {};
                     body.bundle_products[length].product_id = bundledProduct.custom.stickyioProductID;
-                    body.bundle_products[length].quantity = product.getBundledProductQuantity(bundledProduct).value; 
+                    body.bundle_products[length].quantity = product.getBundledProductQuantity(bundledProduct).value;
                 }
             }
         }
@@ -1707,7 +1711,7 @@ function createOrUpdateProduct(product, resetProductVariants, persistStickyIDs, 
 
             if (product.isBundle() && product.bundledProducts && product.bundledProducts.length > 0) {
                 updateBundledProducts(product);
-            } 
+            }
         }
     }
     if (product.custom.stickyioProductID === null) { // create the product in sticky.io
@@ -3133,7 +3137,7 @@ function subManSkipNextCycle(subscriptionID) {
     let apiCall = 'stickyio.http.put.products.update';
     let params = {};
     let body = {};
-    
+
     body.bundle = {};
     body.bundle.children = [];
 
@@ -3144,7 +3148,7 @@ function subManSkipNextCycle(subscriptionID) {
             let length = body.bundle.children.length;
             body.bundle.children[length] = {};
             body.bundle.children[length].product_id = bundledProduct.custom.stickyioProductID;
-            body.bundle.children[length].quantity = product.getBundledProductQuantity(bundledProduct).value; 
+            body.bundle.children[length].quantity = product.getBundledProductQuantity(bundledProduct).value;
         }
     }
 
