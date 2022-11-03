@@ -1,0 +1,114 @@
+<isset name="stickyio" value="${null}" scope="page" />
+<isif condition="${pdict && pdict.stickyio && pdict.stickyio.stickyioReady === true}">
+	<isset name="stickyio" value="${pdict.stickyio}" scope="page" />
+<iselseif condition="${typeof (product) !== 'undefined' && product.stickyio && product.stickyio.stickyioReady === true}" />
+	<isset name="stickyio" value="${product.stickyio}" scope="page" />
+<iselseif condition="${typeof (thisProduct) !== 'undefined' && thisProduct.stickyio && thisProduct.stickyio.stickyioReady === true}" />
+	<isset name="stickyio" value="${thisProduct.stickyio}" scope="page" />
+</isif>
+
+<isif condition="${stickyio && stickyio.stickyioReady === true}">
+	<iscontent type="text/html" charset="UTF-8" compact="true" />
+	<div class="col-12">
+		<div class="attribute stickyiosubscription"
+			data-wrapperpid="${stickyio.stickyioProductWrapper}"
+			data-sfccpid="${stickyio.id}"
+			data-producttype="${stickyio.productType}"
+			data-offertype="${stickyio.offerType}"
+			data-stickyiourl="${stickyio.stickyioBaseURL}"
+			data-stickyiosubscriptionactive="${stickyio.stickyioSubscriptionActive}"
+			data-stickyiobillingmodelconsumerselectable="${stickyio.stickyioBillingModelConsumerSelectable}"
+			data-stickyiotermsconsumerselectable="${stickyio.stickyioTermsConsumerSelectable}"
+			data-stickyiopid="${stickyio.stickyioPID}"
+			data-stickyiocid="${stickyio.stickyioCID}"
+			data-stickyiovid="${stickyio.stickyioVID}"
+			data-stickyiooid="${stickyio.stickyioOID}"
+			data-stickyiobmid="${stickyio.stickyioBMID}"
+			data-stickyiotid="${stickyio.stickyioTID}"
+		>
+			<isset name="radioID" value="${dw.util.UUIDUtils.createUUID()}" scope="page" />
+			<label class="subscriptionlabel" for="stickyioproductbillingmodelselect">${Resource.msg('productdetail.title', 'stickyio', null)}:</label>
+			<ul>
+			<isif condition="${!stickyio.stickyioOID || (stickyio.stickyioOID === '1' && stickyio.stickyioBMID === '2')}">
+				<isset name="offerSelected" value="true" scope="page" />
+			</isif>
+			<isif condition="${stickyio.stickyioOneTimePurchase}">
+				<li data-oid="1">
+					<input class="subscriptionselect" type="radio" name="subscriptionSelect" id="${radioID}_1" value="Straight Sale" ${!stickyio.stickyioOID || stickyio.stickyioOID === '1' && stickyio.stickyioBMID === '2' ? 'checked' : ''} />
+					<label class="stickyioproductbillingmodeldetails" for="${radioID}_1">${Resource.msg('productdetail.label.straightsalebillingmodel', 'stickyio', null)}</label>
+					<select class="select-hiddenselect">
+						<option value="" selected>1</option>
+						<option value="${stickyio.stickyioBaseURL + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioOfferOptions=1&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioBillingModelOptions=2&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioTermOptions=0'}">2</option>
+					</select>
+				</li>
+			</isif>
+			<isloop items="${Object.keys(stickyio.offers)}" var="offer" status="offerStatus">
+				<isif condition="${!stickyio.offers[offer].hidden}">
+					<isset name="prepaid" value="false" scope="page" />
+					<isif condition="${stickyio.offers[offer].terms}">
+						<isset name="prepaid" value="true" scope="page" />
+					</isif>
+					<li data-oid="${offer}">
+						<isif condition="${!stickyio.stickyioBillingModelConsumerSelectable || stickyio.offers[offer].billingModels.length === 1}">
+							<isset name="noSelectBMID" value="${stickyio.offers[offer].billingModels[0].id}" scope="page" />
+						</isif>
+
+						<input class="subscriptionselect" type="radio" name="subscriptionSelect" id="${radioID}_${(parseInt(offer) + 1).toFixed(0)}" value="${stickyio.offers[offer].name}" ${typeof (offerSelected) === 'undefined' && stickyio.stickyioOID && (parseInt(stickyio.stickyioOID, 10) + 1).toFixed(0) === (parseInt(offer, 10) + 1).toFixed(0) ? 'checked' : ''} />
+						<label for="${radioID}_${(parseInt(offer, 10) + 1).toFixed(0)}">${Resource.msg('productdetail.label.offer_' + offer, 'stickyio', stickyio.offers[offer].name)}</label>
+						
+						<select class="select-hiddenselect">
+							<option value="" selected>1</option>
+							<option value="${stickyio.stickyioBaseURL + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioOfferOptions=' + offer + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioBillingModelOptions='}${typeof (noSelectBMID) !== 'undefined' ? noSelectBMID : '0'}${'&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioTermOptions=0'}${prepaid === 'true' ? '&offerType=prepaid' : ''}">2</option>
+						</select>
+
+						<isif condition="${stickyio.stickyioBillingModelConsumerSelectable}">
+							<isif condition="${stickyio.offers[offer].billingModels.length > 1}">
+								<isif condition="${stickyio.offers[offer].terms}">
+									<isif condition="${!stickyio.stickyioTermsConsumerSelectable || stickyio.stickyioTermsConsumerSelectable === 'null' || stickyio.offers[offer].terms.length === 1}">
+										<isset name="noSelectTermsID" value="${stickyio.offers[offer].terms[0].id}" scope="page" />
+										<isset name="noSelectTermsCycles" value="${stickyio.offers[offer].terms[0].cycles}" scope="page" />
+									</isif>
+								</isif>
+								<select class="stickyioproductbillingmodelselect custom-select select-stickyiobillingmodel">
+									<option value="${stickyio.stickyioBaseURL + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioOfferOptions=' + offer + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioBillingModelOptions=0&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioTermOptions='}${prepaid === 'true' && typeof (noSelectTermsID) !== 'undefined' ? noSelectTermsID : '0'}${prepaid === 'true' ? '&offerType=prepaid' : ''}">${Resource.msg('productdetail.selectdefault', 'stickyio', null)}</option>
+									<isloop items="${stickyio.offers[offer].billingModels}" var="billingmodel">
+										<option value="${stickyio.stickyioBaseURL + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioOfferOptions=' + offer + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioBillingModelOptions=' + billingmodel.id + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioTermOptions='}${prepaid === 'true' && typeof (noSelectTermsID) !== 'undefined' ? noSelectTermsID : '0'}${prepaid === 'true' ? '&offerType=prepaid' : ''}"
+											${stickyio.stickyioOID && stickyio.stickyioOID.toString() === offer && stickyio.stickyioBMID && stickyio.stickyioBMID.toString() === billingmodel.id ? 'selected' : ''}
+										>${Resource.msg('productdetail.label.billingmodel_' + billingmodel.id, 'stickyio', billingmodel.name)}</option>
+									</isloop>
+								</select>
+							<iselse/>
+								<isset name="billingModel" value="${stickyio.offers[offer].billingModels[0].id}" scope="page" />
+								<p class="nomargin"><span class="stickyioproductbillingmodeldetails">${Resource.msg('productdetail.label.billingmodel_' + stickyio.offers[offer].billingModels[0].id, 'stickyio', stickyio.offers[offer].billingModels[0].name)}</span></p>
+							</isif>
+						<iselse/>
+							<p class="nomargin"><span class="stickyioproductbillingmodeldetails">${Resource.msg('productdetail.label.billingmodel_' + stickyio.offers[offer].billingModels[0].id, 'stickyio', stickyio.offers[offer].billingModels[0].name)}</span></p>
+						</isif>
+						<isif condition="${stickyio.stickyioTermsConsumerSelectable}">
+							<isif condition="${stickyio.offers[offer].terms}">
+								<isif condition="${stickyio.offers[offer].terms.length > 1}">
+									<isset name="thisbillingmodel" value="${stickyio.stickyioOID && stickyio.stickyioOID === offer && stickyio.stickyioBMID ? stickyio.stickyioBMID : typeof (billingModel) !== 'undefined' ? billingModel : '0'}" scope="page" />
+									<select class="stickyioproducttermsselect custom-select select-stickyiocycles">
+										<option value="${stickyio.stickyioBaseURL + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioOfferOptions=' + offer + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioBillingModelOptions=' + thisbillingmodel + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioTermOptions=0' + '&offerType=prepaid'}">${Resource.msg('productdetail.selectdefaultterms', 'stickyio', null)}</option>
+										<isloop items="${stickyio.offers[offer].terms}" var="terms">
+											<option value="${stickyio.stickyioBaseURL + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioOfferOptions=' + offer + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioBillingModelOptions=' + thisbillingmodel + '&dwopt_' + stickyio.stickyioProductWrapper + '_stickyioTermOptions=' + terms.id + '&offerType=prepaid'}"
+												${stickyio.stickyioOID && stickyio.stickyioOID.toString() === offer && stickyio.stickyioTID && stickyio.stickyioTID === terms.id ? 'selected' : ''}
+											>${Resource.msg('productdetail.label.terms_' + terms.id, 'stickyio', terms.description)}</option>
+										</isloop>
+									</select>
+								<iselse/>
+									<p><span class="stickyioproductbillingmodeldetails">${Resource.msg('productdetail.label.terms_' + stickyio.offers[offer].terms[0].id, 'stickyio', stickyio.offers[offer].terms[0].description)}</span></p>
+								</isif>
+							</isif>
+						<iselse/>
+							<isif condition="${stickyio.offers[offer].terms}">
+								<p class="nomargin"><span class="stickyioproductbillingmodeldetails">${Resource.msg('productdetail.label.terms_' + stickyio.offers[offer].terms[0].id, 'stickyio', stickyio.offers[offer].terms[0].description)}</span></p>
+							</isif>
+						</isif>
+					</li>
+				</isif>	
+			</isloop>
+			</ul>
+		</div>
+	</div>
+</isif>

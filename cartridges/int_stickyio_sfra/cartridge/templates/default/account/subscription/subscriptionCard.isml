@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-header clearfix">
         <h3 class="pull-left">${Resource.msg('label.orderhistory.orderno','account',null)} ${subscription.orderNumbers[0].sfccOrderNo}</h3>
-        <isif condition="${subscription.orderData.nextRecurring}">
+        <isif condition="${subscription.orderData.nextRecurring && subscription.orderData.status !== 'canceled'}">
             <a href="${URLUtils.url('Subscriptions-Details', 'sid', subscription.subscriptionID, 'orderFilter', pdict.orderFilter)}" class="pull-right" aria-label="${Resource.msgf('label.manage', 'stickyio', null, subscription.subscriptionID)}">${Resource.msg('link.manage','stickyio',null)}</a>
         </isif>
     </div>
@@ -12,7 +12,7 @@
             </div>
             <div class="col-sm-8 col-12">
                 <p>${Resource.msg('label.subscriptionmanagement.productname','stickyio',null)}: <isprint value="${subscription.orderData.name}"/></p>
-                <isif condition="${subscription.orderData.nextRecurring}">
+                <isif condition="${subscription.orderData.nextRecurring && subscription.orderData.status !== 'canceled'}">
                     <p>${Resource.msg('label.subscriptionmanagement.nextrecurring','stickyio',null)}: <span ${subscription.orderData.status === 'hold' ? 'class=stickyiohold' : ''}><isprint value="${subscription.orderData.nextRecurring}"/></span></p>
                 </isif>
                 <p>${Resource.msg('label.subscriptionmanagement.status','stickyio',null)}: <span class="dashboard-order-card-status">${subscription.orderData.statusText}</span></p>
