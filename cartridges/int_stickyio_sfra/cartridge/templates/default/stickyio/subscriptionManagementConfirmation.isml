@@ -8,10 +8,11 @@
             <div class="col-12">
                 <label style="width: 15%; text-align: right; margin-top: 25px; margin-right: 10px;">
                     ${Resource.msg('label.subscriptionmanagement.note_type', 'stickyio', null)}
-                    <isif condition="${pdict.cancellationRequired}">
-                       <span style="color:red;">*</span>
-                    </isif>
                 </label>
+
+				<isif condition="${pdict.cancellationRequired}">
+					<span style="color:red;">*</span>
+				</isif>
 
                 <select id="select_notetype_id" class="select-notetype" style="width: 60%;">
                     <option id="0" value="0" selected>${Resource.msg('label.subscriptionmanagement.note_hint', 'stickyio', null)}</option>
@@ -25,10 +26,11 @@
             <div class="col-12">
                 <label style="width: 15%; text-align: right; margin-right: 10px;">
                     ${Resource.msg('label.subscriptionmanagement.note', 'stickyio', null)}
-                    <isif condition="${pdict.cancellationRequired}">
-                        <span style="color:red;">*</span>
-                    </isif>
                 </label>
+
+				<isif condition="${pdict.cancellationRequired}">
+					<span style="color:red;">*</span>
+				</isif>
 
                 <input type="text" id="cancellation_note" value="${Resource.msg('label.subscriptionmanagement.note_hint', 'stickyio', null)}" style="width: 60%; margin-bottom: 25px; background-color: #D1D1D1;" readonly/>
             </div>
@@ -41,14 +43,14 @@
 					'ID', pdict.ID,
 					'token', pdict.token,
 					'sid', pdict.sid,
-					pdict.bmid ? 'bmid' : '', pdict.bmid ? pdict.bmid : '', 
-					pdict.date ? 'date' : '', pdict.date ? pdict.date : '', 
+					pdict.bmid ? 'bmid' : '', pdict.bmid ? pdict.bmid : '',
+					pdict.date ? 'date' : '', pdict.date ? pdict.date : '',
 					'confirm', 1,
 					'cancellationRequired', pdict.cancellationRequired
 				)}"
 			>
 			${Resource.msg('button.subscriptionmanagement.confirm', 'stickyio', null)}
-			</button> 
+			</button>
 			<button class="stickyiocancelbutton" data-sid="${pdict.sid}">
 			${Resource.msg('button.subscriptionmanagement.cancel', 'stickyio', null)}
 			</button>

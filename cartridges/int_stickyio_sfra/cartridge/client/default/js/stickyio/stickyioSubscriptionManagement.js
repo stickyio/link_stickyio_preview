@@ -82,7 +82,7 @@ $('body').on('click', '.stickyioconfirmbutton', function () {
             isOk = false;
         }
     }
-    
+
     let url = $(this).data('href') + '&noteid=' + noteId + '&note=' + noteText;
 
     if (isOk) {
@@ -116,7 +116,7 @@ $('body').on('click', '.stickyCreditCardShow', function () {
 
 $('.stickyAddressForm').on('submit', function (e) {
     e.preventDefault();
- 
+
     $.ajax({
         url: $(this).attr('action'),
         method: 'POST',
@@ -130,7 +130,7 @@ $('.stickyAddressForm').on('submit', function (e) {
 
 $('.stickyPaymentForm').on('submit', function (e) {
     e.preventDefault();
- 
+
     $.ajax({
         url: $(this).attr('action'),
         method: 'POST',
@@ -169,7 +169,7 @@ $(document).ready(function () {
         if ($('.stickyiosubscriptionresponse').text()) {
             $('.stickyiosubscriptionresponse').addClass('stickyiosubmansuccess').show();
         }
-        cleave.handleCreditCardNumber('.cardNumber', '#cardType'); 
+        cleave.handleCreditCardNumber('.cardNumber', '#cardType');
         bindClose();
     }
 });
@@ -189,7 +189,7 @@ $('body').on('change', '.select-notetype', function () {
         $('#cancellation_note').css('background-color', '#FFFFFF');
         $('#cancellation_note').prop('readonly', false);
     }
-    
+
 });
 
 /**
@@ -327,7 +327,7 @@ function loadSwapProducts() {
 
     const options = {
         valueNames: [
-            'name', 
+            'name',
             'price',
             { data: ['id'] },
             { attr: 'src', name: 'image' },
@@ -440,9 +440,9 @@ function toast(message, reload = false) {
     let snackbar = document.getElementById("snackbar");
     snackbar.innerText = message;
     snackbar.className = "show";
-   
-    setTimeout(function(){ 
-        snackbar.className = snackbar.className.replace("show", ""); 
+
+    setTimeout(function(){
+        snackbar.className = snackbar.className.replace("show", "");
 
         if (reload) {
             window.location.reload();
@@ -456,7 +456,7 @@ function save(actionUrl) {
     }
 
     $.spinner().start();
- 
+
     $.ajax({
         url: actionUrl,
         method: 'GET',
@@ -477,19 +477,19 @@ function save(actionUrl) {
 
 $('body').on('click', '.saveBtn', function () {
     $('#productSwapModal').modal('hide');
- 
+
     let actionUrl = document.getElementById("save-btn").getAttribute('data-href');
- 
+
     if (newProductID.length > 0) {
         actionUrl += '&newProductID=' + newProductID;
     }
- 
+
     actionUrl += '&quantity=' + quantity;
 
     let nextOfferId = getNextOfferId();
     let nextBillingModelId = getNextBillingModelId(nextOfferId);
     actionUrl += '&offer=' + nextOfferId + '&billingmodel=' + nextBillingModelId;
- 
+
     getStickyProductVariantId(save, actionUrl);
 });
 
@@ -506,7 +506,7 @@ $('body').on('click', '.product_swap_btn', function () {
             $(element).removeClass();
             $(element).addClass('btn btn-primary product_swap_btn');
             $(element).html('Swap Product');
-            
+
             let productId = $(element).attr('id');
 
             $('#card-' + productId).css('background-color', '#ffffff');
@@ -591,22 +591,22 @@ function getStickyProductVariantId(callback = null, actionUrl = null) {
     let color = '';
     let newParams = '';
     newProductVariantID = 0;
- 
+
     $(".custom-select").each(function (index, element) {
         let classAttr = $(element).attr('class');
 
         if (classAttr.indexOf('custom-select form-control select-') >= 0) {
             let lastIndex = classAttr.lastIndexOf('select-');
             let attrId = classAttr.slice(lastIndex+7, classAttr.length);
- 
+
             if (value === '') {
                 value = $('.select-' + attrId).find(':selected').val();
                 let valueArray = value.split('?');
- 
+
                 if (valueArray.length >= 2) {
                     url = valueArray[0];
                     params = valueArray[1];
- 
+
                     let paramsArray = params.split('&');
                     for (let i = 0; i < paramsArray.length; i++) {
                         if (paramsArray[i].indexOf('dwvar_') >= 0 && dwvar === '') {
@@ -631,17 +631,17 @@ function getStickyProductVariantId(callback = null, actionUrl = null) {
         let attrValue = $(element).attr('aria-describedby');
         let label = $(element).attr('aria-label');
     });
- 
+
     if (newParams !== '') {
         newParams = color + '&' + newParams + '&' + pid + '&' + quantity;
- 
+
         $.ajax({
             url: url + '?' + newParams,
             method: 'GET',
             dataType: 'json',
             success: function (data) {
                 newProductVariantID = data.product.stickyio.stickyioVID ? data.product.stickyio.stickyioVID : 0;
- 
+
                 if (callback && actionUrl) {
                     callback(actionUrl);
                 }
@@ -673,3 +673,12 @@ function getNextBillingModelId(nextOfferId) {
 
     return nextBillingModelId;
 }
+
+$('body').on('input', '#cancellation_note', function () {
+    if ($('#cancellation_note').val() === '') {
+        $('.stickyioconfirmbutton').prop('disabled', true);
+    }
+    else {
+        $('.stickyioconfirmbutton').prop('disabled', false);
+    }
+});

@@ -142,10 +142,6 @@ base.addLineItem = function (
         defaultShipment
     );
 
-    if (product.bundle && childProducts.length) {
-        base.updateBundleProducts(productLineItem, childProducts);
-    }
-
     productLineItem.setQuantityValue(quantity);
 
     if (stickyioProductID) {

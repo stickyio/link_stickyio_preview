@@ -630,7 +630,7 @@
                 <min-length>0</min-length>
             </attribute-definition>
             <attribute-definition attribute-id="stickyioClientId">
-                <display-name xml:lang="x-default">stickyioClientID</display-name>
+                <display-name xml:lang="x-default">Sticky Client ID</display-name>
                 <description xml:lang="x-default">Used as part of authorization for Sticky notifications</description>
                 <type>string</type>
                 <mandatory-flag>false</mandatory-flag>
@@ -794,6 +794,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="stickyioOOSEmailEnabled">
+                <display-name xml:lang="x-default">Out Of Stock Email Enabled</display-name>
+                <description xml:lang="x-default">Send customer an out-of-stock email when a subscription product does not have enough quantity available to fulfill the order.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="stickyioMultiCurrencyOptions">
                 <display-name xml:lang="x-default">MultiCurrency options</display-name>
                 <description xml:lang="x-default">Internal object to map different currencies with the proper sticky's gateways</description>
@@ -803,6 +811,14 @@
             <attribute-definition attribute-id="stickyioProductSwapEnabled">
                 <display-name xml:lang="x-default">Enable Product Swap</display-name>
                 <description xml:lang="x-default">Create groups of products allowed to be swapped.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="stickyioSubManAllowSkipNow">
+                <display-name xml:lang="x-default">Allow Skip Next Cycle</display-name>
+                <description xml:lang="x-default">Allow the consumer to skip the next cycle for their subscription</description>
                 <type>boolean</type>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
@@ -825,6 +841,7 @@
                 <attribute attribute-id="stickyioPauseEmailEnabled"/>
                 <attribute attribute-id="stickyioReminderEmailEnabled"/>
                 <attribute attribute-id="stickyioReminderDaysOut"/>
+                <attribute attribute-id="stickyioOOSEmailEnabled"/>
                 <attribute attribute-id="stickyioForceRegisteredCheckout"/>
                 <attribute attribute-id="stickyioSubManAllowRecurringDate"/>
                 <attribute attribute-id="stickyioSubManAllowUpdateBillingModel"/>
@@ -833,6 +850,7 @@
                 <attribute attribute-id="stickyioSubManAllowTerminateNext"/>
                 <attribute attribute-id="stickyioSubManAllowReset"/>
                 <attribute attribute-id="stickyioSubManAllowBillNow"/>
+                <attribute attribute-id="stickyioSubManAllowSkipNow"/>
                 <attribute attribute-id="stickyioProductSwapEnabled"/>
             </attribute-group>
         </group-definitions>
