@@ -254,6 +254,7 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                     shipment.custom.stickyioOrderResponse = JSON.stringify(stickyioResponse.object.result);
                     paymentInstrument.custom.stickyioTempCustomerID = null;
                     paymentInstrument.custom.stickyioTokenExpiration = null;
+                    paymentInstrument.paymentTransaction.setTransactionID(stickyioResponse.object.result.transactionID);
                     for (i = 0; i < plis.length; i++) {
                         if (plis[i].custom.stickyioOfferID && plis[i].custom.stickyioOfferID !== 0) { // subscription product
                             thisPLIStickyID = plis[i].custom.stickyioProductID.toString();
