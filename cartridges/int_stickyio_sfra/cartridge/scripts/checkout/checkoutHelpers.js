@@ -211,12 +211,12 @@ base.placeOrderStickyio = function (order, fraudDetectionStatus) {
                     thisOffer.prepaid_cycles = parseInt(plis[i].custom.stickyioTermsID.split('-')[1], 10);
                     priceType = 'prepaid_price';
                 }
-                thisOffer[priceType] = plis[i].adjustedNetPrice.value; // price before tax
+                thisOffer[priceType] = plis[i].proratedPrice.value; // price before tax
                 thisProduct = plis[i].getProduct();
                 if (thisProduct && thisProduct.isVariant() && plis[i].custom.stickyioVariationID) { thisOffer.variant = { variant_id: plis[i].custom.stickyioVariationID }; }
                 offers.push(thisOffer);
             } else { // this is a non-subscription product
-                nonSubscriptionProduct.price += Number(plis[i].adjustedNetPrice.value);
+                nonSubscriptionProduct.price += Number(plis[i].proratedPrice.value);
             }
             if (plis[i].getTaxRate() > 0) { params.body.tax_rate = (plis[i].getTaxRate() * 100).toFixed(2); } // overall order tax rate, but there's a chance an item has 0% tax
         }
