@@ -227,8 +227,8 @@ function updateShippingMethod(shippingMethod, stickyioShippingMethodID) {
     var params = {};
     params.body = {};
     params.id = stickyioShippingMethodID;
-    params.body.name = shippingMethod.displayName;
-    params.body.description = shippingMethod.description ? shippingMethod.description : shippingMethod.displayName;
+    // params.body.name = shippingMethod.displayName; Enable only if you expect to change the name for shipping method that do not have any subscription associated, otherwise it will not work
+    params.body.description = shippingMethod.ID; // ? shippingMethod.description : shippingMethod.displayName; Same here
     var stickyioResponse = stickyioAPI('stickyio.http.put.shipping').call(params);
     if (stickyioResponse && !stickyioResponse.error && stickyioResponse.object && stickyioResponse.object.result.status === 'SUCCESS') {
         return stickyioResponse.object.result.data.id;
@@ -255,7 +255,7 @@ function updateShippingMethods(parameters) {
             var thisShippingMethod = shippingMethods[i];
             var skip = false;
             if (stickyioShippingMethods && thisShippingMethod.custom.stickyioShippingID && stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID]) { // shipping method exists
-                if (thisShippingMethod.displayName === stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID].name && thisShippingMethod.description === stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID].description) {
+                if (thisShippingMethod.displayName === stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID].name && thisShippingMethod.ID === stickyioShippingMethods[thisShippingMethod.custom.stickyioShippingID].description) {
                     skip = true;
                 } else {
                     var updatedShippingMethod = updateShippingMethod(thisShippingMethod, thisShippingMethod.custom.stickyioShippingID);
